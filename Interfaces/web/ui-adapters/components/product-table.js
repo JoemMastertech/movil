@@ -3,6 +3,7 @@
 import { getProductRepository } from '../../../../Shared/utils/diUtils.js';
 import { setSafeInnerHTML } from '../../../../Shared/utils/domUtils.js';
 import { logError, logWarning } from '../../../../Shared/utils/errorHandler.js';
+import { LiquorCategories } from './LiquorCategories.js';
 
 const ProductRenderer = {
   // Current view mode: 'table' or 'grid'
@@ -781,7 +782,7 @@ const ProductRenderer = {
     const licoresHTML = `
       <div class="category-grid" data-product-type="liquor" data-category="licores">
         <h2 class="page-title">Licores</h2>
-        ${this.createLicoresCategories()}
+        ${LiquorCategories.createLicoresCategories()}
         <div class="subcategory-prompt">
           <h3>Elige una categoría</h3>
         </div>
@@ -803,19 +804,7 @@ const ProductRenderer = {
     });
   },
 
-  createLicoresCategories: function() {
-    const productRepository = getProductRepository();
-    const licoresCategories = productRepository.getLicoresCategories();
-    
-    const html = licoresCategories.map(category => `
-      <div class="category-card" data-category="${category.nombre.toLowerCase()}">
-        <img src="${category.icono}" alt="${category.nombre}" class="category-image">
-        <h3 class="category-name">${category.nombre}</h3>
-      </div>
-    `).join('');
-    
-    return html;
-  },
+  // createLicoresCategories moved to LiquorCategories.js
 
   renderLicorSubcategory: function(container, category) {
     // Asignación segura: limpieza con cadena vacía, sin riesgo XSS
