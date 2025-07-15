@@ -1,0 +1,2046 @@
+/**
+ * Master Technology Bar - Main Stylesheet
+ * Implements dark theme with cyan accents and responsive design
+ * Uses CSS custom properties for consistent theming across components
+ * Includes animation systems and mobile-first responsive patterns
+ * 
+ * STRUCTURE:
+ * 1. CSS Custom Properties (Variables)
+ * 2. Global Reset & Base Styles
+ * 3. Typography & Branding
+ * 4. Navigation & Buttons
+ * 5. Layout Components (Headers, Containers, Grids)
+ * 6. Card Components
+ * 7. Media Elements
+ * 8. Modals
+ * 9. Forms & Inputs
+ * 10. Animations
+ * 11. Disabled States & Special Modes
+ * 12. Responsive Design (Mobile-First)
+ */
+
+/* =================================================================
+   CSS CUSTOM PROPERTIES (VARIABLES)
+   ================================================================= */
+:root {
+  /* Color System */
+  --primary-color: #f3f6f6;
+  --primary-light: white;
+  --price-color: #00f7ff;
+  --background-color: #000;
+  --text-color: #ECE9D8;
+  --card-bg: rgba(0, 0, 0, 0.7);
+  --price-bg: transparent;
+  --button-bg: transparent;
+  
+  /* Layout System */
+  --transition-time: 0.5s;
+  --table-margin: 30px;
+  --table-max-width: 900px;
+  --table-width: 75%;
+  
+  /* Interactive States */
+  --hover-bg: rgba(0, 247, 255, 0.1);
+  --border-color: #00f7ff40;
+  --glow-shadow: 0 0 10px rgba(0, 247, 255, 0.3);
+  --glow-shadow-hover: 0 0 20px var(--price-color);
+}
+
+/* =================================================================
+   GLOBAL RESET & BASE STYLES
+   ================================================================= */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  color: var(--text-color);
+  background: url("https://udtlqjmrtbcpdqknwuro.supabase.co/storage/v1/object/public/productos/recursos/fondos/fondo.webp") center/cover fixed;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#app {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+}
+
+.screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  background-color: transparent;
+}
+
+/* =================================================================
+   TYPOGRAPHY & BRANDING
+   ================================================================= */
+.welcome-text, .title-text, .category-title {
+  font-family: 'Playfair Display', serif;
+  color: var(--text-color);
+  text-align: center;
+  animation: fadeIn 1s ease-in-out;
+}
+
+.welcome-text { font-size: 3rem; }
+.title-text, .category-title { font-size: 2.5rem; }
+
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.logo {
+  max-width: 300px;
+  animation: fadeIn 1s ease-in-out;
+}
+
+.main-content-screen {
+  padding: 20px;
+  overflow-y: auto;
+  justify-content: flex-start;
+  background-color: transparent;
+}
+
+/* =================================================================
+   NAVIGATION & BUTTONS
+   ================================================================= */
+.navigation-menu {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.nav-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.nav-button, .view-toggle-btn {
+  background: transparent;
+  border: 2px solid var(--primary-color);
+  color: var(--text-color);
+  padding: 8px 15px;
+  font: 600 1rem 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: all var(--transition-time) ease;
+}
+
+.view-toggle-btn {
+  font-size: 1.2rem;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+  font-weight: bold;
+}
+
+.nav-button:hover, .nav-button.active, .view-toggle-btn:hover {
+  background-color: var(--primary-color);
+  color: var(--background-color);
+}
+
+.view-toggle-btn:hover {
+  transform: scale(1.05);
+}
+
+.view-toggle-btn.active {
+  background-color: var(--primary-color);
+  color: var(--background-color);
+}
+
+/* =================================================================
+   LAYOUT COMPONENTS - HEADERS & CONTAINERS
+   ================================================================= */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: var(--table-width); 
+  max-width: var(--table-max-width); 
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+}
+
+.page-title {
+  font-family: 'Playfair Display', serif;
+  color: var(--text-color);
+  font-size: 2rem;
+  text-align: center;
+  width: 100%;
+  margin: 0;
+  padding: 15px 20px;
+  background: transparent;
+  border-bottom: 2px solid var(--border-color);
+  margin-bottom: 15px;
+}
+
+#create-order-btn, #orders-btn {
+  position: relative;
+  z-index: 1;
+  min-width: 120px; 
+}
+
+#create-order-btn {
+  margin-left: auto;
+}
+
+.orders-screen {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.orders-screen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  width: 100%;
+  position: relative;
+}
+
+.orders-screen-title {
+  font-family: 'Playfair Display', serif;
+  color: var(--text-color);
+  font-size: 2rem;
+  text-align: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.orders-back-btn, .history-btn {
+  position: relative;
+  z-index: 1;
+}
+
+.history-btn {
+  margin-left: auto;
+}
+
+.content-wrapper {
+  display: flex;
+  width: 100%;
+  gap: 1.25px;
+  position: relative;
+  margin-top: 0;
+}
+
+#content-container {
+  width: 100%;
+  padding: 0;
+}
+
+.content-container-flex {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.content-container-flex .hamburger-btn {
+  position: relative;
+  top: unset;
+  left: unset;
+  margin-right: 20px;
+  margin-top: 20px;
+  position: sticky;
+  top: 20px;
+  z-index: 1000;
+}
+
+.video-icon, .image-icon {
+  cursor: pointer;
+  text-align: center;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+  /* backdrop-filter: blur(5px); */
+}
+
+.video-thumb {
+  width: 80px;
+  height: 56px;
+  object-fit: cover;
+  border: 2px solid var(--primary-light);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  box-shadow: 0 0 10px rgba(0, 247, 255, 0.3);
+}
+
+.video-thumb:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px var(--price-color);
+}
+
+[data-category="carnes"] .video-thumb {
+  width: 100px;
+  height: 70px;
+  border-radius: 6px;
+}
+
+[data-category="cafe"] .video-thumb {
+  width: 90px;
+  height: 60px;
+}
+
+[data-category="postres"] .video-thumb:hover {
+  transform: rotate(-2deg) scale(1.05);
+}
+
+[data-category="sopas"] .video-thumb {
+  border: 1px solid rgba(255, 165, 0, 0.3);
+}
+
+/* Consolidated responsive styles for video thumbnails */
+@media (max-width: 768px) {
+  .video-thumb { width: 70px; height: 49px; }
+}
+
+@media (max-width: 480px) {
+  .video-thumb { width: 60px; height: 42px; }
+}
+
+/* =================================================================
+   TABLES & GRID CONTAINERS
+   ================================================================= */
+.container, .product-table, .liquor-table, .category-grid, .product-grid {
+  width: var(--table-width);
+  max-width: var(--table-max-width);
+  margin: var(--table-margin) auto;
+  background: rgba(0, 247, 255, 0.02);
+  border-radius: 15px;
+  box-shadow: 0 0 20px var(--border-color);
+  position: relative;
+}
+
+.container {
+  border: 1px solid var(--primary-color);
+  background: var(--card-bg);
+}
+
+.product-table, .liquor-table {
+  border-collapse: separate;
+  border-spacing: 0 10px;
+  padding: 20px;
+}
+
+.product-table::before, .liquor-table::before, .category-grid::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 15px;
+  pointer-events: none;
+}
+
+.product-table th, .liquor-table th {
+  font: 600 1rem 'Montserrat', sans-serif;
+  color: var(--primary-color);
+  text-align: center;
+  padding: 15px 10px;
+  border-bottom: 2px solid var(--border-color);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.product-table th:first-child, .liquor-table th:first-child {
+  text-align: left;
+  padding-left: 15px;
+}
+
+.product-table td, .liquor-table td {
+  padding: 15px 10px;
+  background: transparent;
+  transition: all 0.3s ease;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.product-table td:first-child, .liquor-table td:first-child {
+  text-align: left;
+  padding-left: 15px;
+}
+
+.product-table td.product-name, .liquor-table td.product-name {
+  font: 600 1rem 'Montserrat', sans-serif;
+  color: var(--primary-color);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.product-table td.image-icon, .liquor-table td.image-icon,
+.product-table td.video-icon, .liquor-table td.video-icon,
+.product-table td.product-price, .liquor-table td.product-price {
+  text-align: center;
+  padding: 10px;
+  vertical-align: middle;
+}
+
+.product-table td.image-icon img, .liquor-table td.image-icon img {
+  display: block;
+  margin: 0 auto;
+}
+
+.product-table td.product-ingredients {
+  text-align: left;
+  padding: 15px 10px;
+}
+
+.product-table tr:hover td,
+.liquor-table tr:hover td {
+  background-color: rgba(0, 0, 0, 0.4);
+  transform: none;
+  box-shadow: none;
+}
+
+/* =================================================================
+   MEDIA ELEMENTS
+   ================================================================= */
+.image-icon img, .product-table td.image-icon img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  cursor: pointer;
+  animation: glow 2s infinite;
+  background: var(--primary-light);
+  border-radius: 10px;
+  padding: 5px;
+  transition: transform 0.3s ease;
+  display: block;
+}
+
+.liquor-table td.image-icon img {
+  width: 52px;
+  height: 52px;
+}
+
+.image-icon img:hover, .category-image:hover {
+  transform: scale(1.2);
+  box-shadow: var(--glow-shadow-hover);
+}
+
+.product-table td.image-icon {
+  text-align: left;
+  padding-left: 10px;
+  width: 60px;
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: var(--glow-shadow); }
+  50% { box-shadow: 0 0 15px rgba(0, 247, 255, 0.5); }
+}
+
+/* =================================================================
+   GRID LAYOUTS - RESPONSIVE SYSTEM
+   ================================================================= */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: auto auto auto;
+  gap: 20px;
+  row-gap: 10px;
+  padding: 20px;
+}
+
+.product-grid {
+  display: grid;
+  /* Nivel 1: Espacio fijo asignado - Grid base de 3 columnas para desktop */
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(15px, 2.5vw, 25px);
+  padding: clamp(15px, 2.5vw, 25px);
+  /* Contenedor con ancho máximo para mantener proporciones */
+  max-width: var(--table-max-width);
+  margin: 0 auto;
+  width: var(--table-width);
+}
+
+.category-grid .page-title, .product-grid .page-title {
+  grid-column: 1 / -1;
+  text-align: center;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.category-grid .page-title {
+  margin-bottom: 5px;
+}
+
+/* =================================================================
+   CARD COMPONENTS
+   ================================================================= */
+.category-card, .product-card {
+  background: var(--card-bg);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px;
+  box-shadow: 0 0 10px var(--border-color);
+}
+
+.category-card:hover, .product-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 5px 20px var(--price-color);
+}
+
+.category-image {
+  /* Tamaño responsivo que se adapta al grid de 5 columnas */
+  width: clamp(80px, 12vw, 130px);
+  height: clamp(80px, 12vw, 130px);
+  object-fit: contain;
+  margin-bottom: clamp(5px, 1vw, 10px);
+  animation: glow 2s infinite;
+  background: var(--primary-light);
+  border-radius: clamp(6px, 1vw, 10px);
+  transition: all 0.3s ease;
+}
+
+.category-name {
+  font: 600 1rem 'Montserrat', sans-serif;
+  color: white;
+  text-align: center;
+}
+
+/* Product Card - Adaptación dentro del espacio asignado */
+.product-card {
+  /* Altura flexible que se adapta al contenido pero mantiene consistencia */
+  min-height: clamp(300px, 35vh, 400px);
+  /* max-height: removido para permitir expansión según contenido */
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(15px, 1.8vw, 20px);
+  gap: clamp(10px, 1.2vw, 15px);
+}
+
+/* Product Card Elements - Sistema responsive de dos niveles */
+.product-card .product-name {
+  font: 600 1.1rem 'Montserrat', sans-serif;
+  color: white;
+  margin-bottom: 10px;
+  text-align: center;
+  order: 1;
+  
+  /* NIVEL 1: Espacio fijo asignado al componente - reducido 20% */
+  height: clamp(1.92rem, 2.88vw + 0.8rem, 2.56rem);
+  
+  /* NIVEL 2: Contenido se adapta al espacio disponible - aumentado 25% */
+  font-size: clamp(0.69rem, 1.46vw + 0.406rem, 0.975rem);
+  line-height: clamp(1.2, 1.5vw + 1rem, 1.4);
+  
+  /* Configuración sin truncamiento - texto completo visible */
+  display: block;
+  overflow: visible;
+  text-overflow: unset;
+  word-wrap: break-word;
+  hyphens: auto;
+  
+  /* Sin limitación de líneas - mostrar todo el contenido */
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  
+  /* Forzar ellipsis cuando el contenido excede el espacio */
+  position: relative;
+}
+
+/* Configuración específica para títulos de licores - aumentado 50% del tamaño anterior */
+.product-card.liquor-card .product-name {
+  /* Aumentar tamaño de fuente en 50% del tamaño anterior */
+  font-size: clamp(0.63rem, 1.35vw + 0.375rem, 0.9rem);
+  line-height: clamp(1.15, 1.8vw + 0.9rem, 1.35);
+  
+  /* Eliminar truncamiento para mostrar texto completo */
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  overflow: visible;
+  text-overflow: unset;
+  
+  /* Permitir que el texto se ajuste naturalmente - altura reducida 30% */
+  display: block;
+  height: clamp(1.62rem, 2.16vw + 0.864rem, 2.376rem);
+  min-height: unset;
+  
+  /* Asegurar que el texto sea legible */
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* Pseudo-elemento removido - ya no se necesita truncamiento */
+
+.product-card .product-media {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 15px;
+  min-height: 180px;
+  order: 2;
+  width: 100%;
+}
+
+.product-card .product-ingredients {
+  color: var(--text-color);
+  margin-bottom: 15px;
+  text-align: justify;
+  text-justify: inter-word;
+  opacity: 0.8;
+  flex-grow: 1;
+  order: 3;
+  
+  /* NIVEL 1: Altura completamente flexible - se adapta al contenido */
+  /* height: removido para permitir expansión natural */
+  
+  /* NIVEL 2: Contenido se adapta al espacio disponible - aumentado 25% */
+  font-size: clamp(0.7rem, 1.5vw + 0.3rem, 0.9rem);
+  line-height: clamp(1.2, 1.3vw + 1rem, 1.4);
+  
+  /* Configuración para texto 100% responsivo - sin restricciones */
+  display: block;
+  overflow: visible;
+  text-overflow: unset;
+  word-wrap: break-word;
+  hyphens: auto;
+  
+  /* Sin límite de líneas - texto libre */
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  
+  /* Permitir expansión natural del texto */
+  position: relative;
+  height: auto;
+  min-height: clamp(3.96rem, 4.95vw + 2.2rem, 5.5rem);
+  max-height: none;
+}
+
+/* Pseudo-elemento removido - ya no es necesario para texto libre */
+.product-card .product-ingredients::after {
+  display: none;
+}
+
+/* Configuración removida - sin truncamiento */
+.product-card .product-ingredients[data-truncated="true"]::after {
+  display: none;
+}
+
+/* Configuración general para imágenes de productos (nueva configuración mejorada) */
+.product-card .product-image {
+  width: 100%;
+  height: 180px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: var(--primary-light);
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+/* Configuración específica para imágenes de licores - completamente responsiva */
+.product-card.liquor-card .product-image {
+  /* Altura responsiva que se adapta al tamaño del grid */
+  height: clamp(120px, 15vw + 2vh, 200px);
+  width: 100%;
+  
+  /* Mantener proporciones y centrado */
+  object-fit: contain;
+  object-position: center;
+  
+  /* Transición suave para cambios de tamaño */
+  transition: all 0.3s ease;
+}
+
+/* Ajustar el contenedor de media para licores */
+.product-card.liquor-card .product-media {
+  /* Altura responsiva del contenedor */
+  min-height: clamp(120px, 15vw + 2vh, 200px);
+  height: auto;
+  
+  /* Centrado perfecto */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  /* Margen responsivo */
+  margin-bottom: clamp(8px, 1.2vw, 15px);
+}
+
+/* Configuración específica para thumbnails de video (mantener tamaño anterior) */
+.product-card .video-thumbnail {
+  width: 100%;
+  height: 140px; /* Tamaño anterior */
+  object-fit: cover; /* Tamaño anterior */
+  border-radius: 8px;
+  background: var(--primary-light);
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+/* Hover effects separados */
+.product-card .product-image:hover {
+  transform: scale(1.1);
+}
+
+.product-card .video-thumbnail:hover {
+  transform: scale(1.1);
+}
+
+/* Ajustar el contenedor de media para thumbnails */
+.product-card:has(.video-thumbnail) .product-media {
+  min-height: 140px; /* Mantener altura anterior para videos */
+}
+
+.product-card:has(.product-image) .product-media {
+  min-height: 180px; /* Nueva altura para imágenes */
+}
+
+.product-card .product-prices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  order: 4;
+  margin-top: auto;
+}
+
+/* Optimized liquor card layout styles */
+.product-card.liquor-card .product-prices {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: clamp(3px, 1.5%, 8px) !important;
+  align-items: flex-start !important;
+  width: 100% !important;
+  min-height: clamp(75px, 25%, 140px) !important;
+  justify-content: space-between !important;
+}
+
+.product-card.liquor-card .price-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: clamp(4px, 2%, 10px) !important;
+  width: 100% !important;
+  min-height: clamp(20px, 8%, 36px) !important;
+  flex-shrink: 0 !important;
+}
+
+.product-card.liquor-card .price-label {
+  color: var(--text-color);
+  font-size: clamp(0.55rem, 3% + 0.1rem, 0.8rem);
+  font-weight: 500;
+  min-width: clamp(35px, 20%, 60px);
+  opacity: 0.9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+/* Optimized liquor card price button styles - compactos como thumbnails */
+.product-card.liquor-card .price-button {
+  padding: 4px 8px !important;
+  font-size: 0.75rem !important;
+  min-width: 50px !important;
+  max-width: 100% !important;
+  flex: 1 !important;
+  min-height: 28px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  font-weight: 600 !important;
+  line-height: 1.1 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Optimized responsive styles for liquor cards */
+@media (max-width: 1200px) {
+  .product-card.liquor-card .price-button {
+    font-size: 0.7rem;
+    padding: 3px 6px;
+    min-width: 45px;
+  }
+  .product-card.liquor-card .price-label {
+    font-size: clamp(0.5rem, 3.5% + 0.05rem, 0.7rem);
+    min-width: clamp(30px, 25%, 50px);
+  }
+}
+
+@media (max-width: 900px) {
+  .product-card.liquor-card .price-button {
+    font-size: 0.65rem;
+    padding: 2px 5px;
+    min-width: 40px;
+  }
+  .product-card.liquor-card .price-label {
+    font-size: clamp(0.45rem, 4% + 0.02rem, 0.65rem);
+    min-width: clamp(25px, 30%, 45px);
+  }
+  .product-card.liquor-card .product-prices {
+    gap: clamp(2px, 1%, 6px);
+    min-height: clamp(60px, 30%, 120px);
+  }
+}
+
+/* Price Buttons */
+.price-button {
+  background: var(--price-bg, transparent);
+  color: var(--price-color);
+  border: 1px solid var(--price-color);
+  padding: 7px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all var(--transition-time) ease;
+  font: 600 0.9rem 'Montserrat', sans-serif;
+  min-height: 32px;
+}
+
+.price-button:hover {
+  background: var(--price-color);
+  color: var(--background-color);
+  transform: scale(1.05);
+}
+
+.price-button.non-selectable {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.price-button.non-selectable:hover {
+  transform: none;
+  background: var(--price-bg, transparent);
+  color: var(--price-color);
+}
+
+/* View Toggle */
+.view-toggle-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+  padding: 0 20px;
+}
+
+.subcategory-prompt {
+  grid-column: 1 / -1;
+  text-align: center;
+  margin: 5px 0 15px 0;
+}
+
+.subcategory-prompt h3 {
+  font-family: 'Playfair Display', serif;
+  color: var(--primary-color);
+  font-size: 1.3rem;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+/* =================================================================
+   MODALS
+   ================================================================= */
+.modal-backdrop, .modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-backdrop {
+  z-index: 9999;
+}
+
+.modal {
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.modal-content {
+  position: relative;
+  width: 80%;
+  max-width: 800px;
+  max-height: 85vh;
+  background: rgba(0, 0, 0, 0.95);
+  border-radius: 15px;
+  box-shadow: 0 0 30px var(--price-color);
+  border: 1px solid var(--border-color);
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Specific styling for image modals to reduce width */
+.modal-content.image-modal {
+  width: auto;
+  max-width: 600px;
+  padding: 20px 15px;
+}
+
+.modal-content h3 {
+  color: var(--primary-color);
+  margin-bottom: 20px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.modal-content h3 span {
+  display: block;
+  text-align: center;
+  margin-top: 8px;
+}
+
+.modal-content img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 60vh;
+  object-fit: contain;
+  border-radius: 10px;
+  margin: 15px 0;
+  animation: modalGlow 2s infinite;
+}
+
+@keyframes modalGlow {
+  0%, 100% { box-shadow: 0 0 10px rgba(0, 247, 255, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(0, 247, 255, 0.5); }
+}
+
+
+  
+  .modal-content {
+    width: 90%;
+    max-width: none;
+    padding: 20px 15px;
+    max-height: 85vh;
+    margin: 0;
+  }
+  
+  .modal-content h3 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    text-align: center;
+    line-height: 1.3;
+  }
+  
+  .options-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+  }
+  
+  .drink-option {
+    min-height: 70px;
+    padding: 12px 8px;
+  }
+  
+  .drink-option-name {
+    font-size: 0.95rem;
+  }
+  
+  .drink-option {
+    min-height: 45px;
+    padding: 10px 8px;
+    font-size: 0.9rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .drink-option-container {
+    padding: 10px 8px;
+    min-height: 70px;
+    gap: 8px;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  .drink-option-name {
+    font-size: 0.9rem;
+    text-align: center;
+    width: 100%;
+  }
+  
+  .counter-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .modal-actions {
+    margin-top: 15px;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .modal-actions .nav-button {
+    min-width: 80px;
+    padding: 10px 15px;
+    font-size: 0.9rem;
+  }
+  
+  .cooking-options {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    width: 100%;
+  }
+  
+  .cooking-option {
+    min-width: auto;
+    width: 100%;
+    padding: 12px;
+  }
+  
+  .ingredients-choice,
+  .garnish-choice {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+  
+  .ingredients-choice .nav-button,
+  .garnish-choice .nav-button {
+    width: 100%;
+    max-width: 200px;
+  }
+  
+  textarea {
+    min-height: 80px;
+    font-size: 0.9rem;
+    padding: 8px;
+  }
+  
+  .total-count-container {
+    font-size: 0.9rem;
+    padding: 6px;
+    margin: 10px 0;
+  }
+  
+  .drink-options-message {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 15px;
+    padding: 0 5px;
+  }
+/* Remove stray closing brace */
+
+@media (max-width: 480px) {
+  .modal {
+    padding: 2px;
+    padding-top: 10px;
+  }
+  
+  .modal-content {
+    width: 95%;
+    padding: 15px 10px;
+    max-height: 90vh;
+    border-radius: 10px;
+  }
+  
+  .modal-content h3 {
+    font-size: 1.1rem;
+  }
+  
+  .options-grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
+  }
+  
+  .drink-option {
+    min-height: 60px;
+    padding: 10px 6px;
+  }
+  
+  .drink-option-name {
+    font-size: 0.9rem;
+  }
+  
+  .options-grid {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 6px;
+    max-height: 40vh;
+    margin: 8px 0;
+  }
+  
+  .drink-option {
+    min-height: 40px;
+    padding: 8px 6px;
+    font-size: 0.8rem;
+  }
+  
+  .drink-option-container {
+    padding: 8px 6px;
+    min-height: 65px;
+    gap: 6px;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  .drink-option-name {
+    font-size: 0.8rem;
+  }
+  
+  .counter-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 1rem;
+  }
+  
+  .count-display {
+    width: 25px;
+    font-size: 0.9rem;
+  }
+  
+  .modal-actions .nav-button {
+    min-width: 70px;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+  
+  .cooking-option {
+    padding: 10px 8px;
+    font-size: 0.9rem;
+  }
+  
+  textarea {
+    min-height: 70px;
+    font-size: 0.8rem;
+    padding: 6px;
+  }
+  
+  .total-count-container {
+    font-size: 0.8rem;
+    padding: 5px;
+  }
+  
+  .drink-options-message {
+    font-size: 0.8rem;
+    line-height: 1.3;
+    margin-bottom: 12px;
+  }
+  
+  .exclusive-option-group {
+    padding: 10px;
+    gap: 8px;
+  }
+  
+  .jager-option-container {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+  
+  .jager-radio {
+    margin-right: 8px;
+  }
+}
+
+/* Portrait Orientation Modals */
+@media (max-width: 768px) and (orientation: portrait) {
+  .modal-content {
+    max-height: 80vh;
+  }
+  
+  .options-grid {
+    max-height: 30vh;
+  }
+  
+  .modal-content img {
+    max-height: 40vh;
+  }
+}
+
+@media (max-width: 480px) and (orientation: portrait) {
+  .modal-content {
+    max-height: 85vh;
+  }
+  
+  .options-grid {
+    max-height: 35vh;
+  }
+  
+  .modal-content img {
+    max-height: 35vh;
+  }
+}
+
+/* Optimized animations */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0, 247, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 247, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 247, 255, 0); } }
+.fade-in { animation: fadeIn 1s ease-in-out forwards; }
+.fade-out { animation: fadeOut 1s ease-in-out forwards; }
+
+/* =================================================================
+   ORDER SIDEBAR & FORMS
+   ================================================================= */
+#order-sidebar {
+  width: 360px;
+  padding: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(10px);
+  align-self: flex-start;
+  position: sticky;
+  top: 20px;
+  max-height: 80vh;
+  overflow-y: auto;
+  margin-top: var(--table-margin);
+  margin-left: 5px;
+  transition: all var(--transition-time) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#order-sidebar h3 {
+  color: var(--primary-color);
+  font: 1.5rem 'Playfair Display', serif;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.order-item {
+  border-bottom: 1px solid var(--border-color);
+  padding: 10px 0;
+  margin-bottom: 10px;
+}
+
+.order-item-name {
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 5px;
+}
+
+.order-item-price {
+  color: var(--price-color);
+  font-weight: 500;
+}
+
+.order-item-customization {
+  color: #ccc;
+  font-size: 0.85rem;
+  font-style: italic;
+  margin-top: 5px;
+}
+
+.order-total {
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 2px solid var(--border-color);
+}
+
+.order-total h4 {
+  font: 1.2rem 'Montserrat', sans-serif;
+  color: var(--price-color);
+  text-align: right;
+}
+
+.order-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.modal-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.modal-header, .modal-footer {
+  flex-shrink: 0;
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  width: 100%;
+  padding: 0 10px;
+}
+
+.options-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  padding: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.drink-option {
+  background: rgba(0, 247, 255, 0.1);
+  border: 2px solid var(--price-color);
+  border-radius: 6px;
+  padding: 11px 8px;
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 60px;
+  text-align: center;
+  word-break: break-word;
+  font-size: 0.9rem;
+}
+
+.drink-option:hover {
+  background: rgba(0, 247, 255, 0.2);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 247, 255, 0.3);
+}
+
+.drink-option.selected {
+  background: rgba(0, 247, 255, 0.3);
+  border-color: white;
+  box-shadow: 0 0 20px var(--price-color);
+  transform: scale(1.05);
+}
+
+.drink-option-name {
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.drink-option-price {
+  font-size: 0.9rem;
+  color: var(--price-color);
+  font-weight: bold;
+}
+
+.cooking-options {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.cooking-option {
+  min-width: 120px;
+}
+
+.cooking-option.selected {
+  background-color: var(--primary-color);
+  color: var(--background-color);
+}
+
+textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-color);
+  padding: 10px;
+  color: var(--text-color);
+  min-height: 100px;
+  margin-top: 15px;
+  font-family: 'Montserrat', sans-serif;
+  transition: all var(--transition-time) ease;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: var(--price-color);
+}
+
+.price-selection-mode .price-button:not(.product-grid .product-card.liquor-card .price-button) { background: rgba(0, 247, 255, 0.2); transform: scale(1.05); transition: all 0.3s ease; animation: pulse 2s infinite; }
+
+.remove-order-item {
+  background: transparent;
+  border: none;
+  color: #ff6b6b;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-left: 10px;
+}
+
+.order-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.drink-options-message {
+  color: var(--primary-color);
+  margin-bottom: 20px;
+  text-align: center;
+  font-style: italic;
+  max-width: 100%;
+  word-wrap: break-word;
+}
+
+.total-count-container {
+  width: 100%;
+  text-align: center;
+  margin: 15px 0;
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  color: var(--price-color);
+}
+
+.drink-option-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-time) ease;
+  min-height: 80px;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.drink-option-container.selected {
+  background-color: rgba(0, 247, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 247, 255, 0.3);
+}
+
+.drink-option-name {
+  font-weight: 500;
+  margin-bottom: 8px;
+  text-align: center;
+  width: 100%;
+}
+
+.counter-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.counter-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all var(--transition-time) ease;
+}
+
+.counter-btn:hover:not(:disabled) {
+  background-color: var(--primary-color);
+  color: var(--background-color);
+}
+
+.counter-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.count-display {
+  width: 30px;
+  text-align: center;
+  font-weight: bold;
+  color: var(--price-color);
+  font-size: 1.1rem;
+  min-width: 30px;
+}
+
+.saved-orders {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.saved-order {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(10px);
+  padding: 15px;
+  margin-bottom: 15px;
+  transition: all var(--transition-time) ease;
+}
+
+.saved-order h3 {
+  color: var(--primary-color);
+  font: 1.3rem 'Playfair Display', serif;
+  margin-bottom: 10px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 5px;
+}
+
+.saved-order-items {
+  margin-bottom: 10px;
+}
+
+.saved-order-item {
+  padding: 5px 0;
+  margin-bottom: 5px;
+  border-bottom: 1px solid rgba(0, 247, 255, 0.1);
+}
+
+.saved-order-item-name {
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 3px;
+}
+
+.saved-order-item-price {
+  color: var(--price-color);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.saved-order-item-customization {
+  color: #ccc;
+  font-size: 0.85rem;
+  font-style: italic;
+  margin-top: 3px;
+}
+
+.saved-order-total {
+  color: var(--price-color);
+  font-weight: 600;
+  text-align: right;
+  margin: 10px 0;
+  font-size: 1.1rem;
+}
+
+.delete-order-btn {
+  background: rgba(255, 99, 71, 0.2);
+  border-color: rgba(255, 99, 71, 0.5);
+  color: rgba(255, 99, 71, 1);
+  margin: 0 auto;
+  display: block;
+}
+
+.delete-order-btn:hover {
+  background: rgba(255, 99, 71, 0.8);
+  color: white;
+}
+
+/* Consolidated tablet responsive styles */
+@media (max-width: 768px) {
+  :root { --table-width: 95%; --table-margin: 15px; }
+  .content-wrapper { flex-direction: column; gap: 5px; }
+  #order-sidebar { 
+    width: 100%; 
+    margin: 20px 0 0 0; 
+    padding: 15px;
+    max-height: 70vh;
+  }
+  #order-sidebar h3 {
+    font-size: 1.3rem;
+    margin-bottom: 12px;
+  }
+  .order-item {
+    padding: 8px 0;
+    margin-bottom: 8px;
+  }
+  .order-item-name {
+    font-size: 0.9rem;
+  }
+  .order-item-price {
+    font-size: 0.85rem;
+  }
+  .order-item-customization {
+    font-size: 0.8rem;
+  }
+  .order-total h4 {
+    font-size: 1.1rem;
+  }
+  .order-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .modal-content { width: 90%; padding: 15px; }
+  .options-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+  .product-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 15px; }
+  .category-grid { grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 15px; }
+  .category-image { width: clamp(70px, 10vw, 110px); height: clamp(70px, 10vw, 110px); }
+  .view-toggle-container { padding: 0 15px; }
+  .product-card { min-height: 280px; height: auto; /* max-height removido */ }
+  .product-card .product-name { font-size: 0.81rem; height: clamp(1.386rem, 2.07vw + 0.576rem, 1.845rem); -webkit-line-clamp: unset; line-clamp: unset; overflow: visible; text-overflow: unset; display: block; }
+  .product-card .product-ingredients { font-size: 0.75rem; }
+  .product-card .product-media { min-height: 140px; }
+  .product-card .video-thumbnail { height: 120px; }
+  .product-card:has(.video-thumbnail) .product-media { min-height: 120px; }
+  .modal { padding: 5px; align-items: flex-start; padding-top: 20px; }
+  .content-wrapper.order-active { gap: 2px; }
+  #order-sidebar { margin-left: 0; transform: none; }
+  .modal-content[data-category="refrescos"], .modal-content[data-category="cervezas"] { width: 63%; }
+}
+
+/* Optimized disabled states and selection modes */
+.price-button:disabled { cursor: not-allowed; opacity: 0.5; }
+.price-button.non-selectable:hover, .price-button:disabled:hover { background: transparent; transform: none; box-shadow: none; }
+.price-selection-mode .price-button.non-selectable, .price-selection-mode .price-button:disabled { animation: none; background: transparent; transform: none; }
+.price-selection-mode .product-grid .product-card.liquor-card .price-button { background: rgba(0, 247, 255, 0.2); animation: pulse 2s infinite; transform: scale(1.02); }
+
+/* =================================================================
+   RESPONSIVE DESIGN - TABLET (481px - 768px)
+   ================================================================= */
+@media (min-width: 481px) and (max-width: 768px) {
+  .product-grid .product-card.liquor-card .price-button,
+  .product-grid .product-card.liquor-card .price-button:not(.non-selectable),
+  .product-grid .product-card.liquor-card .price-button:not(:disabled) {
+    /* Configuración compacta como thumbnails */
+    padding: 3px 6px;
+    font-size: 0.7rem;
+    min-width: 45px;
+    background: var(--button-bg);
+    border: 1px solid var(--border-color);
+    transform: none;
+    animation: none;
+    /* Mantener flexibilidad */
+    flex: 1;
+    max-width: 100%;
+  }
+}
+
+/* Consolidated mobile responsive styles */
+@media (max-width: 480px) {
+  :root { --table-width: 98%; --table-margin: 10px; }
+  .welcome-text, .title-text, .category-title { font-size: 2rem; }
+  .nav-row { flex-direction: column; gap: 5px; }
+  .product-table th, .product-table td { padding: 8px 5px; }
+  #content-container { padding: 0 5px; }
+  #order-sidebar {
+    width: 100%;
+    margin: 15px 0 0 0;
+    padding: 12px;
+    max-height: 60vh;
+    position: relative;
+    top: 0;
+  }
+  #order-sidebar h3 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+  }
+  .order-item {
+    padding: 6px 0;
+    margin-bottom: 6px;
+  }
+  .order-item-name {
+    font-size: 0.85rem;
+    line-height: 1.2;
+  }
+  .order-item-price {
+    font-size: 0.8rem;
+  }
+  .order-item-customization {
+    font-size: 0.75rem;
+    margin-top: 3px;
+  }
+  .order-total {
+    margin-top: 15px;
+    padding-top: 8px;
+  }
+  .order-total h4 {
+    font-size: 1rem;
+  }
+  .order-actions {
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 15px;
+  }
+  .order-item-header {
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .remove-order-item {
+    font-size: 0.9rem;
+    margin-left: 5px;
+  }
+  .category-grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: auto auto auto repeat(5, auto); gap: 10px; padding: 10px; }
+  .category-image { width: clamp(60px, 8vw, 90px); height: clamp(60px, 8vw, 90px); }
+  .product-grid { grid-template-columns: 1fr; gap: 15px; padding: 15px; }
+  .product-card { min-height: 260px; height: auto; /* max-height removido */ }
+  .product-card .product-name { font-size: 0.775rem; height: clamp(1.386rem, 2.07vw + 0.576rem, 1.845rem); -webkit-line-clamp: unset; line-clamp: unset; overflow: visible; text-overflow: unset; display: block; }
+  .product-card .product-ingredients { font-size: 0.7rem; }
+  .product-card .product-media { min-height: 120px; }
+  .product-card .video-thumbnail { height: clamp(80px, 12vh, 120px); }
+  .product-card:has(.video-thumbnail) .product-media { min-height: clamp(80px, 12vh, 120px); }
+  .product-grid .product-card.liquor-card .price-button,
+  .product-grid .product-card.liquor-card .price-button:not(.non-selectable),
+  .product-grid .product-card.liquor-card .price-button:not(:disabled) {
+    padding: 2px 5px;
+    font-size: 0.65rem;
+    min-width: 40px;
+    background: var(--button-bg);
+    border: 1px solid var(--border-color);
+    transform: none;
+    animation: none;
+    flex: 1;
+    max-width: 100%;
+    min-height: 26px;
+  }
+  .view-toggle-container { padding: 0 15px; }
+  .options-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; max-height: 60vh; overflow-y: auto; }
+  .drink-option { min-height: 40px; padding: 10px 8px; }
+  .drink-option-container { padding: 10px; min-height: 70px; flex-direction: column; justify-content: center; text-align: center; }
+}
+
+/* =================================================================
+   RESPONSIVE DESIGN - LANDSCAPE TABLETS (768px - 1024px)
+   ================================================================= */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+  /* Layout adjustments for landscape */
+  .content-wrapper { flex-direction: row; }
+  #order-sidebar { 
+    width: 280px; 
+    margin-left: 5px;
+    padding: 18px;
+    max-height: 75vh;
+  }
+  #order-sidebar h3 {
+    font-size: 1.4rem;
+  }
+  .order-item {
+    padding: 9px 0;
+  }
+  .order-item-name {
+    font-size: 0.95rem;
+  }
+  .order-item-price {
+    font-size: 0.9rem;
+  }
+  .order-total h4 {
+    font-size: 1.15rem;
+  }
+  
+  .product-grid { grid-template-columns: repeat(3, 1fr); gap: 18px; padding: 18px; }
+  .category-grid { grid-template-columns: repeat(4, 1fr); gap: 18px; padding: 18px; }
+  .category-image { width: clamp(90px, 11vw, 120px); height: clamp(90px, 11vw, 120px); }
+  .product-card { min-height: 280px; height: auto; /* max-height removido */ }
+  .product-card .product-name { font-size: 0.81rem; height: clamp(1.386rem, 2.07vw + 0.576rem, 1.845rem); -webkit-line-clamp: unset; line-clamp: unset; overflow: visible; text-overflow: unset; display: block; }
+  .product-card .product-ingredients { font-size: 0.8rem; }
+}
+
+/* =================================================================
+   TOUCH TARGETS - TABLETS (max-width: 1024px)
+   ================================================================= */
+@media (max-width: 1024px) {
+  .nav-button {
+    min-height: 44px;
+  }
+  
+  .price-button:not(.product-card.liquor-card .price-button) {
+    min-height: 44px;
+  }
+  
+  .counter-btn {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* =================================================================
+   RESPONSIVE DESIGN - LARGE DESKTOP (min-width: 1200px)
+   ================================================================= */
+@media (min-width: 1200px) {
+  #order-sidebar {
+    width: 380px;
+    padding: 22px;
+    max-height: 85vh;
+  }
+  
+  #order-sidebar h3 {
+    font-size: 1.6rem;
+    margin-bottom: 18px;
+  }
+  
+  .order-item {
+    padding: 12px 0;
+    margin-bottom: 12px;
+  }
+  
+  .order-item-name {
+    font-size: 1rem;
+    margin-bottom: 6px;
+  }
+  
+  .order-item-price {
+    font-size: 0.95rem;
+  }
+  
+  .order-item-customization {
+    font-size: 0.9rem;
+    margin-top: 6px;
+  }
+  
+  .order-total {
+    margin-top: 25px;
+    padding-top: 12px;
+  }
+  
+  .order-total h4 {
+    font-size: 1.3rem;
+  }
+  
+  .order-actions {
+    margin-top: 25px;
+    gap: 12px;
+  }
+  
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 1400px;
+    gap: 25px;
+    padding: 25px;
+  }
+  
+  .category-grid {
+    grid-template-columns: repeat(5, 1fr);
+    max-width: 1400px;
+    gap: 25px;
+    padding: 25px;
+  }
+  
+  .category-image {
+    width: clamp(110px, 13vw, 150px);
+    height: clamp(110px, 13vw, 150px);
+  }
+  
+  .product-card {
+    min-height: 350px;
+    height: auto;
+    /* max-height removido para permitir expansión */
+  }
+  
+  .product-card .product-name {
+    font-size: 0.975rem;
+    height: clamp(1.386rem, 2.07vw + 0.576rem, 1.845rem);
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    overflow: visible;
+    text-overflow: unset;
+    display: block;
+  }
+  
+  .product-card .product-ingredients {
+    font-size: 0.9rem;
+  }
+}
+
+.password-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-color);
+  padding: 10px;
+  color: var(--text-color);
+  margin: 15px 0;
+  font-family: 'Montserrat', sans-serif;
+  transition: all var(--transition-time) ease;
+}
+
+.password-input:focus {
+  outline: none;
+  border-color: var(--price-color);
+}
+
+.clear-history-btn {
+  background: rgba(255, 99, 71, 0.2);
+  border-color: rgba(255, 99, 71, 0.5);
+  color: rgba(255, 99, 71, 1);
+  margin-left: auto;
+}
+
+.clear-history-btn:hover {
+  background: rgba(255, 99, 71, 0.8);
+  color: white;
+}
+
+/* =================================================================
+   NAVIGATION DRAWER & HAMBURGER MENU
+   ================================================================= */
+.hamburger-btn {
+  position: fixed;
+  top: 20px; 
+  left: calc((100vw - var(--table-width)) / 2 - 80px);
+  background: var(--card-bg);
+  border: 2px solid var(--primary-color);
+  color: var(--text-color);
+  font-size: 1.5rem;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 1000;
+  transition: all var(--transition-time) ease;
+}
+
+.hamburger-btn:hover {
+  background-color: var(--primary-color);
+  color: var(--background-color);
+}
+
+@media (max-width: 768px) {
+  .hamburger-btn { left: calc((100vw - var(--table-width)) / 2 - 60px); }
+}
+
+@media (max-width: 480px) {
+  .hamburger-btn { left: calc((100vw - var(--table-width)) / 2 - 50px); }
+}
+
+.back-button-container {
+  position: fixed;
+  top: 80px; 
+  left: calc((100vw - var(--table-width)) / 2 - 80px);
+  z-index: 1000;
+}
+
+.back-button {
+  background: var(--card-bg);
+  border: 2px solid var(--primary-color);
+  color: var(--text-color);
+  font-size: 1.5rem;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all var(--transition-time) ease;
+  backdrop-filter: blur(10px);
+  font-weight: bold;
+}
+
+.back-button:hover {
+  background-color: var(--primary-color);
+  color: var(--background-color);
+}
+
+@media (max-width: 768px) {
+  .back-button-container { left: calc((100vw - var(--table-width)) / 2 - 60px); }
+}
+
+@media (max-width: 480px) {
+  .back-button-container { left: calc((100vw - var(--table-width)) / 2 - 50px); }
+}
+
+/* Optimized drawer menu */
+.drawer-menu { position: fixed; top: 0; left: 0; width: 300px; height: 100vh; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(10px); z-index: 999; transform: translateX(-100%); transition: transform 0.3s ease-in-out; overflow-y: auto; border-right: 1px solid var(--border-color); box-shadow: 3px 0 15px rgba(0, 247, 255, 0.2); }
+.drawer-menu.open { transform: translateX(0); }
+.drawer-content { padding: 80px 20px 20px 20px; display: flex; flex-direction: column; gap: 15px; }
+.drawer-logo-container { display: flex; justify-content: center; margin-bottom: 10px; }
+.drawer-logo { width: 100px; height: auto; object-fit: contain; margin-bottom: 10px; }
+.drawer-footer { margin-top: 20px; text-align: center; font-size: 0.9rem; color: var(--primary-color); opacity: 0.8; font-style: italic; }
+.drawer-menu .nav-button { width: 100%; text-align: left; padding: 12px 15px; font: 700 1.1rem 'Playfair Display', serif; text-transform: none; transition: all 0.3s ease; border: 1.4px solid var(--border-color); box-shadow: 0 0 10px var(--border-color); background: rgba(0, 247, 255, 0.02); border-radius: 5px; }
+.drawer-menu .nav-button:hover, .drawer-menu .nav-button.active { background-color: transparent; transform: scale(1.02); border-color: var(--price-color); color: var(--price-color); box-shadow: 0 0 15px var(--price-color); }
+.drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 998; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+.drawer-overlay.active { opacity: 1; pointer-events: all; }
+
+.title-row {
+  background: transparent;
+}
+
+.title-row td {
+  padding: 0;
+  background: transparent;
+}
+
+.content-wrapper.order-active {
+  gap: 1px;
+  justify-content: flex-start;
+  transition: gap 0.2s ease-in-out;
+}
+
+.content-container-flex {
+  margin-right: -1.5px;
+}
+
+
+
+/* =================================================================
+   CATEGORY-SPECIFIC STYLES
+   ================================================================= */
+.product-table[data-category="refrescos"],
+.product-table[data-category="cervezas"] {
+  width: calc(var(--table-width) * 0.75);
+  max-width: calc(var(--table-max-width) * 0.75);
+  table-layout: fixed;
+}
+
+.product-table[data-category="refrescos"] th,
+.product-table[data-category="cervezas"] th,
+.product-table[data-category="refrescos"] td,
+.product-table[data-category="cervezas"] td {
+  text-align: center;
+}
+
+.product-table[data-category="refrescos"] th:first-child,
+.product-table[data-category="cervezas"] th:first-child,
+.product-table[data-category="refrescos"] td.product-name,
+.product-table[data-category="cervezas"] td.product-name {
+  text-align: left;
+  padding-left: 15px;
+  width: 45%;
+}
+
+.product-table[data-category="refrescos"] th:nth-child(2), .product-table[data-category="cervezas"] th:nth-child(2), .product-table[data-category="refrescos"] td:nth-child(2), .product-table[data-category="cervezas"] td:nth-child(2) { width: 25%; }
+.product-table[data-category="refrescos"] th:nth-child(3), .product-table[data-category="cervezas"] th:nth-child(3), .product-table[data-category="refrescos"] td:nth-child(3), .product-table[data-category="cervezas"] td:nth-child(3) { width: 30%; }
+.modal-content[data-category="refrescos"], .modal-content[data-category="cervezas"] { width: 56%; max-width: 560px; }
+@media (max-width: 768px) { .product-table[data-category="refrescos"] th:nth-child(2), .product-table[data-category="refrescos"] td:nth-child(2), .product-table[data-category="cervezas"] th:nth-child(2), .product-table[data-category="cervezas"] td:nth-child(2) { width: 30%; } }
+@media (max-width: 480px) { .product-table[data-category="refrescos"] th:nth-child(2), .product-table[data-category="refrescos"] td:nth-child(2), .product-table[data-category="cervezas"] th:nth-child(2), .product-table[data-category="cervezas"] td:nth-child(2) { width: 35%; } }
+.exclusive-option-group { background: rgba(0, 247, 255, 0.05); border: 1px solid rgba(0, 247, 255, 0.2); border-radius: 8px; padding: 15px; margin: 15px 0; display: flex; flex-direction: column; gap: 10px; }
+.exclusive-option-group h4 { color: var(--primary-color); margin: 0 0 10px 0; font-size: 1rem; text-align: center; }
+.jager-option-container { display: flex; align-items: center; padding: 10px; background: rgba(0, 0, 0, 0.3); border-radius: 5px; transition: background-color 0.3s ease; cursor: pointer; font-size: 1rem; }
+.jager-option-container:hover { background: rgba(0, 247, 255, 0.1); }
+.jager-option-container.selected { background: rgba(0, 247, 255, 0.2); transform: translateY(-2px); box-shadow: 0 2px 8px rgba(0, 247, 255, 0.3); }
+.jager-radio { margin-right: 10px; accent-color: var(--primary-color); }
+.jager-label { font-weight: 500; color: var(--text-color); }
