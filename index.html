@@ -40,6 +40,11 @@
   <script src="Shared/libs/purify.min.js"></script>
 </head>
 <body>
+  <!-- Background video -->
+  <video id="background-video" autoplay muted loop playsinline>
+    <source src="https://udtlqjmrtbcpdqknwuro.supabase.co/storage/v1/object/public/productos/recursos/fondos/fondorojo.mp4" type="video/mp4">
+  </video>
+  
   <div id="app">
     <div id="drawer-overlay" class="drawer-overlay"></div>
     <div id="drawer-menu" class="drawer-menu">
@@ -51,16 +56,16 @@
     <div class="screen welcome-screen">
       <h1 class="welcome-text">¡BIENVENIDOS!</h1>
     </div>
-    <div class="screen logo-screen" style="display: none;">
+    <div class="screen logo-screen screen-hidden">
       <div class="logo-container">
         <img src="https://udtlqjmrtbcpdqknwuro.supabase.co/storage/v1/object/public/productos/recursos/logos/Logo5.webp" alt="Master Technology Bar Logo" class="logo">
         <h2 class="title-text">Master Technology Bar</h2>
       </div>
     </div>
-    <div class="screen category-title-screen" style="display: none;">
+    <div class="screen category-title-screen screen-hidden">
       <h2 class="category-title">Coctelería</h2>
     </div>
-    <div class="screen main-content-screen" style="display: none;" data-category="cocteleria">
+    <div class="screen main-content-screen screen-hidden" data-category="cocteleria">
       <div class="page-header">
         <button id="hamburger-btn" class="hamburger-btn">☰</button>
         <!-- Page title removed from here as it's now integrated into tables -->
@@ -68,16 +73,16 @@
       <div class="content-wrapper">
         <div class="content-container-flex">
           <div id="content-container"></div>
-        </div>
-        <div id="order-sidebar" style="display: none;">
-          <h3>Tu Orden</h3>
-          <div id="order-items"></div>
-          <div class="order-total">
-            <h4>Total: <span id="order-total-amount">$0.00</span></h4>
-          </div>
-          <div class="order-actions">
-            <button id="complete-order-btn" class="nav-button">Completar Orden</button>
-            <button id="cancel-order-btn" class="nav-button">Cancelar</button>
+          <div id="order-sidebar" class="sidebar-hidden">
+            <h3>Tu Orden</h3>
+            <div id="order-items"></div>
+            <div class="order-total">
+              <h4>Total: <span id="order-total-amount">$0.00</span></h4>
+            </div>
+            <div class="order-actions">
+              <button id="complete-order-btn" class="nav-button">Completar Orden</button>
+              <button id="cancel-order-btn" class="nav-button">Cancelar</button>
+            </div>
           </div>
         </div>
       </div>
@@ -85,12 +90,12 @@
   </div>
 
   <!-- Modals -->
-  <div id="drink-options-modal" class="modal" style="display: none;"></div>
-  <div id="food-customization-modal" class="modal" style="display: none;"></div>
-  <div id="meat-customization-modal" class="modal" style="display: none;"></div>
+  <div id="drink-options-modal" class="modal modal-hidden"></div>
+  <div id="food-customization-modal" class="modal modal-hidden"></div>
+  <div id="meat-customization-modal" class="modal modal-hidden"></div>
   
   <!-- Modal Templates -->
-  <div id="modal-templates" style="display: none;">
+  <div id="modal-templates" class="screen-hidden">
     <!-- Drink Options Modal Template -->
     <template id="drink-options-template">
       <div class="modal-content">
@@ -111,7 +116,7 @@
           <button id="keep-ingredients-btn" class="nav-button">Sí</button>
           <button id="customize-ingredients-btn" class="nav-button">No</button>
         </div>
-        <div id="ingredients-input-container" style="display: none;">
+        <div id="ingredients-input-container" class="input-container-hidden">
           <textarea id="ingredients-to-remove" placeholder="Indique los ingredientes que desea quitar"></textarea>
           <div class="modal-actions">
             <button id="confirm-ingredients-btn" class="nav-button">Confirmar</button>
@@ -135,7 +140,7 @@
           <button id="change-garnish-btn" class="nav-button">Sí</button>
           <button id="keep-garnish-btn" class="nav-button">No</button>
         </div>
-        <div id="garnish-input-container" style="display: none;">
+        <div id="garnish-input-container" class="input-container-hidden">
           <textarea id="garnish-modifications" placeholder="Indique los cambios en la guarnición"></textarea>
           <div class="modal-actions">
             <button id="confirm-garnish-btn" class="nav-button">Confirmar</button>

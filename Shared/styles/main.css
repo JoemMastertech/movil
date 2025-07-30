@@ -1,87 +1,56 @@
-/**
- * Master Technology Bar - Main Stylesheet
- * Implements dark theme with cyan accents and responsive design
- * Uses CSS custom properties for consistent theming across components
- * Includes animation systems and mobile-first responsive patterns
- * 
- * STRUCTURE:
- * 1. CSS Custom Properties (Variables)
- * 2. Global Reset & Base Styles
- * 3. Typography & Branding
- * 4. Navigation & Buttons
- * 5. Layout Components (Headers, Containers, Grids)
- * 6. Card Components
- * 7. Media Elements
- * 8. Modals
- * 9. Forms & Inputs
- * 10. Animations
- * 11. Disabled States & Special Modes
- * 12. Responsive Design (Mobile-First)
- */
-
-/* =================================================================
-   CSS CUSTOM PROPERTIES (VARIABLES)
-   ================================================================= */
+/* Master Technology Bar - Optimized Stylesheet */
 :root {
-  /* Color System */
+  /* Primary Colors */
   --primary-color: #f3f6f6;
-  --primary-light: white;
-  --price-color: #00f7ff;
+  --accent-color: #00f7ff;
   --background-color: #000;
   --text-color: #ECE9D8;
-  --card-bg: rgba(0, 0, 0, 0.7);
-  --price-bg: transparent;
-  --button-bg: transparent;
+  --price-color: #00f7ff;
   
-  /* Layout System */
-  --transition-time: 0.5s;
-  --table-margin: 30px;
-  --table-max-width: 900px;
-  --table-width: 75%;
-  
-  /* Interactive States */
-  --hover-bg: rgba(0, 247, 255, 0.1);
+  /* Component Colors */
+  --card-bg: rgba(0,0,0,0.7);
   --border-color: #00f7ff40;
   --glow-shadow: 0 0 10px rgba(0, 247, 255, 0.3);
-  --glow-shadow-hover: 0 0 20px var(--price-color);
+  --glow-shadow-hover: 0 0 20px rgba(0, 247, 255, 0.6);
+  
+  /* Layout Variables */
+  --transition-time: 0.3s;
+  --table-width: 95%;
+  --table-max-width: 1400px;
+  --table-margin: 20px;
+  
+  /* Legacy support */
+  --primary: #f3f6f6;
+  --accent: #00f7ff;
+  --bg: #000;
+  --text: #ECE9D8;
+  --card: rgba(0,0,0,0.7);
+  --border: #00f7ff40;
+  --transition: 0.3s;
 }
 
-/* =================================================================
-   GLOBAL RESET & BASE STYLES
-   ================================================================= */
-*, *::before, *::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Montserrat', sans-serif;
-  color: var(--text-color);
-  background: url("https://udtlqjmrtbcpdqknwuro.supabase.co/storage/v1/object/public/productos/recursos/fondos/fondo.webp") center/cover fixed;
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-#app {
-  width: 100%;
-  min-height: 100vh;
-  position: relative;
-}
-
-.screen {
-  position: absolute;
+/* Background video styles */
+#background-video {
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 1;
-  background-color: transparent;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  opacity: 0.4;
 }
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Montserrat', sans-serif; color: var(--text); background: var(--background-color); min-height: 100vh; overflow-y: auto; }
+#app { 
+  width: 70%; 
+  min-height: 100vh; 
+  position: relative; 
+  margin: 0 auto;
+  transition: margin-left 0.3s ease-in-out;
+}
+.screen { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1; }
 
 /* =================================================================
    TYPOGRAPHY & BRANDING
@@ -105,12 +74,28 @@ body {
 
 .logo {
   max-width: 300px;
+  height: auto;
   animation: fadeIn 1s ease-in-out;
+  filter: drop-shadow(0 0 10px rgba(0, 247, 255, 0.3));
+  transition: all var(--transition-time) ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 20px rgba(0, 247, 255, 0.6));
+}
+
+/* Logo específico para la página */
+.main-logo {
+  content: url('https://udtlqjmrtbcpdqknwuro.supabase.co/storage/v1/object/public/productos/recursos/logos/Logo5.webp');
+  max-width: 300px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
 }
 
 .main-content-screen {
   padding: 20px;
-  overflow-y: auto;
   justify-content: flex-start;
   background-color: transparent;
 }
@@ -247,14 +232,16 @@ body {
 .content-wrapper {
   display: flex;
   width: 100%;
-  gap: 1.25px;
+  gap: 0px;
   position: relative;
   margin-top: 0;
+  padding-right: 0px;
 }
 
 #content-container {
-  width: 100%;
+  flex: 1;
   padding: 0;
+  margin-right: 0;
 }
 
 .content-container-flex {
@@ -262,6 +249,7 @@ body {
   align-items: flex-start;
   justify-content: flex-start;
   width: 100%;
+  gap: 20px;
 }
 
 .content-container-flex .hamburger-btn {
@@ -287,16 +275,13 @@ body {
   width: 80px;
   height: 56px;
   object-fit: cover;
-  border: 2px solid var(--primary-light);
   border-radius: 8px;
   cursor: pointer;
   transition: transform 0.3s ease;
-  box-shadow: 0 0 10px rgba(0, 247, 255, 0.3);
 }
 
 .video-thumb:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 20px var(--price-color);
 }
 
 [data-category="carnes"] .video-thumb {
@@ -334,7 +319,7 @@ body {
   width: var(--table-width);
   max-width: var(--table-max-width);
   margin: var(--table-margin) auto;
-  background: rgba(0, 247, 255, 0.02);
+  background: var(--card-bg);
   border-radius: 15px;
   box-shadow: 0 0 20px var(--border-color);
   position: relative;
@@ -427,11 +412,10 @@ body {
   width: 40px;
   height: 40px;
   object-fit: contain;
+  background: white;
   cursor: pointer;
   animation: glow 2s infinite;
-  background: var(--primary-light);
   border-radius: 10px;
-  padding: 5px;
   transition: transform 0.3s ease;
   display: block;
 }
@@ -455,6 +439,21 @@ body {
 @keyframes glow {
   0%, 100% { box-shadow: var(--glow-shadow); }
   50% { box-shadow: 0 0 15px rgba(0, 247, 255, 0.5); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
 }
 
 /* =================================================================
@@ -519,9 +518,9 @@ body {
   width: clamp(80px, 12vw, 130px);
   height: clamp(80px, 12vw, 130px);
   object-fit: contain;
+  background: white;
   margin-bottom: clamp(5px, 1vw, 10px);
   animation: glow 2s infinite;
-  background: var(--primary-light);
   border-radius: clamp(6px, 1vw, 10px);
   transition: all 0.3s ease;
 }
@@ -657,9 +656,8 @@ body {
   width: 100%;
   height: 180px;
   object-fit: contain;
+  background: white;
   border-radius: 8px;
-  background: var(--primary-light);
-  padding: 0;
   cursor: pointer;
   transition: transform 0.3s ease;
 }
@@ -673,6 +671,7 @@ body {
   /* Mantener proporciones y centrado */
   object-fit: contain;
   object-position: center;
+  background: white;
   
   /* Transición suave para cambios de tamaño */
   transition: all 0.3s ease;
@@ -699,7 +698,6 @@ body {
   height: 140px; /* Tamaño anterior */
   object-fit: cover; /* Tamaño anterior */
   border-radius: 8px;
-  background: var(--primary-light);
   padding: 0;
   cursor: pointer;
   transition: transform 0.3s ease;
@@ -732,24 +730,26 @@ body {
   margin-top: auto;
 }
 
-/* Optimized liquor card layout styles */
+/* =================================================================
+   LIQUOR CARD LAYOUT STYLES - CLEANED
+   ================================================================= */
 .product-card.liquor-card .product-prices {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: clamp(3px, 1.5%, 8px) !important;
-  align-items: flex-start !important;
-  width: 100% !important;
-  min-height: clamp(75px, 25%, 140px) !important;
-  justify-content: space-between !important;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3px, 1.5%, 8px);
+  align-items: flex-start;
+  width: 100%;
+  min-height: clamp(75px, 25%, 140px);
+  justify-content: space-between;
 }
 
 .product-card.liquor-card .price-item {
-  display: flex !important;
-  align-items: center !important;
-  gap: clamp(4px, 2%, 10px) !important;
-  width: 100% !important;
-  min-height: clamp(20px, 8%, 36px) !important;
-  flex-shrink: 0 !important;
+  display: flex;
+  align-items: center;
+  gap: clamp(4px, 2%, 10px);
+  width: 100%;
+  min-height: clamp(20px, 8%, 36px);
+  flex-shrink: 0;
 }
 
 .product-card.liquor-card .price-label {
@@ -764,24 +764,24 @@ body {
   line-height: 1.2;
 }
 
-/* Optimized liquor card price button styles - compactos como thumbnails */
+/* Liquor card price buttons - compact thumbnail style */
 .product-card.liquor-card .price-button {
-  padding: 4px 8px !important;
-  font-size: 0.75rem !important;
-  min-width: 50px !important;
-  max-width: 100% !important;
-  flex: 1 !important;
-  min-height: 28px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  text-align: center !important;
-  font-weight: 600 !important;
-  line-height: 1.1 !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  transition: all 0.2s ease !important;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  min-width: 50px;
+  max-width: 100%;
+  flex: 1;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: 600;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.2s ease;
 }
 
 /* Optimized responsive styles for liquor cards */
@@ -867,8 +867,10 @@ body {
 }
 
 /* =================================================================
-   MODALS
+   MODALS - CONSOLIDATED STYLES
    ================================================================= */
+
+/* Modal backdrop */
 .modal-backdrop, .modal {
   position: fixed;
   inset: 0;
@@ -888,34 +890,141 @@ body {
   box-sizing: border-box;
 }
 
+/* Base modal content - SINGLE SOURCE OF TRUTH */
 .modal-content {
   position: relative;
-  width: 80%;
-  max-width: 800px;
-  max-height: 85vh;
+  width: 30%;
+  max-width: 400px;
+  max-height: 78.2vh;
   background: rgba(0, 0, 0, 0.95);
   border-radius: 15px;
   box-shadow: 0 0 30px var(--price-color);
   border: 1px solid var(--border-color);
-  padding: 30px 20px;
+  padding: 25px 15px;
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
 }
 
-/* Specific styling for image modals to reduce width */
+/* Drink options modal specific sizing - Horizontal layout */
+#drink-options-modal .modal-content {
+  width: 60%;
+  max-width: 700px;
+  max-height: 92vh;
+  padding: 20px;
+  min-width: 450px;
+  border-radius: 12px;
+  height: auto;
+}
+
+/* Meat customization modal specific sizing */
+#meat-customization-modal .modal-content {
+  width: 42%;
+  max-width: 535px;
+  max-height: 43.7vh;
+  padding: 21px;
+  aspect-ratio: 1.4/1;
+}
+
+/* RESPONSIVE MODAL ADJUSTMENTS - CONSISTENT SIZING */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    max-width: none;
+    padding: 20px 15px;
+  }
+  
+  #drink-options-modal .modal-content {
+    width: auto;
+    max-width: 400px;
+    max-height: none;
+    padding: 12px;
+    min-width: 300px;
+    border-radius: 10px;
+  }
+  
+  #meat-customization-modal .modal-content {
+    width: 72%;
+    max-width: none;
+    max-height: 54.05vh;
+    aspect-ratio: 1.2/1;
+    padding: 17px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal {
+    padding: 5px;
+    padding-top: 15px;
+  }
+  
+  .modal-content {
+    width: 98%;
+    padding: 15px 10px;
+    border-radius: 10px;
+  }
+  
+  .modal-content h3 {
+    font-size: 1.1rem;
+  }
+  
+  #drink-options-modal .modal-content {
+    width: auto;
+    max-width: 350px;
+    max-height: none;
+    padding: 10px;
+    min-width: 280px;
+    border-radius: 8px;
+  }
+  
+  #meat-customization-modal .modal-content {
+    width: 75%;
+    max-width: none;
+    max-height: 56.35vh;
+    aspect-ratio: 1.1/1;
+    padding: 13px;
+  }
+}
+
+/* Image modals exception */
 .modal-content.image-modal {
   width: auto;
-  max-width: 600px;
+  max-width: 450px;
   padding: 20px 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
+/* Video modal specific styles */
+.modal-content.image-modal.video-modal {
+  width: 69.83%; /* Increased another 10% from 63.48% (total 45.48% from original 48%) */
+  max-width: 699px; /* Increased another 10% from 635px (total 45.63% from original 480px) */
+}
+
+/* Modal content elements */
 .modal-content h3 {
   color: var(--primary-color);
-  margin-bottom: 20px;
+  margin-bottom: 2.25vh;
   text-align: center;
   line-height: 1.4;
+  font-size: clamp(0.9rem, 2.25vw, 1.26rem);
+  font-weight: 600;
+}
+
+/* Drink options modal specific title */
+#drink-options-modal .modal-content h3 {
+  font-size: 1rem;
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+
+/* Meat modal specific title sizing */
+#meat-customization-modal .modal-content h3 {
+  font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+  margin-bottom: 2vh;
 }
 
 .modal-content h3 span {
@@ -928,11 +1037,30 @@ body {
   width: auto;
   height: auto;
   max-width: 100%;
-  max-height: 60vh;
+  max-height: 50vh;
   object-fit: contain;
   border-radius: 10px;
-  margin: 15px 0;
+  margin: 10px 0;
   animation: modalGlow 2s infinite;
+}
+
+.modal-content.image-modal video {
+  width: 100%;
+  border-radius: 5px;
+}
+
+.modal-content.image-modal .error-message {
+  color: var(--text-color);
+  text-align: center;
+  padding: 20px;
+}
+
+.modal-content.image-modal .nav-button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  display: block;
+  margin: 10px auto 0;
+  align-self: center;
 }
 
 @keyframes modalGlow {
@@ -940,62 +1068,24 @@ body {
   50% { box-shadow: 0 0 30px rgba(0, 247, 255, 0.5); }
 }
 
+/* Product table and image styles */
+.product-table {
+  width: var(--table-width);
+  max-width: var(--table-max-width);
+}
 
-  
-  .modal-content {
-    width: 90%;
-    max-width: none;
-    padding: 20px 15px;
-    max-height: 85vh;
-    margin: 0;
-  }
-  
-  .modal-content h3 {
-    font-size: 1.2rem;
-    margin-bottom: 15px;
-    text-align: center;
-    line-height: 1.3;
-  }
-  
-  .options-grid {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 12px;
-  }
-  
-  .drink-option {
-    min-height: 70px;
-    padding: 12px 8px;
-  }
-  
-  .drink-option-name {
-    font-size: 0.95rem;
-  }
-  
-  .drink-option {
-    min-height: 45px;
-    padding: 10px 8px;
-    font-size: 0.9rem;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .drink-option-container {
-    padding: 10px 8px;
-    min-height: 70px;
-    gap: 8px;
-    align-items: center;
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
-  }
-  
-  .drink-option-name {
-    font-size: 0.9rem;
-    text-align: center;
-    width: 100%;
-  }
+.product-image {
+  object-fit: contain;
+  cursor: pointer;
+}
+
+.video-hidden {
+  display: none;
+}
+
+
+
+
   
   .counter-container {
     display: flex;
@@ -1009,6 +1099,7 @@ body {
     flex-wrap: wrap;
     justify-content: center;
     width: 100%;
+    display: flex;
   }
   
   .modal-actions .nav-button {
@@ -1017,11 +1108,24 @@ body {
     font-size: 0.9rem;
   }
   
+  /* Drink options modal specific button actions */
+  #drink-options-modal .modal-actions {
+    margin-top: 10px;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  
+  #drink-options-modal .modal-actions .nav-button {
+    min-width: 70px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+  
   .cooking-options {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     margin-bottom: 15px;
     width: 100%;
   }
@@ -1029,20 +1133,23 @@ body {
   .cooking-option {
     min-width: auto;
     width: 100%;
-    padding: 12px;
+    padding: 10px 8px;
+    font-size: 0.9rem;
   }
   
   .ingredients-choice,
   .garnish-choice {
-    flex-direction: column;
+    flex-direction: row;
     gap: 10px;
     width: 100%;
+    justify-content: center;
   }
   
   .ingredients-choice .nav-button,
   .garnish-choice .nav-button {
-    width: 100%;
-    max-width: 200px;
+    flex: 1;
+    max-width: 120px;
+    text-align: center;
   }
   
   textarea {
@@ -1063,64 +1170,7 @@ body {
     margin-bottom: 15px;
     padding: 0 5px;
   }
-/* Remove stray closing brace */
-
-@media (max-width: 480px) {
-  .modal {
-    padding: 2px;
-    padding-top: 10px;
-  }
-  
-  .modal-content {
-    width: 95%;
-    padding: 15px 10px;
-    max-height: 90vh;
-    border-radius: 10px;
-  }
-  
-  .modal-content h3 {
-    font-size: 1.1rem;
-  }
-  
-  .options-grid {
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 10px;
-  }
-  
-  .drink-option {
-    min-height: 60px;
-    padding: 10px 6px;
-  }
-  
-  .drink-option-name {
-    font-size: 0.9rem;
-  }
-  
-  .options-grid {
-    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-    gap: 6px;
-    max-height: 40vh;
-    margin: 8px 0;
-  }
-  
-  .drink-option {
-    min-height: 40px;
-    padding: 8px 6px;
-    font-size: 0.8rem;
-  }
-  
-  .drink-option-container {
-    padding: 8px 6px;
-    min-height: 65px;
-    gap: 6px;
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
-  }
-  
-  .drink-option-name {
-    font-size: 0.8rem;
-  }
+/* Duplicated styles removed - consolidated in main sections */
   
   .counter-btn {
     width: 28px;
@@ -1140,8 +1190,14 @@ body {
   }
   
   .cooking-option {
+    min-width: 100px;
+    max-width: 120px;
     padding: 10px 8px;
     font-size: 0.9rem;
+  }
+  
+  .cooking-options {
+    gap: 10px;
   }
   
   textarea {
@@ -1174,12 +1230,11 @@ body {
   .jager-radio {
     margin-right: 8px;
   }
-}
 
 /* Portrait Orientation Modals */
 @media (max-width: 768px) and (orientation: portrait) {
   .modal-content {
-    max-height: 80vh;
+    max-height: 92vh;
   }
   
   .options-grid {
@@ -1193,7 +1248,7 @@ body {
 
 @media (max-width: 480px) and (orientation: portrait) {
   .modal-content {
-    max-height: 85vh;
+    max-height: 97.75vh;
   }
   
   .options-grid {
@@ -1215,20 +1270,37 @@ body {
 /* =================================================================
    ORDER SIDEBAR & FORMS
    ================================================================= */
+/* =================================================================
+   ORDER SIDEBAR - BASE STYLES (DESKTOP)
+   ================================================================= */
 #order-sidebar {
-  width: 360px;
-  padding: 20px;
+  width: 240px;
+  padding: 15px;
   background: var(--card-bg);
   border: 1px solid var(--border-color);
+  border-radius: 8px;
   backdrop-filter: blur(10px);
-  align-self: flex-start;
-  position: sticky;
+  position: fixed;
   top: 20px;
-  max-height: 80vh;
+  right: 20px;
+  max-height: calc(100vh - 40px);
   overflow-y: auto;
-  margin-top: var(--table-margin);
-  margin-left: 5px;
-  transition: all var(--transition-time) cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-x: hidden;
+  z-index: 1000;
+  box-shadow: var(--glow-shadow);
+  display: none;
+  transition: all var(--transition-time) ease;
+  box-sizing: border-box;
+}
+
+.order-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 5px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 #order-sidebar h3 {
@@ -1242,12 +1314,20 @@ body {
   border-bottom: 1px solid var(--border-color);
   padding: 10px 0;
   margin-bottom: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .order-item-name {
   font-weight: 600;
   color: var(--primary-color);
   margin-bottom: 5px;
+  width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .order-item-price {
@@ -1260,6 +1340,10 @@ body {
   font-size: 0.85rem;
   font-style: italic;
   margin-top: 5px;
+  width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .order-total {
@@ -1279,13 +1363,76 @@ body {
   display: flex;
   gap: 10px;
   justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
+  flex-direction: row;
+}
+
+.order-actions button {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 8px;
+  font-size: 0.9rem;
 }
 
 .modal-actions {
-  margin-top: 20px;
+  margin-top: 2.25vh;
   display: flex;
-  gap: 15px;
+  gap: 1.8vw;
   justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Centrar específicamente los botones de Sí/No en modales de carnes */
+.ingredients-choice,
+.garnish-choice {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  width: 100%;
+  margin-top: 13.5px;
+}
+
+/* Meat modal specific spacing */
+#meat-customization-modal .ingredients-choice,
+#meat-customization-modal .garnish-choice {
+  gap: 3%;
+  margin-top: 2vh;
+}
+
+/* Meat modal specific button sizing */
+#meat-customization-modal .ingredients-choice .nav-button,
+#meat-customization-modal .garnish-choice .nav-button {
+  flex: 0 0 auto;
+  min-width: 28%;
+  max-width: 32%;
+  padding: 1.2vh 1.6vw;
+  text-align: center;
+  font-size: clamp(0.7rem, 1.6vw, 0.9rem);
+  font-weight: 600;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.ingredients-choice .nav-button,
+.garnish-choice .nav-button {
+  flex: 0 0 auto;
+  min-width: 31.5%;
+  max-width: 36%;
+  padding: 1.35vh 1.8vw;
+  text-align: center;
+  font-size: clamp(0.81rem, 1.98vw, 0.99rem);
+  font-weight: 600;
+  border-radius: 7.2px;
+  transition: all 0.3s ease;
+}
+
+.ingredients-choice .nav-button:hover,
+.garnish-choice .nav-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 247, 255, 0.4);
 }
 
 .modal-header, .modal-footer {
@@ -1307,14 +1454,22 @@ body {
 
 .options-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
   padding: 10px;
   width: 100%;
   box-sizing: border-box;
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
+}
+
+/* Drink options modal specific grid adjustments */
+#drink-options-modal .options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  width: 100%;
+  align-content: start;
+  justify-content: center;
 }
 
 .drink-option {
@@ -1333,6 +1488,24 @@ body {
   text-align: center;
   word-break: break-word;
   font-size: 0.9rem;
+}
+
+/* Drink options modal specific button styling */
+#drink-options-modal .drink-option {
+  min-height: 50px;
+  padding: 10px 8px;
+  font-size: 1rem;
+  border-radius: 8px;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+  flex-shrink: 0;
+  font-weight: 500;
+  word-wrap: break-word;
+  hyphens: auto;
+  line-height: 1.3;
+  width: 100%;
 }
 
 .drink-option:hover {
@@ -1362,13 +1535,30 @@ body {
 
 .cooking-options {
   display: flex;
+  flex-direction: row;
+  align-items: center;
   justify-content: center;
-  gap: 15px;
-  margin-bottom: 20px;
+  gap: 1.5%;
+  margin-bottom: 2vh;
+  width: 100%;
+  flex-wrap: wrap;
 }
 
 .cooking-option {
-  min-width: 120px;
+  min-width: 28%;
+  width: auto;
+  max-width: 32%;
+  padding: 1.2vh 1.5vw;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  flex: 0 0 auto;
+}
+
+.cooking-option:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 247, 255, 0.3);
 }
 
 .cooking-option.selected {
@@ -1380,11 +1570,12 @@ textarea {
   width: 100%;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid var(--border-color);
-  padding: 10px;
+  padding: 1.35vh 1.8vw;
   color: var(--text-color);
-  min-height: 100px;
-  margin-top: 15px;
+  min-height: 10.8vh;
+  margin-top: 1.8vh;
   font-family: 'Montserrat', sans-serif;
+  font-size: clamp(0.81rem, 1.8vw, 0.9rem);
   transition: all var(--transition-time) ease;
 }
 
@@ -1402,6 +1593,9 @@ textarea:focus {
   cursor: pointer;
   font-size: 1rem;
   margin-left: 10px;
+  flex-shrink: 0;
+  min-width: 24px;
+  padding: 2px;
 }
 
 .order-item-header {
@@ -1442,6 +1636,7 @@ textarea:focus {
   width: 100%;
   box-sizing: border-box;
   text-align: center;
+  border-radius: 8px;
 }
 
 .drink-option-container.selected {
@@ -1574,12 +1769,25 @@ textarea:focus {
 /* Consolidated tablet responsive styles */
 @media (max-width: 768px) {
   :root { --table-width: 95%; --table-margin: 15px; }
+  body { font-size: 14px; }
   .content-wrapper { flex-direction: column; gap: 5px; }
+  
+  /* En tablets y móviles, no desplazar el contenedor maestro */
+  body.order-mode-active #app {
+    margin-left: auto;
+  }
+  
+  /* ORDER SIDEBAR - TABLET RESPONSIVE */
   #order-sidebar { 
-    width: 100%; 
+    width: 100%;
+    position: relative;
+    top: auto;
+    right: auto;
     margin: 20px 0 0 0; 
     padding: 15px;
     max-height: 70vh;
+    overflow-x: hidden;
+    box-sizing: border-box;
   }
   #order-sidebar h3 {
     font-size: 1.3rem;
@@ -1602,16 +1810,53 @@ textarea:focus {
     font-size: 1.1rem;
   }
   .order-actions {
-    flex-direction: column;
+    flex-direction: row;
     gap: 8px;
   }
-  .modal-content { width: 90%; padding: 15px; }
-  .options-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+  
+  .order-actions button {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 6px;
+    font-size: 0.85rem;
+  }
+  
+  /* Drink options modal responsive adjustments for tablet */
+  #drink-options-modal .modal-content {
+    width: 85%;
+    max-width: 750px;
+    min-width: 450px;
+    max-height: 80vh;
+  }
+  
+  #drink-options-modal .options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+    gap: 18px;
+    padding: 18px;
+    align-content: start;
+    justify-content: center;
+  }
+  
+  #drink-options-modal .drink-option {
+    min-height: 45px;
+    padding: 9px 7px;
+    font-size: 0.95rem;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    font-weight: 500;
+    word-wrap: break-word;
+    hyphens: auto;
+    line-height: 1.3;
+    width: 100%;
+  }
   .product-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 15px; }
   .category-grid { grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 15px; }
   .category-image { width: clamp(70px, 10vw, 110px); height: clamp(70px, 10vw, 110px); }
   .view-toggle-container { padding: 0 15px; }
-  .product-card { min-height: 280px; height: auto; /* max-height removido */ }
+  .product-card { min-height: 280px; height: auto; }
   .product-card .product-name { font-size: 0.81rem; height: clamp(1.386rem, 2.07vw + 0.576rem, 1.845rem); -webkit-line-clamp: unset; line-clamp: unset; overflow: visible; text-overflow: unset; display: block; }
   .product-card .product-ingredients { font-size: 0.75rem; }
   .product-card .product-media { min-height: 140px; }
@@ -1619,8 +1864,21 @@ textarea:focus {
   .product-card:has(.video-thumbnail) .product-media { min-height: 120px; }
   .modal { padding: 5px; align-items: flex-start; padding-top: 20px; }
   .content-wrapper.order-active { gap: 2px; }
-  #order-sidebar { margin-left: 0; transform: none; }
-  .modal-content[data-category="refrescos"], .modal-content[data-category="cervezas"] { width: 63%; }
+  
+  /* Hamburger and back button positioning */
+  .hamburger-btn { left: calc((100vw - var(--table-width)) / 2 + 15px); }
+  .back-button-container {
+    left: calc((100vw - var(--table-width)) / 2 + 15px);
+    top: 80px;
+  }
+  
+  /* Category-specific table adjustments */
+  .product-table[data-category="refrescos"] th:nth-child(2), 
+  .product-table[data-category="refrescos"] td:nth-child(2), 
+  .product-table[data-category="cervezas"] th:nth-child(2), 
+  .product-table[data-category="cervezas"] td:nth-child(2) { 
+    width: 30%; 
+  }
 }
 
 /* Optimized disabled states and selection modes */
@@ -1648,22 +1906,56 @@ textarea:focus {
     flex: 1;
     max-width: 100%;
   }
+  
+  /* Image modal responsive for tablet */
+  .modal-content.image-modal {
+    max-width: 437px; /* Increased 15% from 380px */
+    padding: 15px 12px;
+  }
+  
+  .modal-content.image-modal.video-modal {
+    width: 55.2%; /* Increased 15% from 48% */
+    max-width: 552px; /* Increased 15% from 480px */
+  }
+  
+  .modal-content.image-modal img {
+    max-height: 45vh;
+    margin: 8px 0;
+  }
+  
+  .modal-content.image-modal .nav-button {
+    padding: 8px 16px;
+    margin: 8px auto 0;
+    font-size: 0.9rem;
+  }
 }
 
 /* Consolidated mobile responsive styles */
 @media (max-width: 480px) {
   :root { --table-width: 98%; --table-margin: 10px; }
-  .welcome-text, .title-text, .category-title { font-size: 2rem; }
+  body { font-size: 13px; }
+  .welcome-text, .title-text, .category-title { font-size: 1.8rem; }
   .nav-row { flex-direction: column; gap: 5px; }
+  .nav-button { font-size: 0.9rem; padding: 10px 12px; }
   .product-table th, .product-table td { padding: 8px 5px; }
   #content-container { padding: 0 5px; }
+  
+  /* En móviles, no desplazar el contenedor maestro */
+  body.order-mode-active #app {
+    margin-left: auto;
+  }
+  
+  /* ORDER SIDEBAR - MOBILE RESPONSIVE */
   #order-sidebar {
     width: 100%;
+    position: relative;
+    top: auto;
+    right: auto;
     margin: 15px 0 0 0;
     padding: 12px;
     max-height: 60vh;
-    position: relative;
-    top: 0;
+    overflow-x: hidden;
+    box-sizing: border-box;
   }
   #order-sidebar h3 {
     font-size: 1.2rem;
@@ -1692,13 +1984,25 @@ textarea:focus {
     font-size: 1rem;
   }
   .order-actions {
-    flex-direction: column;
+    flex-direction: row;
     gap: 6px;
     margin-top: 15px;
   }
+  
+  .order-actions button {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 5px;
+    font-size: 0.8rem;
+  }
   .order-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
     flex-wrap: wrap;
     gap: 5px;
+    width: 100%;
+    box-sizing: border-box;
   }
   .remove-order-item {
     font-size: 0.9rem;
@@ -1728,9 +2032,101 @@ textarea:focus {
     min-height: 26px;
   }
   .view-toggle-container { padding: 0 15px; }
-  .options-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; max-height: 60vh; overflow-y: auto; }
+  .options-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
   .drink-option { min-height: 40px; padding: 10px 8px; }
-  .drink-option-container { padding: 10px; min-height: 70px; flex-direction: column; justify-content: center; text-align: center; }
+  .drink-option-container { padding: 10px; min-height: 70px; flex-direction: column; justify-content: center; text-align: center; border-radius: 6px; }
+  
+  /* Drink options modal responsive adjustments for mobile */
+  #drink-options-modal .modal-content {
+    width: 95%;
+    max-width: 550px;
+    min-width: 320px;
+    max-height: 80vh;
+  }
+  
+  #drink-options-modal .options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(105px, 1fr));
+    gap: 15px;
+    padding: 15px;
+    align-content: start;
+    justify-content: center;
+  }
+  
+  #drink-options-modal .drink-option {
+    min-height: 40px;
+    padding: 8px 6px;
+    font-size: 0.85rem;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    font-weight: 500;
+    word-wrap: break-word;
+    hyphens: auto;
+    line-height: 1.3;
+    width: 100%;
+  }
+  
+  /* Hamburger and back button positioning */
+  .hamburger-btn { left: calc((100vw - var(--table-width)) / 2 + 10px); }
+  .back-button-container {
+    left: calc((100vw - var(--table-width)) / 2 + 10px);
+    top: 80px;
+  }
+  
+  /* Category-specific table adjustments */
+  .product-table[data-category="refrescos"] th:nth-child(2), 
+  .product-table[data-category="refrescos"] td:nth-child(2), 
+  .product-table[data-category="cervezas"] th:nth-child(2), 
+  .product-table[data-category="cervezas"] td:nth-child(2) { 
+    width: 35%; 
+  }
+  
+  /* Image modal responsive for mobile */
+  .modal-content.image-modal {
+    max-width: 368px; /* Increased 15% from 320px */
+    padding: 12px 10px;
+    margin: 10px;
+  }
+  
+  .modal-content.image-modal.video-modal {
+    width: 55.2%; /* Increased 15% from 48% */
+    max-width: 552px; /* Increased 15% from 480px */
+  }
+  
+  .modal-content.image-modal img {
+    max-height: 40vh;
+    margin: 6px 0;
+  }
+  
+  .modal-content.image-modal .nav-button {
+    padding: 8px 14px;
+    margin: 6px auto 0;
+    font-size: 0.85rem;
+  }
+}
+
+/* =================================================================
+   RESPONSIVE DESIGN - PORTRAIT TABLETS (768px - 1024px)
+   ================================================================= */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+  .content-wrapper { flex-direction: column; gap: 10px; }
+  /* ORDER SIDEBAR - PORTRAIT TABLET RESPONSIVE */
+  #order-sidebar { 
+    width: 100%;
+    position: relative;
+    top: auto;
+    right: auto;
+    margin: 15px 0 0 0; 
+    padding: 20px;
+    max-height: 60vh;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+  .product-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 20px; }
+  .category-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 20px; }
+  .product-card { min-height: 320px; }
 }
 
 /* =================================================================
@@ -1739,11 +2135,15 @@ textarea:focus {
 @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
   /* Layout adjustments for landscape */
   .content-wrapper { flex-direction: row; }
+  /* ORDER SIDEBAR - LANDSCAPE TABLET RESPONSIVE */
   #order-sidebar { 
-    width: 280px; 
-    margin-left: 5px;
-    padding: 18px;
+    width: 240px;
+    margin-left: auto;
+    margin-right: 0;
+    padding: 15px;
     max-height: 75vh;
+    overflow-x: hidden;
+    box-sizing: border-box;
   }
   #order-sidebar h3 {
     font-size: 1.4rem;
@@ -1775,6 +2175,20 @@ textarea:focus {
 @media (max-width: 1024px) {
   .nav-button {
     min-height: 44px;
+    padding: 12px 18px;
+  }
+  .price-button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 8px 12px;
+  }
+  .view-toggle-btn {
+    min-height: 50px;
+    min-width: 50px;
+  }
+  .hamburger-btn, .back-button {
+    min-height: 50px;
+    min-width: 50px;
   }
   
   .price-button:not(.product-card.liquor-card .price-button) {
@@ -1791,10 +2205,13 @@ textarea:focus {
    RESPONSIVE DESIGN - LARGE DESKTOP (min-width: 1200px)
    ================================================================= */
 @media (min-width: 1200px) {
+  /* ORDER SIDEBAR - LARGE DESKTOP RESPONSIVE */
   #order-sidebar {
-    width: 380px;
-    padding: 22px;
+    width: 240px;
+    padding: 15px;
     max-height: 85vh;
+    overflow-x: hidden;
+    box-sizing: border-box;
   }
   
   #order-sidebar h3 {
@@ -1909,7 +2326,7 @@ textarea:focus {
 .hamburger-btn {
   position: fixed;
   top: 20px; 
-  left: calc((100vw - var(--table-width)) / 2 - 80px);
+  left: calc((100vw - var(--table-width)) / 2 + 20px);
   background: var(--card-bg);
   border: 2px solid var(--primary-color);
   color: var(--text-color);
@@ -1929,20 +2346,17 @@ textarea:focus {
   color: var(--background-color);
 }
 
-@media (max-width: 768px) {
-  .hamburger-btn { left: calc((100vw - var(--table-width)) / 2 - 60px); }
-}
-
-@media (max-width: 480px) {
-  .hamburger-btn { left: calc((100vw - var(--table-width)) / 2 - 50px); }
-}
-
+/* Back button container - positioned fixed below hamburger */
 .back-button-container {
   position: fixed;
-  top: 80px; 
-  left: calc((100vw - var(--table-width)) / 2 - 80px);
-  z-index: 1000;
+  top: 80px;
+  left: calc((100vw - var(--table-width)) / 2 + 20px);
+  z-index: 999;
 }
+
+/* Styles consolidated into main 768px media query above */
+
+/* Styles consolidated into main 480px media query above */
 
 .back-button {
   background: var(--card-bg);
@@ -1958,19 +2372,12 @@ textarea:focus {
   transition: all var(--transition-time) ease;
   backdrop-filter: blur(10px);
   font-weight: bold;
+  border-radius: 8px;
 }
 
 .back-button:hover {
   background-color: var(--primary-color);
   color: var(--background-color);
-}
-
-@media (max-width: 768px) {
-  .back-button-container { left: calc((100vw - var(--table-width)) / 2 - 60px); }
-}
-
-@media (max-width: 480px) {
-  .back-button-container { left: calc((100vw - var(--table-width)) / 2 - 50px); }
 }
 
 /* Optimized drawer menu */
@@ -1992,6 +2399,11 @@ textarea:focus {
 .title-row td {
   padding: 0;
   background: transparent;
+}
+
+/* Cuando el modo orden está activo, desplazar el contenedor maestro hacia la izquierda */
+body.order-mode-active #app {
+  margin-left: calc(50% - 35% - 110px); /* Desplaza hacia la izquierda para hacer espacio al sidebar */
 }
 
 .content-wrapper.order-active {
@@ -2034,9 +2446,9 @@ textarea:focus {
 
 .product-table[data-category="refrescos"] th:nth-child(2), .product-table[data-category="cervezas"] th:nth-child(2), .product-table[data-category="refrescos"] td:nth-child(2), .product-table[data-category="cervezas"] td:nth-child(2) { width: 25%; }
 .product-table[data-category="refrescos"] th:nth-child(3), .product-table[data-category="cervezas"] th:nth-child(3), .product-table[data-category="refrescos"] td:nth-child(3), .product-table[data-category="cervezas"] td:nth-child(3) { width: 30%; }
-.modal-content[data-category="refrescos"], .modal-content[data-category="cervezas"] { width: 56%; max-width: 560px; }
-@media (max-width: 768px) { .product-table[data-category="refrescos"] th:nth-child(2), .product-table[data-category="refrescos"] td:nth-child(2), .product-table[data-category="cervezas"] th:nth-child(2), .product-table[data-category="cervezas"] td:nth-child(2) { width: 30%; } }
-@media (max-width: 480px) { .product-table[data-category="refrescos"] th:nth-child(2), .product-table[data-category="refrescos"] td:nth-child(2), .product-table[data-category="cervezas"] th:nth-child(2), .product-table[data-category="cervezas"] td:nth-child(2) { width: 35%; } }
+.modal-content[data-category="refrescos"], .modal-content[data-category="cervezas"] { width: 33.6%; max-width: 336px; }
+/* Category-specific tablet styles consolidated into main 768px media query above */
+/* Category-specific styles consolidated into main 480px media query above */
 .exclusive-option-group { background: rgba(0, 247, 255, 0.05); border: 1px solid rgba(0, 247, 255, 0.2); border-radius: 8px; padding: 15px; margin: 15px 0; display: flex; flex-direction: column; gap: 10px; }
 .exclusive-option-group h4 { color: var(--primary-color); margin: 0 0 10px 0; font-size: 1rem; text-align: center; }
 .jager-option-container { display: flex; align-items: center; padding: 10px; background: rgba(0, 0, 0, 0.3); border-radius: 5px; transition: background-color 0.3s ease; cursor: pointer; font-size: 1rem; }
@@ -2044,3 +2456,188 @@ textarea:focus {
 .jager-option-container.selected { background: rgba(0, 247, 255, 0.2); transform: translateY(-2px); box-shadow: 0 2px 8px rgba(0, 247, 255, 0.3); }
 .jager-radio { margin-right: 10px; accent-color: var(--primary-color); }
 .jager-label { font-weight: 500; color: var(--text-color); }
+
+/* =================================================================
+   INLINE STYLE REFACTORING - UTILITY CLASSES
+   ================================================================= */
+
+/* Screen display utilities */
+.screen-hidden {
+  display: none !important;
+}
+
+.screen-visible {
+  display: flex !important;
+  opacity: 1;
+  visibility: visible;
+}
+
+.screen-flex {
+  display: flex !important;
+}
+
+.screen-block {
+  display: block !important;
+}
+
+/* Hamburger menu visibility */
+.hamburger-hidden {
+  display: none;
+}
+
+.hamburger-visible {
+  display: block;
+}
+
+/* Sidebar and container display states */
+.sidebar-hidden {
+  display: none !important;
+}
+
+.sidebar-visible {
+  display: block !important;
+}
+
+.content-hidden {
+  display: none;
+}
+
+.content-visible {
+  display: block;
+}
+
+/* Input container states */
+.input-container-hidden {
+  display: none;
+}
+
+.input-container-visible {
+  display: block;
+}
+
+/* Choice container states */
+.choice-hidden {
+  display: none;
+}
+
+.choice-visible {
+  display: block;
+}
+
+/* Body overflow control */
+.body-no-scroll {
+  overflow: hidden;
+}
+
+.body-scroll {
+  overflow: auto;
+}
+
+/* Error display utilities */
+.error-red {
+  color: red;
+}
+
+.error-visible {
+  display: block;
+}
+
+.error-hidden {
+  display: none;
+}
+
+/* Modal display states */
+.modal-flex {
+  display: flex;
+}
+
+.modal-hidden {
+  display: none;
+}
+
+/* Opacity utilities */
+.opacity-0 {
+  opacity: 0;
+}
+
+.opacity-1 {
+  opacity: 1;
+}
+
+/* Left positioning utilities */
+.left-0 {
+  left: 0;
+}
+
+.left-auto {
+  left: auto;
+}
+
+/* Product image size utilities */
+.product-image-small {
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.product-image-large {
+  width: 70px !important;
+  height: 70px !important;
+}
+
+/* Height and min-height utilities */
+.height-auto {
+  height: auto !important;
+}
+
+.min-height-auto {
+  min-height: auto !important;
+}
+
+/* Modal subtitle styling */
+.modal-subtitle {
+  font-size: 0.85em;
+  font-weight: normal;
+  color: var(--text-color);
+}
+
+/* Page title visibility */
+.page-title-hidden {
+  display: none;
+}
+
+.page-title-visible {
+  display: block;
+}
+
+/* Custom Scrollbar Styles */
+/* Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--card-bg);
+  border-radius: 6px;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 247, 255, 0.3);
+  box-shadow: var(--glow-shadow);
+}
+
+::-webkit-scrollbar-corner {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--card-bg) rgba(0, 0, 0, 0.3);
+}

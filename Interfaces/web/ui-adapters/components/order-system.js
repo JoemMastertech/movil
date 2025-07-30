@@ -1,8 +1,11 @@
-import OrderSystemCore from '../../../../Aplicacion/services/OrderCore.js';
-import { getProductRepository } from '../../../../Shared/utils/diUtils.js';
-import { setSafeInnerHTML, showModal, hideModal } from '../../../../Shared/utils/domUtils.js';
-import { ErrorHandler, logError, logWarning, handleMissingElementError } from '../../../../Shared/utils/errorHandler.js';
-import { calculateTotalDrinkCount, calculateTotalJuiceCount, calculateTotalJagerDrinkCount, isJuiceOption } from '../../../../Shared/utils/calculationUtils.js';
+import OrderSystemCore from './../../../../Aplicacion/services/OrderCore.js';
+import { formatPrice } from './../../../../Shared/utils/formatters.js';
+import { getProductRepository } from './../../../../Shared/utils/diUtils.js';
+import { setSafeInnerHTML, showModal, hideModal } from './../../../../Shared/utils/domUtils.js';
+import { ErrorHandler, logError, logWarning, handleMissingElementError } from './../../../../Shared/utils/errorHandler.js';
+import { calculateTotalDrinkCount, calculateTotalJuiceCount, calculateTotalJagerDrinkCount, isJuiceOption } from './../../../../Shared/utils/calculationUtils.js';
+import Logger from './../../../../Shared/utils/logger.js';
+import { OrderSystemValidations } from './order-system-validations.js';
 
 // Constants
 const CONSTANTS = {
@@ -64,6 +67,10 @@ class OrderSystem {
     this.previousCategory = null;
     this.previousTitle = null;
     this.isShowingHistory = false;
+    
+    // Phase 3: Event delegation setup
+    this.eventDelegationInitialized = false;
+    this.boundDelegatedHandler = this.handleDelegatedEvent.bind(this);
   }
 
   _showModal(modalId) { showModal(modalId); }
@@ -91,25 +98,239 @@ class OrderSystem {
       logWarning('Product repository not available yet, will initialize on first use', error);
     }
     
-    document.getElementById(CONSTANTS.SELECTORS.ORDER_BTN).addEventListener('click', () => this.completeOrder());
-    document.getElementById(CONSTANTS.SELECTORS.CANCEL_BTN).addEventListener('click', () => this.toggleOrderMode());
+    // Phase 3: Initialize centralized event delegation
+    this.initEventDelegation();
+  }
+  
+  // Phase 3: Centralized event delegation system
+  initEventDelegation() {
+    if (this.eventDelegationInitialized) return;
     
-    document.addEventListener('click', (e) => {
-      if (!this.isOrderMode) return;
-      
-      if (e.target.classList.contains('price-button')) {
-        if (e.target.disabled || e.target.classList.contains('non-selectable')) {
-          return;
-        }
-
-        const row = e.target.closest('tr');
-        const nameCell = row.querySelector('.product-name');
-        const priceText = e.target.textContent;
-        const productName = nameCell.textContent;
-
-        this.handleProductSelection(productName, priceText, row, e);
+    // Single document-level event listener for all interactions
+    document.addEventListener('click', this.boundDelegatedHandler);
+    this.eventDelegationInitialized = true;
+    
+    Logger.debug('OrderSystem event delegation initialized');
+  }
+  
+  handleDelegatedEvent(event) {
+    const target = event.target;
+    
+    // Handle order completion button
+    if (target.id === CONSTANTS.SELECTORS.ORDER_BTN) {
+      event.preventDefault();
+      this.completeOrder();
+      return;
+    }
+    
+    // Handle cancel/toggle order button
+    if (target.id === CONSTANTS.SELECTORS.CANCEL_BTN) {
+      event.preventDefault();
+      this.toggleOrderMode();
+      return;
+    }
+    
+    // Handle modal confirm/cancel buttons
+    if (target.id === 'confirm-drinks-btn') {
+      event.preventDefault();
+      this.confirmDrinkOptions();
+      return;
+    }
+    
+    if (target.id === 'cancel-drinks-btn') {
+      event.preventDefault();
+      this.cancelProductSelection();
+      return;
+    }
+    
+    // Handle food modal buttons
+    if (target.id === 'keep-ingredients-btn') {
+      event.preventDefault();
+      this._addFoodToOrder('Con todos los ingredientes');
+      return;
+    }
+    
+    if (target.id === 'customize-ingredients-btn') {
+      event.preventDefault();
+      this._showIngredientsInput();
+      return;
+    }
+    
+    if (target.id === 'confirm-ingredients-btn') {
+      event.preventDefault();
+      this._confirmIngredientCustomization();
+      return;
+    }
+    
+    if (target.id === 'cancel-ingredients-btn') {
+      event.preventDefault();
+      this.cancelProductSelection();
+      return;
+    }
+    
+    // Handle meat modal buttons
+    if (target.id === 'change-garnish-btn') {
+      event.preventDefault();
+      this._showGarnishInput();
+      return;
+    }
+    
+    if (target.id === 'keep-garnish-btn') {
+      event.preventDefault();
+      this._addMeatToOrder('Guarnición estándar');
+      return;
+    }
+    
+    if (target.id === 'confirm-garnish-btn') {
+      event.preventDefault();
+      this._confirmGarnishCustomization();
+      return;
+    }
+    
+    if (target.id === 'cancel-garnish-btn') {
+      event.preventDefault();
+      this.cancelProductSelection();
+      return;
+    }
+    
+    // Handle counter buttons
+    if (target && target.classList && target.classList.contains('counter-btn')) {
+      event.preventDefault();
+      this.handleCounterButton(target);
+      return;
+    }
+    
+    // Handle drink option buttons
+    if (target && target.classList && target.classList.contains('drink-option')) {
+      event.preventDefault();
+      this.handleDrinkOptionButton(target);
+      return;
+    }
+    
+    // Handle jager boost checkbox
+    if (target.id === 'boost-option') {
+      this.handleBoostOption(target);
+      return;
+    }
+    
+    // Handle price buttons (only in order mode and if ProductRenderer is not handling them)
+    if (this.isOrderMode && target && target.classList && target.classList.contains('price-button')) {
+      // Check if ProductRenderer is already handling price button events
+      if (window.ProductRenderer && window.ProductRenderer.eventDelegationInitialized) {
+        // ProductRenderer is handling price buttons, so we don't need to
+        return;
       }
-    });
+      
+      if (target.disabled || (target.classList && target.classList.contains('non-selectable'))) {
+        return;
+      }
+      
+      const row = target.closest('tr');
+      const card = target.closest('.product-card');
+      
+      if (row) {
+        const nameCell = row.querySelector('.product-name');
+        const priceText = target.textContent;
+        const productName = nameCell.textContent;
+        this.handleProductSelection(productName, priceText, row, event);
+      } else if (card) {
+        const productName = target.dataset.productName;
+        const priceText = target.textContent;
+        this.handleProductSelection(productName, priceText, card, event);
+      }
+      return;
+    }
+  }
+  
+  // Phase 3: Cleanup method for event delegation
+  destroyEventDelegation() {
+    if (this.eventDelegationInitialized) {
+      document.removeEventListener('click', this.boundDelegatedHandler);
+      this.eventDelegationInitialized = false;
+      Logger.debug('OrderSystem event delegation destroyed');
+    }
+  }
+  
+  // Phase 3: Delegated event handlers
+  handleCounterButton(target) {
+    const container = target.closest('.drink-option-container');
+    if (!container) return;
+    
+    const optionName = container.querySelector('.drink-option-name')?.textContent;
+    const countDisplay = container.querySelector('.count-display');
+    const isIncrement = target.textContent === '+';
+    const isJager = target.closest('.exclusive-option-group');
+    
+    if (isJager) {
+      const boostOption = document.querySelector('#boost-option')?.closest('.drink-option-container');
+      if (isIncrement) {
+        this._handleJagerIncrement(optionName, countDisplay, container, boostOption);
+      } else {
+        this._handleJagerDecrement(optionName, countDisplay, container, boostOption);
+      }
+    } else {
+      if (isIncrement) {
+        this._handleDrinkIncrement(optionName, countDisplay, container);
+      } else {
+        this._handleDrinkDecrement(optionName, countDisplay, container);
+      }
+    }
+  }
+  
+  handleDrinkOptionButton(target) {
+    if (target.textContent === 'Ninguno') {
+      this.selectedDrinks = ['Ninguno'];
+      this.drinkCounts = {};
+      document.querySelectorAll('.drink-option').forEach(btn => {
+        if (btn && btn.classList) {
+          btn.classList.remove('selected');
+        }
+      });
+      if (target && target.classList) {
+        target.classList.add('selected');
+      }
+      const totalCountElement = document.getElementById('total-drinks-count');
+      if (totalCountElement) totalCountElement.textContent = '0';
+    }
+  }
+  
+  handleBoostOption(target) {
+    const boostOption = target.closest('.drink-option-container');
+    const totalRefrescos = this.calculateTotalJagerDrinkCount();
+    
+    if (target.checked) {
+      if (totalRefrescos > 0) {
+        alert("Para seleccionar los Boost debe dejar los refrescos en 0");
+        target.checked = false;
+        return;
+      }
+      
+      this.selectedDrinks = ['2 Boost'];
+      this.drinkCounts = {};
+      if (boostOption && boostOption.classList) {
+        boostOption.classList.add('selected');
+      }
+      
+      document.querySelectorAll('.exclusive-option-group .drink-option-container .counter-btn, .exclusive-option-group .drink-option-container .count-display')
+        .forEach(el => {
+          if (el && el.classList) {
+            if (el.classList.contains('counter-btn')) el.disabled = true;
+            if (el.classList.contains('count-display')) el.textContent = '0';
+          }
+        });
+    } else {
+      this.selectedDrinks = this.selectedDrinks.filter(drink => drink !== '2 Boost');
+      if (boostOption && boostOption.classList) {
+        boostOption.classList.remove('selected');
+      }
+      document.querySelectorAll('.exclusive-option-group .drink-option-container .counter-btn')
+        .forEach(btn => {
+          if (btn) {
+            btn.disabled = false;
+          }
+        });
+    }
+    this.updateTotalJagerDrinkCount();
   }
 
   extractPrice(priceText) {
@@ -143,32 +364,112 @@ class OrderSystem {
   }
 
   toggleOrderMode(skipClear = false) {
-    const elements = {
+    this.isOrderMode = !this.isOrderMode;
+    const elements = this._getOrderModeElements();
+    
+    this._updateOrderModeUI(elements, this.isOrderMode);
+    this._handleOrderModeCleanup(skipClear);
+  }
+
+  _getOrderModeElements() {
+    return {
       sidebar: document.getElementById(CONSTANTS.SELECTORS.SIDEBAR),
       tables: document.querySelectorAll(CONSTANTS.SELECTORS.TABLES),
       wrapper: document.querySelector('.content-wrapper'),
-      orderBtn: document.querySelector('[data-action="createOrder"]')
+      orderBtn: document.getElementById(CONSTANTS.SELECTORS.ORDER_BTN),
+      body: document.body
     };
+  }
+
+  _updateOrderModeUI(elements, isActive) {
+    this._updateOrderButton(elements.orderBtn, isActive);
+    this._updateSidebarVisibility(elements.sidebar, isActive);
+    this._updateTablesMode(elements.tables, isActive);
+    this._updateWrapperState(elements.wrapper, isActive);
+    this._updateBodyState(elements.body, isActive);
+  }
+
+  _updateOrderButton(orderBtn, isActive) {
+    // Don't change the sidebar button text - it should remain "Completar Orden"
+    // The hamburger menu button will be updated separately
+    this._updateHamburgerMenuButton(isActive);
+  }
+
+  _updateHamburgerMenuButton(isActive) {
+    // Find the "Crear orden" button in the hamburger menu
+    const hamburgerButtons = document.querySelectorAll('#drawer-menu .nav-button');
+    const createOrderBtn = Array.from(hamburgerButtons).find(btn => 
+      btn.getAttribute('data-action') === 'createOrder'
+    );
     
-    this.isOrderMode = !this.isOrderMode;
-    const isActive = this.isOrderMode;
-    
-    if (elements.orderBtn) elements.orderBtn.textContent = isActive ? 'CANCELAR ORDEN' : 'CREAR ORDEN';
-    elements.sidebar.style.display = isActive ? 'block' : 'none';
-    elements.tables.forEach(table => table.classList.toggle('price-selection-mode', isActive));
-    elements.wrapper.classList.toggle('order-active', isActive);
-    
-    if (!isActive && !skipClear) {
+    if (createOrderBtn) {
+      createOrderBtn.textContent = isActive ? 'CANCELAR ORDEN' : 'Crear orden';
+    }
+  }
+
+  _updateSidebarVisibility(sidebar, isActive) {
+    if (sidebar && sidebar.classList) {
+      // Keep sidebar visible if there are items in the order, even when order mode is off
+      const hasItems = this.core && this.core.getItems && this.core.getItems().length > 0;
+      const shouldBeVisible = isActive || hasItems;
+      
+      sidebar.classList.toggle('sidebar-visible', shouldBeVisible);
+      sidebar.classList.toggle('sidebar-hidden', !shouldBeVisible);
+    }
+  }
+
+  _updateTablesMode(tables, isActive) {
+    if (tables) {
+      tables.forEach(table => {
+        if (table && table.classList) {
+          table.classList.toggle('price-selection-mode', isActive);
+        }
+      });
+    }
+  }
+
+  _updateWrapperState(wrapper, isActive) {
+    if (wrapper && wrapper.classList) {
+      wrapper.classList.toggle('order-active', isActive);
+    }
+  }
+
+  _updateBodyState(body, isActive) {
+    if (body && body.classList) {
+      body.classList.toggle('order-mode-active', isActive);
+      // Reposition hamburger button when order mode changes
+      this._repositionHamburgerButton(isActive);
+    }
+  }
+
+  _repositionHamburgerButton(isOrderModeActive) {
+    // Hamburger button position is now fixed via CSS - no dynamic repositioning needed
+    // This function is kept for compatibility but does nothing
+  }
+
+  _handleOrderModeCleanup(skipClear) {
+    if (!this.isOrderMode && !skipClear) {
       this.core.clearItems();
       this.updateOrderDisplay();
     }
   }
 
   handleProductSelection(productName, priceText, row, event) {
-    if (!this.isOrderMode || event.target.disabled || event.target.classList.contains('non-selectable')) return;
+    if (!this._validateSelection(event)) return;
     
     this._resetSelectionState();
     
+    const productData = this._extractProductData(productName, priceText, row, event);
+    const handler = this._getProductHandler(productData.metadata.type);
+    
+    handler(productData);
+  }
+
+  _validateSelection(event) {
+    return OrderSystemValidations.validateSelection(event, this.isOrderMode);
+  }
+
+  _extractProductData(productName, priceText, row, event) {
     const price = this.extractPrice(priceText);
     const metadata = this.getProductMetadata(row);
     const clickedPriceType = this.getPriceType(row, event.target);
@@ -176,19 +477,37 @@ class OrderSystem {
     this.currentProduct = { name: productName, price, priceType: clickedPriceType };
     this.currentCategory = metadata.category;
 
+    return {
+      name: productName,
+      price,
+      priceType: clickedPriceType,
+      metadata
+    };
+  }
+
+  _getProductHandler(productType) {
     const handlers = {
-      beverage: () => this.addProductToOrder({ name: productName, price, customizations: [] }),
-      food: () => metadata.category === CONSTANTS.CATEGORIES.MEAT ? this.showMeatCustomizationModal() : this.showFoodCustomizationModal(),
-      liquor: () => this._handleLiquorProduct(productName, price)
+      beverage: (data) => this.addProductToOrder({ 
+        name: data.name, 
+        price: data.price, 
+        category: 'bebida', 
+        customizations: [] 
+      }),
+      food: (data) => data.metadata.category === CONSTANTS.CATEGORIES.MEAT 
+        ? this.showMeatCustomizationModal() 
+        : this.showFoodCustomizationModal(),
+      liquor: (data) => this._handleLiquorProduct(data.name, data.price)
     };
 
-    const handler = handlers[metadata.type];
-    if (handler) {
-      handler();
-    } else {
-      logWarning(`Product "${productName}" with type "${metadata.type}" did not match specific handling.`);
-      this.addProductToOrder({ name: productName, price, customizations: [] });
-    }
+    return handlers[productType] || ((data) => {
+      // Only add to order if it's not a beverage (to avoid duplicates)
+      if (productType !== 'beverage') {
+        logWarning(`Product "${data.name}" with type "${productType}" did not match specific handling.`);
+        this.addProductToOrder({ name: data.name, price: data.price, category: 'otro', customizations: [] });
+      } else {
+        logWarning(`Beverage product "${data.name}" should have been handled by beverage handler.`);
+      }
+    });
   }
 
   _resetSelectionState() {
@@ -198,6 +517,12 @@ class OrderSystem {
   }
 
   _handleLiquorProduct(productName, price) {
+    if (!this.currentProduct) {
+      console.error('No current product selected for liquor handling');
+      // Try to reconstruct currentProduct from parameters
+      this.currentProduct = { name: productName, price: price, priceType: 'precio' };
+      console.warn('Reconstructed currentProduct from parameters:', this.currentProduct);
+    }
     const isBottle = this.currentProduct.priceType === CONSTANTS.PRICE_TYPES.BOTTLE;
     const isSpecialCategory = [CONSTANTS.CATEGORIES.DIGESTIVOS, CONSTANTS.CATEGORIES.ESPUMOSOS].includes(this.currentCategory);
     
@@ -205,10 +530,10 @@ class OrderSystem {
       if (this.currentCategory === CONSTANTS.CATEGORIES.DIGESTIVOS) {
         const normalizedName = productName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
         if (CONSTANTS.SPECIAL_PRODUCTS.NO_MODAL.some(p => normalizedName.includes(p))) {
-          return this.addProductToOrder({ name: `Botella ${productName}`, price, customizations: ['Sin acompañamientos'] });
+          return this.addProductToOrder({ name: `Botella ${productName}`, price, category: 'licor', customizations: ['Sin acompañamientos'] });
         }
       } else {
-        return this.addProductToOrder({ name: `Botella ${productName}`, price, customizations: ['Sin acompañamientos'] });
+        return this.addProductToOrder({ name: `Botella ${productName}`, price, category: 'licor', customizations: ['Sin acompañamientos'] });
       }
     }
 
@@ -223,12 +548,12 @@ class OrderSystem {
       showModal();
     } else {
       logWarning(`Liquor product "${productName}" with price type "${this.currentProduct.priceType}" has no specific modal.`);
-      this.addProductToOrder({ name: productName, price, customizations: ['Revisar presentación'] });
+      this.addProductToOrder({ name: productName, price, category: 'licor', customizations: ['Revisar presentación'] });
     }
   }
 
   getPriceType(row, clickedElement) {
-    if (clickedElement.disabled || clickedElement.classList.contains('non-selectable') || clickedElement.textContent.trim() === '--') {
+    if (clickedElement.disabled || (clickedElement.classList && clickedElement.classList.contains('non-selectable')) || clickedElement.textContent.trim() === '--') {
       return null;
     }
     
@@ -287,6 +612,24 @@ class OrderSystem {
   }
   
   _continueShowDrinkOptionsModal() {
+    const optionsContainer = this._initializeDrinkModal();
+    if (!optionsContainer) {
+      console.error('Failed to initialize drink modal - no options container available');
+      return;
+    }
+    
+    if (this._isJagermeisterBottle()) {
+      this._setupJagermeisterOptions(optionsContainer);
+    } else {
+      this._setupRegularDrinkOptions(optionsContainer);
+    }
+  }
+
+  _initializeDrinkModal() {
+    if (!this.currentProduct) {
+      console.error('No current product selected for drink modal initialization');
+      return null;
+    }
     const optionsContainer = document.getElementById('drink-options-container');
     optionsContainer.innerHTML = '';
     this._resetSelectionState();
@@ -294,31 +637,44 @@ class OrderSystem {
     this.bottleCategory = this.getLiquorType(this.currentProduct.name);
     this.maxDrinkCount = CONSTANTS.MAX_DRINK_COUNT;
     
-    setTimeout(() => this._updateModalTitle(), 10); 
+    setTimeout(() => this._updateModalTitle(), 10);
+    return optionsContainer;
+  }
 
-    if (this._isJagermeisterBottle()) {
-      
-      this._createJagerMessage(optionsContainer);
-      const exclusiveGroup = this._createElement('div', 'exclusive-option-group');
-      const boostOption = this._createBoostOption();
-      this._setupBoostEventListener(boostOption);
-      exclusiveGroup.appendChild(boostOption);
-      ['Botella de Agua', 'Mineral'].forEach(option => {
-        exclusiveGroup.appendChild(this._createJagerDrinkOption(option, boostOption));
-      });
-      optionsContainer.appendChild(exclusiveGroup);
-      optionsContainer.appendChild(this._createTotalCountContainer('total-jager-drinks-count'));
-      
-      this.updateTotalJagerDrinkCount();
-      this._setupModalButtons();
-      this._showModal('drink-options-modal');
+  _setupJagermeisterOptions(optionsContainer) {
+    if (!optionsContainer) {
+      console.error('No options container provided for Jagermeister options setup');
       return;
     }
+    this._createJagerMessage(optionsContainer);
+    const exclusiveGroup = this._createElement('div', 'exclusive-option-group');
+    const boostOption = this._createBoostOption();
+    this._setupBoostEventListener(boostOption);
+    exclusiveGroup.appendChild(boostOption);
+    
+    ['Botella de Agua', 'Mineral'].forEach(option => {
+      exclusiveGroup.appendChild(this._createJagerDrinkOption(option, boostOption));
+    });
+    
+    optionsContainer.appendChild(exclusiveGroup);
+    optionsContainer.appendChild(this._createTotalCountContainer('total-jager-drinks-count'));
+    
+    this.updateTotalJagerDrinkCount();
+    this._setupModalButtons();
+    this._showModal('drink-options-modal');
+  }
 
+  _setupRegularDrinkOptions(optionsContainer) {
+    if (!optionsContainer) {
+      console.error('No options container provided for regular drink options setup');
+      return;
+    }
+    if (!this.currentProduct) {
+      console.error('No current product selected for regular drink options setup');
+      return;
+    }
     const drinkOptionsResult = this.getDrinkOptionsForProduct(this.currentProduct.name);
-    if (!drinkOptionsResult || !drinkOptionsResult.drinkOptions) {
-      console.error('No drink options found for product:', this.currentProduct.name);
-      this._hideModal('drink-options-modal');
+    if (!this._validateDrinkOptions(drinkOptionsResult)) {
       return;
     }
     
@@ -330,20 +686,40 @@ class OrderSystem {
     this._showModal('drink-options-modal');
   }
 
+  _validateDrinkOptions(drinkOptionsResult) {
+    if (!this.currentProduct) {
+      console.error('No current product selected for drink options validation');
+      return false;
+    }
+    const isValid = OrderSystemValidations.validateDrinkOptions(drinkOptionsResult, this.currentProduct.name);
+    if (!isValid) {
+      this._hideModal('drink-options-modal');
+    }
+    return isValid;
+  }
+
   // Helper functions for modal optimization
   _isJagermeisterBottle() {
+    if (!this.currentProduct) {
+      console.error('No current product selected for Jagermeister bottle check');
+      return false;
+    }
     return this.bottleCategory === 'DIGESTIVOS' && 
            this.currentProduct.priceType === CONSTANTS.PRICE_TYPES.BOTTLE && 
            this.currentProduct.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().includes(CONSTANTS.SPECIAL_PRODUCTS.JAGER);
   }
 
   _updateModalTitle() {
+    if (!this.currentProduct) {
+      console.error('No current product selected for modal title update');
+      return;
+    }
     const modalTitle = document.querySelector('#drink-options-modal h3');
     if (!modalTitle) return;
     
     const { message } = this.getDrinkOptionsForProduct(this.currentProduct.name);
     const baseTitle = '¿Con qué desea acompañar su bebida?';
-    const styleSpan = '<span style="font-size: 0.85em; font-weight: normal; color: var(--text-color);">';
+    const styleSpan = '<span class="modal-subtitle">';
     
     if (this.bottleCategory === 'VODKA' || this.bottleCategory === 'GINEBRA') {
       modalTitle.innerHTML = `${baseTitle}${styleSpan}Puedes elegir 2 Jarras de jugo ó 5 Refrescos ó 1 Jarra de jugo y 2 Refrescos</span>`;
@@ -385,34 +761,8 @@ class OrderSystem {
   }
 
   _setupBoostEventListener(boostOption) {
-    const boostCheck = boostOption.querySelector('#boost-option');
-    boostCheck.addEventListener('change', () => {
-      const totalRefrescos = this.calculateTotalJagerDrinkCount();
-      
-      if (boostCheck.checked) {
-        if (totalRefrescos > 0) {
-          alert("Para seleccionar los Boost debe dejar los refrescos en 0");
-          boostCheck.checked = false;
-          return;
-        }
-        
-        this.selectedDrinks = ['2 Boost'];
-        this.drinkCounts = {};
-        boostOption.classList.add('selected');
-        
-        document.querySelectorAll('.exclusive-option-group .drink-option-container .counter-btn, .exclusive-option-group .drink-option-container .count-display')
-          .forEach(el => {
-            if (el.classList.contains('counter-btn')) el.disabled = true;
-            if (el.classList.contains('count-display')) el.textContent = '0';
-          });
-      } else {
-        this.selectedDrinks = this.selectedDrinks.filter(drink => drink !== '2 Boost');
-        boostOption.classList.remove('selected');
-        document.querySelectorAll('.exclusive-option-group .drink-option-container .counter-btn')
-          .forEach(btn => btn.disabled = false);
-      }
-      this.updateTotalJagerDrinkCount();
-    });
+    // Phase 3: No individual event listener needed - handled by delegation
+    // The boost option will be handled by the centralized event system
   }
 
   _createJagerDrinkOption(option, boostOption) {
@@ -430,10 +780,10 @@ class OrderSystem {
     return optionContainer;
   }
 
-  _createCounterButton(text, clickHandler) {
+  _createCounterButton(text, clickHandler = null) {
     const btn = this._createElement('button', 'counter-btn');
     btn.textContent = text;
-    btn.addEventListener('click', clickHandler);
+    // Phase 3: No individual event listener - handled by delegation
     return btn;
   }
 
@@ -447,7 +797,9 @@ class OrderSystem {
     if (currentCount > 0) {
       this.drinkCounts[option] = currentCount - 1;
       countDisplay.textContent = this.drinkCounts[option];
-      if (this.drinkCounts[option] === 0) optionContainer.classList.remove('selected');
+      if (this.drinkCounts[option] === 0 && optionContainer && optionContainer.classList) {
+        optionContainer.classList.remove('selected');
+      }
       this.updateTotalJagerDrinkCount();
     }
   }
@@ -464,17 +816,27 @@ class OrderSystem {
     if (totalCount < this.maxDrinkCount) {
       this.drinkCounts[option] = currentCount + 1;
       countDisplay.textContent = this.drinkCounts[option];
-      optionContainer.classList.add('selected');
+      if (optionContainer && optionContainer.classList) {
+          if (optionContainer && optionContainer.classList) {
+        optionContainer.classList.add('selected');
+      }
+        }
       this.updateTotalJagerDrinkCount();
     }
   }
 
   _resetBoostSelection(boostCheck, boostOption) {
     boostCheck.checked = false;
-    boostOption.classList.remove('selected');
+    if (boostOption && boostOption.classList) {
+      boostOption.classList.remove('selected');
+    }
     this.selectedDrinks = this.selectedDrinks.filter(drink => drink !== '2 Boost');
     document.querySelectorAll('.exclusive-option-group .drink-option-container .counter-btn')
-      .forEach(btn => btn.disabled = false);
+      .forEach(btn => {
+        if (btn) {
+          btn.disabled = false;
+        }
+      });
   }
 
   _createTotalCountContainer(countId) {
@@ -484,14 +846,14 @@ class OrderSystem {
   }
 
   _setupModalButtons() {
-    document.getElementById('confirm-drinks-btn').addEventListener('click', () => this.confirmDrinkOptions());
-    document.getElementById('cancel-drinks-btn').addEventListener('click', () => this.cancelProductSelection());
+    // Phase 3: No individual event listeners needed - handled by delegation
+    // Modal buttons will be handled by the centralized event system
   }
 
   renderDrinkOptions(container, options) {
     // Validate that options is an array
     if (!Array.isArray(options)) {
-      console.error('renderDrinkOptions: options is not an array:', options);
+      Logger.error('renderDrinkOptions: options is not an array:', options);
       return;
     }
     
@@ -503,13 +865,7 @@ class OrderSystem {
   _createNoneOption(option) {
     const noneOption = this._createElement('button', 'drink-option');
     noneOption.textContent = option;
-    noneOption.addEventListener('click', () => {
-      this.selectedDrinks = ['Ninguno'];
-      this.drinkCounts = {};
-      document.querySelectorAll('.drink-option').forEach(btn => btn.classList.remove('selected'));
-      noneOption.classList.add('selected');
-      document.getElementById('total-drinks-count').textContent = '0';
-    });
+    // Phase 3: No individual event listener - handled by delegation
     return noneOption;
   }
 
@@ -534,7 +890,9 @@ class OrderSystem {
       this.drinkCounts[option] = currentCount - 1;
       countDisplay.textContent = this.drinkCounts[option];
       if (this.drinkCounts[option] === 0) {
-        optionContainer.classList.remove('selected');
+        if (optionContainer && optionContainer.classList) {
+          optionContainer.classList.remove('selected');
+        }
         this.selectedDrinks = this.selectedDrinks.filter(drink => drink !== option);
       }
       this.updateTotalDrinkCount();
@@ -573,44 +931,25 @@ class OrderSystem {
   }
 
   _validateSpecialBottleRules(isJuice, totalJuices, totalRefrescos) {
-    // Reglas estrictas para combinaciones válidas:
-    // - Para subcategorías solo con refrescos: máximo 5 refrescos
-    // - Para Vodka, Ginebra, Bacardi Mango, Bacardi Raspberry, Malibu:
-    //   * EXACTAMENTE 2 jugos (sin refrescos)
-    //   * EXACTAMENTE 5 refrescos (sin jugos) 
-    //   * EXACTAMENTE 1 jugo + 2 refrescos
-    
-    if (this._isOnlySodaCategory()) {
-      // Solo refrescos permitidos, máximo 5
-      return !isJuice && totalRefrescos < 5;
-    }
-    
-    if (this._isSpecialBottleCategory()) {
-      // Verificar si estamos intentando agregar y si la combinación resultante sería válida
-      const newJuices = isJuice ? totalJuices + 1 : totalJuices;
-      const newRefrescos = !isJuice ? totalRefrescos + 1 : totalRefrescos;
-      
-      // Solo permitir si la nueva combinación es una de las tres válidas:
-      // 1. Hasta 2 jugos sin refrescos
-      // 2. Hasta 5 refrescos sin jugos  
-      // 3. Exactamente 1 jugo + hasta 2 refrescos
-      return (newJuices <= 2 && newRefrescos === 0) ||  // Combinación 1
-             (newJuices === 0 && newRefrescos <= 5) ||  // Combinación 2
-             (newJuices === 1 && newRefrescos <= 2);    // Combinación 3
-    }
-    
-    // Reglas por defecto para otras categorías
-    return totalJuices + totalRefrescos < 5;
+    return OrderSystemValidations.validateSpecialBottleRules(
+      isJuice, 
+      totalJuices, 
+      totalRefrescos, 
+      this.bottleCategory, 
+      this.currentProduct?.name
+    );
   }
 
 
 
   calculateTotalDrinkCount() {
-    return calculateTotalDrinkCount(this.drinkCounts, this.bottleCategory, this.currentProduct);
+    return Object.values(this.drinkCounts).reduce((total, count) => total + count, 0);
   }
 
   calculateTotalJuiceCount() {
-    return calculateTotalJuiceCount(this.drinkCounts);
+    return Object.entries(this.drinkCounts)
+      .filter(([option]) => isJuiceOption(option))
+      .reduce((total, [, count]) => total + count, 0);
   }
 
   updateTotalDrinkCount() {
@@ -659,40 +998,19 @@ class OrderSystem {
   }
 
   _validateSpecialDrinkLimits(isJuice, totalJuices, totalRefrescos) {
-    if (this._isOnlySodaCategory()) {
-      // Solo refrescos: deshabilitar si ya hay 5 refrescos o si es jugo
-      return isJuice || totalRefrescos >= 5;
-    }
-    
-    if (this._isSpecialBottleCategory()) {
-      // Deshabilitar basándose en las combinaciones válidas estrictas
-      if (isJuice) {
-        // Deshabilitar jugos si:
-        // - Ya hay 2 jugos (límite alcanzado para combinación 1)
-        // - Hay refrescos y ya hay 1 jugo (combinación 3 completa en jugos)
-        // - Hay más de 2 refrescos (incompatible con cualquier combinación de jugos)
-        return totalJuices >= 2 || 
-               (totalRefrescos > 0 && totalJuices >= 1) || 
-               totalRefrescos > 2;
-      } else {
-        // Deshabilitar refrescos si:
-        // - Ya hay 2 jugos (combinación 1, no permite refrescos)
-        // - No hay jugos y ya hay 5 refrescos (combinación 2 completa)
-        // - Hay 1 jugo y ya hay 2 refrescos (combinación 3 completa)
-        return totalJuices >= 2 || 
-               (totalJuices === 0 && totalRefrescos >= 5) || 
-               (totalJuices === 1 && totalRefrescos >= 2);
-      }
-    }
-    
-    // Reglas por defecto
-    return totalJuices + totalRefrescos >= 5;
+    return OrderSystemValidations.validateSpecialDrinkLimits(
+      isJuice, 
+      totalJuices, 
+      totalRefrescos, 
+      this.bottleCategory, 
+      this.currentProduct?.name
+    );
   }
 
   getDrinkOptionsForProduct(productName) {
     // Validate input
     if (!productName || typeof productName !== 'string') {
-      console.error('getDrinkOptionsForProduct: Invalid productName:', productName);
+      Logger.error('getDrinkOptionsForProduct: Invalid productName:', productName);
       return { drinkOptions: ['Ninguno'], message: 'Error: Producto no válido' };
     }
     
@@ -771,10 +1089,11 @@ class OrderSystem {
   _getDigestivoOptions(normalizedName, productName) {
     // Validate inputs
     if (!normalizedName || !productName || !this.currentProduct) {
+      console.error('Invalid inputs or no current product for digestivo options');
       return { drinkOptions: ['Ninguno'], message: 'Sin acompañamientos' };
     }
     
-    if (this.currentProduct.priceType === CONSTANTS.PRICE_TYPES.BOTTLE) {
+    if (this.currentProduct && this.currentProduct.priceType === CONSTANTS.PRICE_TYPES.BOTTLE) {
       const digestivoOptions = {
         'LICOR 43': ['Botella de Agua', 'Mineral'],
         'CADENAS DULCE': ['Botella de Agua', 'Mineral'],
@@ -795,7 +1114,7 @@ class OrderSystem {
       };
     }
     
-    if (this.currentProduct.priceType === CONSTANTS.PRICE_TYPES.CUP && productName.includes("BAILEYS")) {
+    if (this.currentProduct && this.currentProduct.priceType === CONSTANTS.PRICE_TYPES.CUP && productName.includes("BAILEYS")) {
       return { drinkOptions: ['Rocas'], message: "Acompañamientos para copa" };
     }
     
@@ -806,15 +1125,44 @@ class OrderSystem {
   }
 
   confirmDrinkOptions() {
+    if (!this.currentProduct) {
+      console.error('No current product selected for drink options confirmation');
+      // Try to recover from modal state if possible
+      const modal = document.getElementById('drink-options-modal');
+      if (modal) {
+        this._hideModal('drink-options-modal');
+      }
+      this._showValidationModal('Error: No se pudo confirmar la selección. Por favor intente nuevamente.');
+      return;
+    }
+    
     if (!this._hasValidDrinkSelection()) {
       this._showValidationModal('Por favor seleccione al menos un acompañamiento');
       return;
     }
 
     const { prefix, name, customization } = this._buildProductInfo();
+    
+    // Ensure we're in order mode before adding to order
+    if (!this.isOrderMode) {
+      console.warn('Attempting to add product when not in order mode, activating order mode');
+      this.toggleOrderMode();
+      
+      // Wait for order mode to be fully activated and sidebar to be visible
+      setTimeout(() => {
+        this._addConfirmedProduct(prefix, name, customization);
+      }, 300);
+      return;
+    }
+    
+    this._addConfirmedProduct(prefix, name, customization);
+  }
+  
+  _addConfirmedProduct(prefix, name, customization) {
     this.addProductToOrder({
       name: `${prefix} ${name}`,
       price: this.currentProduct.price,
+      category: this.currentProduct.category || 'licor',
       customizations: [customization]
     });
 
@@ -824,17 +1172,18 @@ class OrderSystem {
   }
 
   _hasValidDrinkSelection() {
-    const isJagerBottle = this.currentProduct.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().includes('JAGERMEISTER') && 
-                          this.currentProduct.priceType === 'precioBotella';
-    
-    if (isJagerBottle) {
-      return this.selectedDrinks.includes('2 Boost') || Object.values(this.drinkCounts).some(count => count > 0);
+    if (!this.currentProduct) {
+      console.error('No current product selected for drink selection validation');
+      return false;
     }
-    
-    return this.selectedDrinks.length > 0 || Object.values(this.drinkCounts).some(count => count > 0);
+    return OrderSystemValidations.hasValidDrinkSelection(this.selectedDrinks, this.drinkCounts, this.currentProduct);
   }
 
   _buildProductInfo() {
+    if (!this.currentProduct) {
+      console.error('No current product selected for building product info');
+      return { prefix: '', name: '', customization: 'Error: No product selected' };
+    }
     const priceType = this.currentProduct.priceType;
     const productName = this.currentProduct.name.replace(/\s*\d+\s*ML/i, '');
     const isJagerBottle = this.currentProduct.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().includes('JAGERMEISTER') && 
@@ -870,7 +1219,7 @@ class OrderSystem {
     setTimeout(() => {
       const modalTitle = document.querySelector('#drink-options-modal h3');
       if (modalTitle) {
-        modalTitle.innerHTML = '¿Con qué desea acompañar su bebida?<span style="font-size: 0.85em; font-weight: normal; color: var(--text-color);">Cada litro se sirve con 6 oz del destilado que elija.</span>';
+        modalTitle.innerHTML = '¿Con qué desea acompañar su bebida?<span class="modal-subtitle">Cada litro se sirve con 6 oz del destilado que elija.</span>';
       }
     }, 10);
     
@@ -886,7 +1235,7 @@ class OrderSystem {
     setTimeout(() => {
       const modalTitle = document.querySelector('#drink-options-modal h3');
       if (modalTitle) {
-        modalTitle.innerHTML = '¿Con qué desea acompañar su bebida?<span style="font-size: 0.85em; font-weight: normal; color: var(--text-color);">Cada copa se sirve con 1 ½ oz del destilado que elija.</span>';
+        modalTitle.innerHTML = '¿Con qué desea acompañar su bebida?<span class="modal-subtitle">Cada copa se sirve con 1 ½ oz del destilado que elija.</span>';
       }
     }, 10);
     this._setupOptionsModal('cup');
@@ -897,6 +1246,10 @@ class OrderSystem {
   }
 
   _getOptionsForProduct(category, type) {
+    if (!this.currentProduct) {
+      console.error('No current product selected for getting options');
+      return type === 'liter' ? { options: ['Ninguno'], message: 'Error: No product selected' } : ['Ninguno'];
+    }
     const productName = this.currentProduct.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
     
     const specialProducts = {
@@ -962,15 +1315,25 @@ class OrderSystem {
   }
 
   _setupOptionsModal(type) {
+    if (!this.currentProduct) {
+      console.error('No current product selected for options modal setup');
+      this._hideModal('drink-options-modal');
+      return;
+    }
     const optionsContainer = document.getElementById('drink-options-container');
     if (!optionsContainer) {
-      console.error(`Element 'drink-options-container' not found in ${type} options modal.`);
+      Logger.error(`Element 'drink-options-container' not found in ${type} options modal.`);
       this._hideModal('drink-options-modal');
       return;
     }
     
     optionsContainer.innerHTML = '';
     this.selectedDrinks = [];
+    if (!this.currentProduct) {
+      console.error('No current product selected for options modal setup');
+      this._hideModal('drink-options-modal');
+      return;
+    }
     this.bottleCategory = this.getLiquorType(this.currentProduct.name);
 
     const options = this._getOptionsForModalType(type);
@@ -980,6 +1343,10 @@ class OrderSystem {
   }
 
   _getOptionsForModalType(type) {
+    if (!this.currentProduct) {
+      console.error('No current product selected for getting modal options');
+      return ['Ninguno'];
+    }
     const productName = this.currentProduct.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
     
     if (productName.includes('BACARDI MANGO') || productName.includes('BACARDI RASPBERRY')) {
@@ -1016,15 +1383,9 @@ class OrderSystem {
   }
 
   _attachModalEventListeners() {
-    const confirmBtn = document.getElementById('confirm-drinks-btn');
-    const cancelBtn = document.getElementById('cancel-drinks-btn');
-
-    if (confirmBtn) {
-      confirmBtn.addEventListener('click', () => this.confirmDrinkOptions());
-    }
-    if (cancelBtn) {
-      cancelBtn.addEventListener('click', () => this.cancelProductSelection());
-    }
+    // Event listeners for modal buttons are now handled by event delegation
+    // in handleDelegatedEvent method to prevent duplicate listeners
+    // No need to attach individual listeners here
   }
 
   showFoodCustomizationModal() {
@@ -1033,40 +1394,43 @@ class OrderSystem {
   }
   
   _setupFoodModal() {
-    document.getElementById('ingredients-input-container').style.display = 'none';
+    const ingredientsContainer = document.getElementById('ingredients-input-container');
+    if (ingredientsContainer) ingredientsContainer.className = 'input-container-hidden';
     const ingredientsInput = document.getElementById('ingredients-to-remove');
     if (ingredientsInput) ingredientsInput.value = '';
     
-    const handlers = {
-      'keep-ingredients-btn': () => this._addFoodToOrder('Con todos los ingredientes'),
-      'customize-ingredients-btn': () => this._showIngredientsInput(),
-      'confirm-ingredients-btn': () => this._confirmIngredientCustomization(),
-      'cancel-ingredients-btn': () => this.cancelProductSelection()
-    };
-    
-    Object.entries(handlers).forEach(([id, handler]) => {
-      document.getElementById(id).addEventListener('click', handler);
-    });
-    
+    // Event listeners are now handled by event delegation in handleDelegatedEvent
     this._showModal('food-customization-modal');
   }
 
   _showIngredientsInput() {
-    document.getElementById('ingredients-input-container').style.display = 'block';
-    document.querySelector('.ingredients-choice').style.display = 'none';
+    const ingredientsContainer = document.getElementById('ingredients-input-container');
+    const ingredientsChoice = document.querySelector('.ingredients-choice');
+    if (ingredientsContainer) ingredientsContainer.className = 'input-container-visible';
+    if (ingredientsChoice) ingredientsChoice.className = 'choice-hidden';
   }
 
   _addFoodToOrder(customization) {
+    if (!this.currentProduct) {
+      console.error('No current product selected for food order');
+      return;
+    }
     this.addProductToOrder({
       name: this.currentProduct.name,
       price: this.currentProduct.price,
+      category: 'comida',
       customizations: [customization]
     });
     this._hideModal('food-customization-modal');
   }
 
   _confirmIngredientCustomization() {
-    const ingredientsToRemove = document.getElementById('ingredients-to-remove').value.trim();
+    const ingredientsElement = document.getElementById('ingredients-to-remove');
+    if (!ingredientsElement) {
+      console.error('Element with ID "ingredients-to-remove" not found');
+      return;
+    }
+    const ingredientsToRemove = ingredientsElement.value.trim();
     const customization = ingredientsToRemove ? `Sin: ${ingredientsToRemove}` : 'Con todos los ingredientes';
     this._addFoodToOrder(customization);
   }
@@ -1077,24 +1441,15 @@ class OrderSystem {
   }
   
   _setupMeatModal() {
-    document.getElementById('garnish-input-container').style.display = 'none';
+    const garnishContainer = document.getElementById('garnish-input-container');
+    if (garnishContainer) garnishContainer.className = 'input-container-hidden';
     const garnishModifications = document.getElementById('garnish-modifications');
     if (garnishModifications) garnishModifications.value = '';
     
     this.selectedCookingTerm = null;
     this._setupCookingOptions();
     
-    const handlers = {
-      'change-garnish-btn': () => this._showGarnishInput(),
-      'keep-garnish-btn': () => this._addMeatToOrder('Guarnición estándar'),
-      'confirm-garnish-btn': () => this._confirmGarnishCustomization(),
-      'cancel-garnish-btn': () => this.cancelProductSelection()
-    };
-    
-    Object.entries(handlers).forEach(([id, handler]) => {
-      document.getElementById(id).addEventListener('click', handler);
-    });
-    
+    // Event listeners are now handled by event delegation in handleDelegatedEvent
     this._showModal('meat-customization-modal');
   }
 
@@ -1112,16 +1467,24 @@ class OrderSystem {
 
   _showGarnishInput() {
     if (!this._validateCookingTerm()) return;
-    document.getElementById('garnish-input-container').style.display = 'block';
-    document.querySelector('.garnish-choice').style.display = 'none';
+    const garnishContainer = document.getElementById('garnish-input-container');
+    const garnishChoice = document.querySelector('.garnish-choice');
+    if (garnishContainer) garnishContainer.className = 'input-container-visible';
+    if (garnishChoice) garnishChoice.className = 'choice-hidden';
   }
 
   _addMeatToOrder(garnishType) {
     if (!this._validateCookingTerm()) return;
     
+    if (!this.currentProduct) {
+      console.error('No current product selected for meat order');
+      return;
+    }
+    
     this.addProductToOrder({
       name: this.currentProduct.name,
       price: this.currentProduct.price,
+      category: 'comida',
       customizations: [`Término: ${this._getTermText(this.selectedCookingTerm)}`, garnishType]
     });
     this._hideModal('meat-customization-modal');
@@ -1134,21 +1497,29 @@ class OrderSystem {
 
   _confirmGarnishCustomization() {
     if (!this._validateCookingTerm()) return;
-    const garnishModifications = document.getElementById('garnish-modifications').value.trim();
+    const garnishElement = document.getElementById('garnish-modifications');
+    if (!garnishElement) {
+      console.error('Element with ID "garnish-modifications" not found');
+      return;
+    }
+    const garnishModifications = garnishElement.value.trim();
     const garnishType = garnishModifications ? `Guarnición: ${garnishModifications}` : 'Guarnición estándar';
     this._addMeatToOrder(garnishType);
   }
 
   _validateCookingTerm() {
-    if (!this.selectedCookingTerm) {
-      this._showValidationModal('Por favor seleccione un término de cocción primero');
-      return false;
+    const isValid = OrderSystemValidations.validateCookingTerm(this.selectedCookingTerm);
+    if (!isValid) {
+      OrderSystemValidations.showValidationModal(
+        'Por favor seleccione un término de cocción primero',
+        this._createSimpleModal.bind(this)
+      );
     }
-    return true;
+    return isValid;
   }
 
   _showValidationModal(message) {
-    this._createSimpleModal(message, 'Aceptar', () => {});
+    OrderSystemValidations.showValidationModal(message, this._createSimpleModal.bind(this));
   }
 
   cancelProductSelection() {
@@ -1159,16 +1530,100 @@ class OrderSystem {
   }
 
   addProductToOrder(orderItem) {
+    // Ensure we're in order mode before adding to order
+    if (!this.isOrderMode) {
+      console.warn('Attempting to add product when not in order mode, activating order mode');
+      this.toggleOrderMode();
+    }
+    
+    // Ensure sidebar is visible before adding product
+    const sidebar = document.getElementById(CONSTANTS.SELECTORS.SIDEBAR);
+    if (sidebar) {
+      if (sidebar.classList.contains('sidebar-hidden')) {
+        sidebar.classList.remove('sidebar-hidden');
+        sidebar.classList.add('sidebar-visible');
+        
+        // Wait a bit for the sidebar to become visible before updating display
+        setTimeout(() => {
+          this.core.addProduct(orderItem);
+          this.updateOrderDisplay();
+          this.currentProduct = null;
+        }, 100);
+        return;
+      }
+    }
+    
     this.core.addProduct(orderItem); 
     this.updateOrderDisplay();
     this.currentProduct = null;
   }
 
   updateOrderDisplay() {
+    // Ensure sidebar is visible first if we're in order mode
+    if (this.isOrderMode) {
+      const sidebar = document.getElementById(CONSTANTS.SELECTORS.SIDEBAR);
+      if (sidebar && sidebar.classList.contains('sidebar-hidden')) {
+        sidebar.classList.remove('sidebar-hidden');
+        sidebar.classList.add('sidebar-visible');
+      }
+    }
+    
     const orderItemsContainer = document.getElementById('order-items');
+    if (!orderItemsContainer) {
+      console.warn('Element with ID "order-items" not found - sidebar may not be visible yet');
+      
+      // Debug: Log current DOM state
+      const sidebar = document.getElementById(CONSTANTS.SELECTORS.SIDEBAR);
+      console.log('🔍 DEBUG - updateOrderDisplay: order-items not found');
+      console.log('  - isOrderMode:', this.isOrderMode);
+      console.log('  - sidebar found:', !!sidebar);
+      console.log('  - sidebar classes:', sidebar ? sidebar.className : 'N/A');
+      console.log('  - sidebar style.display:', sidebar ? sidebar.style.display : 'N/A');
+      console.log('  - order-items in DOM:', !!document.getElementById('order-items'));
+      
+      // If order-items is not found but we're in order mode, try to make sidebar visible and retry
+      if (this.isOrderMode) {
+        if (sidebar) {
+          console.log('  - Making sidebar visible...');
+          // Force sidebar to be visible
+          sidebar.classList.remove('sidebar-hidden');
+          sidebar.classList.add('sidebar-visible');
+          console.log('  - sidebar classes after change:', sidebar.className);
+          
+          // Try again after a short delay to allow DOM to update
+          setTimeout(() => {
+            const retryContainer = document.getElementById('order-items');
+            console.log('🔍 DEBUG - updateOrderDisplay retry after 150ms:');
+            console.log('  - order-items found on retry:', !!retryContainer);
+            console.log('  - sidebar classes on retry:', sidebar ? sidebar.className : 'N/A');
+            if (retryContainer) {
+              console.log('  - SUCCESS: order-items found, updating content');
+              this._updateOrderDisplayContent(retryContainer);
+            } else {
+              console.error('Element with ID "order-items" still not found after making sidebar visible');
+              console.log('  - All elements with class sidebar-visible:', document.querySelectorAll('.sidebar-visible').length);
+              console.log('  - All elements with id order-sidebar:', document.querySelectorAll('#order-sidebar').length);
+              // Don't force order mode off, just log the error
+              Logger.error('Unable to find order-items container even after making sidebar visible');
+            }
+          }, 150); // Increased timeout to allow for CSS transitions
+        } else {
+          console.error('Sidebar element not found in DOM');
+        }
+      }
+      return;
+    }
+    this._updateOrderDisplayContent(orderItemsContainer);
+  }
+
+  _updateOrderDisplayContent(orderItemsContainer) {
     orderItemsContainer.innerHTML = '';
 
     const orderTotalAmount = document.getElementById('order-total-amount');
+    if (!orderTotalAmount) {
+      console.error('Element with ID "order-total-amount" not found');
+      return;
+    }
 
     const itemsToDisplay = this.core.getItems(); 
 
@@ -1195,7 +1650,7 @@ class OrderSystem {
 
       const itemPrice = document.createElement('div');
       itemPrice.className = 'order-item-price';
-      itemPrice.textContent = `$${item.price.toFixed(2)}`;
+      itemPrice.textContent = formatPrice(item.price);
 
       itemElement.appendChild(itemHeader);
       itemElement.appendChild(itemPrice);
@@ -1213,7 +1668,7 @@ class OrderSystem {
     });
 
     const total = this.core.getTotal(); 
-    orderTotalAmount.textContent = `$${total.toFixed(2)}`;
+    orderTotalAmount.textContent = formatPrice(total);
   }
 
   removeOrderItem(itemId) {
@@ -1225,7 +1680,10 @@ class OrderSystem {
     const currentOrderItems = this.core.getItems();
     
     if (currentOrderItems.length === 0) {
-      this._showValidationModal('La orden está vacía. Por favor agregue productos.');
+      OrderSystemValidations.showValidationModal(
+        'La orden está vacía. Por favor agregue productos.',
+        this._createSimpleModal.bind(this)
+      );
       return;
     }
 
@@ -1377,18 +1835,18 @@ class OrderSystem {
    */
   enhanceModalElement(modal) {
     if (!modal) {
-      console.error('enhanceModalElement: No modal provided');
+      Logger.error('enhanceModalElement: No modal provided');
       return;
     }
     
     // Force add show method (always override)
     modal.show = function() {
-      this.style.display = 'flex';
+      this.className = this.className.replace('modal-hidden', '').trim() + ' modal-flex';
     };
     
     // Force add hide method (always override)
     modal.hide = function() {
-      this.style.display = 'none';
+      this.className = this.className.replace('modal-flex', '').trim() + ' modal-hidden';
     };
     
     // Also use global enhancement if available as backup
@@ -1398,7 +1856,7 @@ class OrderSystem {
     
     // Verify methods were added correctly (only log errors)
     if (typeof modal.show !== 'function' || typeof modal.hide !== 'function') {
-      console.error(`Modal ${modal.id} enhancement FAILED - show: ${typeof modal.show}, hide: ${typeof modal.hide}`);
+      Logger.error(`Modal ${modal.id} enhancement FAILED - show: ${typeof modal.show}, hide: ${typeof modal.hide}`);
     }
   }
 
@@ -1420,7 +1878,7 @@ class OrderSystem {
         
         // Actualizar solo la vista activa correspondiente
         const ordersScreen = document.querySelector('.orders-screen');
-        if (ordersScreen && ordersScreen.style.display !== 'none') {
+        if (ordersScreen && !ordersScreen.classList.contains('screen-hidden')) {
           if (this.isShowingHistory) {
             const historyContainer = document.querySelector('.order-history-container');
             if (historyContainer) {
@@ -1448,15 +1906,15 @@ class OrderSystem {
       ordersScreen: document.querySelector('.orders-screen')
     };
     
-    elements.hamburgerBtn.style.display = 'none';
-    elements.contentContainer.style.display = 'none';
+    elements.hamburgerBtn.className = 'hamburger-btn hamburger-hidden';
+    elements.contentContainer.className = 'content-hidden';
     
     this.previousCategory = elements.mainContentScreen.getAttribute('data-category');
     this.previousTitle = elements.pageTitleElement ? elements.pageTitleElement.textContent : 'Coctelería';
     this.isShowingHistory = false;
     
     if (elements.ordersScreen) {
-      elements.ordersScreen.style.display = 'block';
+      elements.ordersScreen.className = 'orders-screen screen-block';
       const historyButton = elements.ordersScreen.querySelector('.history-btn');
       if (historyButton) historyButton.textContent = 'Historial Órdenes';
       this.populateOrdersScreen();
@@ -1485,7 +1943,7 @@ class OrderSystem {
     const header = this._createElement('div', 'orders-screen-header');
     
     const buttons = [
-      { class: 'nav-button orders-back-btn', text: 'Volver', handler: () => this.hideOrdersScreen() },
+      { class: 'nav-button orders-back-btn', text: 'Volver', handler: async () => await this.hideOrdersScreen() },
       { class: 'nav-button history-btn', text: 'Historial Órdenes', handler: (btn) => this.toggleOrderHistoryView(btn) }
     ];
     
@@ -1508,7 +1966,7 @@ class OrderSystem {
   _createButton({ class: className, text, handler }) {
     const button = this._createElement('button', className);
     button.textContent = text;
-    button.addEventListener('click', () => handler(button));
+    button.addEventListener('click', async () => await handler(button));
     return button;
   }
   
@@ -1534,20 +1992,30 @@ class OrderSystem {
   _showHistoryView(button, { ordersList, orderHistoryContainer, ordersScreenTitle }) {
     button.textContent = 'Ver Órdenes Activas';
     if (ordersScreenTitle) ordersScreenTitle.textContent = 'Historial de Órdenes';
-    if (ordersList) ordersList.style.display = 'none';
+    if (ordersList) {
+      ordersList.classList.add('screen-hidden');
+      ordersList.classList.remove('screen-visible');
+    }
     
     if (!orderHistoryContainer) {
       orderHistoryContainer = this._createHistoryContainer();
     }
-    orderHistoryContainer.style.display = 'grid';
+    orderHistoryContainer.classList.add('screen-visible');
+    orderHistoryContainer.classList.remove('screen-hidden');
     this.populateOrderHistoryScreen(orderHistoryContainer);
   }
 
   _showActiveOrdersView(button, { ordersList, orderHistoryContainer, ordersScreenTitle }) {
     button.textContent = 'Historial Órdenes';
     if (ordersScreenTitle) ordersScreenTitle.textContent = 'Órdenes Guardadas';
-    if (orderHistoryContainer) orderHistoryContainer.style.display = 'none';
-    if (ordersList) ordersList.style.display = 'grid';
+    if (orderHistoryContainer) {
+      orderHistoryContainer.classList.add('screen-hidden');
+      orderHistoryContainer.classList.remove('screen-visible');
+    }
+    if (ordersList) {
+      ordersList.classList.add('screen-visible');
+      ordersList.classList.remove('screen-hidden');
+    }
     this.populateOrdersScreen();
   }
 
@@ -1629,7 +2097,7 @@ class OrderSystem {
 
       const itemPrice = document.createElement('div');
       itemPrice.className = 'saved-order-item-price';
-      itemPrice.textContent = `$${item.price.toFixed(2)}`;
+      itemPrice.textContent = formatPrice(item.price);
 
       itemElement.appendChild(itemName);
       itemElement.appendChild(itemPrice);
@@ -1648,7 +2116,7 @@ class OrderSystem {
 
     const orderTotal = document.createElement('div');
     orderTotal.className = 'saved-order-total';
-    orderTotal.textContent = `Total: $${order.total.toFixed(2)}`;
+    orderTotal.textContent = `Total: ${formatPrice(order.total)}`;
     orderElement.appendChild(orderTotal);
 
     if (includeDeleteButton) {
@@ -1743,19 +2211,41 @@ class OrderSystem {
     document.body.removeChild(modalBackdrop);
   }
 
-  hideOrdersScreen() {
+  async hideOrdersScreen() {
+    Logger.debug('🔄 Ocultando pantalla de órdenes - Estado DOM antes:', {
+      mainScreen: !!document.getElementById('main-screen'),
+      contentContainer: !!document.getElementById('content-container'),
+      ordersBox: !!document.getElementById('orders-box'),
+      previousCategory: this.previousCategory,
+      url: window.location.href
+    });
+    
     const elements = {
       contentContainer: document.getElementById('content-container'),
       ordersScreen: document.querySelector('.orders-screen'),
       hamburgerBtn: document.getElementById('hamburger-btn')
     };
     
-    elements.hamburgerBtn.style.display = 'block';
-    elements.ordersScreen.style.display = 'none';
-    elements.contentContainer.style.display = 'block';
+    elements.hamburgerBtn.classList.add('hamburger-visible');
+    elements.hamburgerBtn.classList.remove('hamburger-hidden');
+    elements.ordersScreen.classList.add('screen-hidden');
+    elements.ordersScreen.classList.remove('screen-visible');
+    elements.contentContainer.classList.add('content-visible');
+    elements.contentContainer.classList.remove('content-hidden');
     
     if (this.previousCategory && window.AppInit) {
-      window.AppInit.loadContent(this.previousCategory);
+      Logger.debug('📞 Llamando a AppInit.loadContent con categoría:', this.previousCategory);
+      await window.AppInit.loadContent(this.previousCategory);
+      
+      // Log DOM state after loadContent
+      setTimeout(() => {
+        Logger.debug('📊 Estado DOM después de loadContent:', {
+          mainScreen: !!document.getElementById('main-screen'),
+          contentContainer: !!document.getElementById('content-container'),
+          ordersBox: !!document.getElementById('orders-box'),
+          mainScreenVisible: document.getElementById('main-screen') ? !document.getElementById('main-screen').classList.contains('screen-hidden') : false
+        });
+      }, 100);
     }
   }
 }
@@ -1765,17 +2255,47 @@ let orderSystemInitialized = false;
 
 function initializeOrderSystem() {
   if (orderSystemInitialized) {
-    console.log('⚠️ OrderSystem already initialized, skipping...');
+    Logger.info('OrderSystem already initialized, skipping...');
     return;
   }
+  
+  // Log DOM state before initialization
+  const mainScreen = document.getElementById('main-screen');
+  const contentContainer = document.getElementById('content-container');
+  const ordersBox = document.getElementById('orders-box');
+  
+  Logger.debug('🔧 Inicializando OrderSystem - Estado DOM:', {
+    mainScreen: !!mainScreen,
+    contentContainer: !!contentContainer,
+    ordersBox: !!ordersBox,
+    mainScreenVisible: mainScreen ? !mainScreen.classList.contains('screen-hidden') : false,
+    mainScreenClasses: mainScreen ? Array.from(mainScreen.classList) : [],
+    url: window.location.href
+  });
   
   try {
     const orderSystem = new OrderSystem();
     orderSystem.initialize();
     orderSystemInitialized = true;
-    console.log('✅ OrderSystem initialized successfully');
+    
+    // Log DOM state after initialization
+    setTimeout(() => {
+      const afterMainScreen = document.getElementById('main-screen');
+      const afterContentContainer = document.getElementById('content-container');
+      const afterOrdersBox = document.getElementById('orders-box');
+      
+      Logger.debug('✅ OrderSystem inicializado - Estado DOM después:', {
+        mainScreen: !!afterMainScreen,
+        contentContainer: !!afterContentContainer,
+        ordersBox: !!afterOrdersBox,
+        mainScreenVisible: afterMainScreen ? !afterMainScreen.classList.contains('screen-hidden') : false,
+        mainScreenClasses: afterMainScreen ? Array.from(afterMainScreen.classList) : []
+      });
+    }, 50);
+    
+    Logger.info('OrderSystem initialized successfully');
   } catch (error) {
-    console.error('❌ Failed to initialize OrderSystem:', error);
+    Logger.error('Failed to initialize OrderSystem:', error);
     // Retry after a short delay
     setTimeout(initializeOrderSystem, 100);
   }
@@ -1787,6 +2307,14 @@ if (window.AppInit && window.DIContainer) {
 } else {
   // Listen for AppInit completion
   document.addEventListener('app-init-complete', initializeOrderSystem);
+  
+  // Listen for content ready events to ensure DOM elements are available
+  document.addEventListener('app-content-ready', function() {
+    // Ensure OrderSystem is initialized when content is ready
+    if (!orderSystemInitialized) {
+      initializeOrderSystem();
+    }
+  });
   
   // Fallback: try after DOMContentLoaded with a delay
   document.addEventListener('DOMContentLoaded', function() {

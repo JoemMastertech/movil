@@ -62,10 +62,8 @@
 ```
 📁 application/
 ├── 📄 services/
-│   ├── OrderService.js      # Servicio de gestión de órdenes
-│   ├── OrderCore.js         # Lógica central de órdenes
-│   ├── StateManager.js      # Gestión de estado global
-│   └── ValidationService.js # Validaciones centralizadas
+│   ├── ordercore.js         # Servicio de gestión de órdenes (OrderSystemCore)
+│   └── OrderCore_temp.js    # Archivo temporal de respaldo
 └── 📄 use-cases/
     └── LoadCocktailsUseCase.js  # Caso de uso para carga de cócteles
 ```
@@ -126,13 +124,30 @@
 
 ```
 📁 shared/
-├── 📄 utils/
-│   ├── diUtils.js         # Inyección de dependencias
-│   ├── errorHandler.js    # Manejo centralizado de errores
-│   ├── logger.js          # Sistema de logging optimizado
-│   └── calculationUtils.js # Utilidades de cálculo
-└── 📄 constants/
-    └── appConstants.js    # Constantes de aplicación
+├── 📄 base/
+│   └── BaseEntity.js       # Clase base para entidades
+├── 📄 config/
+│   ├── EnvironmentManager.js # Gestión de ambiente
+│   ├── app-init.js         # Inicialización de app
+│   ├── constants.js        # Constantes del sistema
+│   └── storage.js          # Gestión de almacenamiento
+├── 📄 core/
+│   ├── AppConfig.js        # Configuración centralizada
+│   └── DIContainer.js      # Contenedor de dependencias
+├── 📄 performance/
+│   └── MemoizationManager.js # Sistema de caché y memoización
+├── 📄 styles/
+│   └── main.css            # Estilos con variables CSS centralizadas
+└── 📄 utils/
+    ├── calculationUtils.js  # Utilidades de cálculo
+    ├── diUtils.js          # Utilidades de inyección de dependencias
+    ├── domUtils.js         # Utilidades de DOM
+    ├── errorHandler.js     # Manejo de errores centralizado
+    ├── formatters.js       # Formateo unificado
+    ├── logger.js           # Sistema de logging
+    ├── sanitizer.js        # Sanitización de datos
+    ├── simpleCache.js      # Caché simple
+    └── validator.js        # Validaciones centralizadas
 ```
 
 **Características:**
@@ -154,10 +169,28 @@ class ProductRepositoryPort {
   async save(entity) { throw new Error('Not implemented'); }
 }
 
-// Adaptador (Implementation)
-class ProductRepository extends ProductRepositoryPort {
-  async findAll() {
-    // Implementación específica
+// Adaptador (Implementation real)
+class SupabaseAdapter {
+  constructor(client) {
+    this.client = client;
+    this.cache = new Map();
+  }
+
+  async loadCocktails(category = null) {
+    try {
+      let query = this.client.from('productos').select('*');
+      if (category) {
+        query = query.eq('categoria', category);
+      }
+      
+      const { data, error } = await query;
+      if (error) throw error;
+      
+      return data || [];
+    } catch (error) {
+      console.error('Error loading cocktails:', error);
+      throw error;
+    }
   }
 }
 ```

@@ -23,8 +23,9 @@ class SafeModal extends HTMLElement {
     this.setAttribute('aria-hidden', 'true');
     
     // Ensure initial hidden state
-    if (!this.style.display) {
-      this.style.display = 'none';
+    if (!this.classList.contains('modal-hidden')) {
+      this.classList.remove('modal-flex');
+      this.classList.add('modal-hidden');
     }
     
     // Add backdrop click listener
@@ -48,7 +49,8 @@ class SafeModal extends HTMLElement {
     this.previousActiveElement = document.activeElement;
     
     // Show modal
-    this.style.display = 'flex';
+    this.classList.remove('modal-hidden');
+    this.classList.add('modal-flex');
     this.setAttribute('aria-hidden', 'false');
     this.isOpen = true;
     
@@ -60,7 +62,7 @@ class SafeModal extends HTMLElement {
     this.focusFirstElement();
     
     // Prevent body scroll
-    document.body.style.overflow = 'hidden';
+    document.body.className = document.body.className.replace('body-scroll', '').trim() + ' body-no-scroll';
     
     // Dispatch custom event
     this.dispatchEvent(new CustomEvent('modal:show', {
@@ -75,7 +77,8 @@ class SafeModal extends HTMLElement {
     if (!this.isOpen) return;
     
     // Hide modal
-    this.style.display = 'none';
+    this.classList.remove('modal-flex');
+    this.classList.add('modal-hidden');
     this.setAttribute('aria-hidden', 'true');
     this.isOpen = false;
     
@@ -89,7 +92,7 @@ class SafeModal extends HTMLElement {
     }
     
     // Restore body scroll
-    document.body.style.overflow = '';
+    document.body.className = document.body.className.replace('body-no-scroll', '').trim() + ' body-scroll';
     
     // Dispatch custom event
     this.dispatchEvent(new CustomEvent('modal:hide', {

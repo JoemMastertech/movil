@@ -116,94 +116,62 @@ class AppConfig {
   }
 
   /**
-   * Detect current environment
+   * Detect current environment (simplified)
    * @returns {string} Environment name
    */
   detectEnvironment() {
-    // Check if we're in a browser environment
-    if (typeof window === 'undefined') {
-      return 'server';
-    }
-
-    // Check for explicit environment variable
+    if (typeof window === 'undefined') return 'server';
+    
     const envVar = this.getEnvVar('VITE_ENVIRONMENT');
-    if (envVar) {
-      return envVar;
-    }
-
-    // Check hostname patterns
+    if (envVar) return envVar;
+    
     const hostname = window.location?.hostname || '';
     
     if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('local')) {
       return 'development';
     }
     
-    if (hostname.includes('staging') || hostname.includes('test')) {
-      return 'staging';
-    }
-    
-    return 'production';
+    return hostname.includes('staging') || hostname.includes('test') ? 'staging' : 'production';
   }
 
   /**
-   * Get environment variable with fallback
+   * Get environment variable with fallback (simplified)
    * @param {string} key - Environment variable key
    * @param {*} defaultValue - Default value if not found
    * @returns {string|*} Environment variable value or default
    */
   getEnvVar(key, defaultValue = null) {
-    // Try import.meta.env first (Vite)
-    if (typeof window !== 'undefined' && typeof window.importMeta !== 'undefined' && window.importMeta?.env) {
-      return window.importMeta.env[key] || defaultValue;
-    }
-
-    // Alternative check for import.meta in modern environments
+    // Try common environment sources
     try {
-      if (typeof globalThis !== 'undefined' && globalThis.importMeta?.env) {
-        return globalThis.importMeta.env[key] || defaultValue;
-      }
-    } catch (e) {
-      // Ignore errors when import.meta is not available
+      return window?.importMeta?.env?.[key] || 
+             globalThis?.importMeta?.env?.[key] || 
+             process?.env?.[key] || 
+             window?.env?.[key] || 
+             defaultValue;
+    } catch {
+      return defaultValue;
     }
-
-    // Try process.env (Node.js)
-    if (typeof process !== 'undefined' && process.env) {
-      return process.env[key] || defaultValue;
-    }
-
-    // Try window environment (fallback)
-    if (typeof window !== 'undefined' && window.env) {
-      return window.env[key] || defaultValue;
-    }
-
-    return defaultValue;
   }
 
   /**
-   * Get boolean environment variable
+   * Get boolean environment variable (simplified)
    * @param {string} key - Environment variable key
    * @param {boolean} defaultValue - Default boolean value
    * @returns {boolean}
    */
   getBooleanEnv(key, defaultValue = false) {
     const value = this.getEnvVar(key);
-    if (value === null || value === undefined) {
-      return defaultValue;
-    }
-    return value === 'true' || value === '1' || value === true;
+    return value === 'true' || value === '1' || value === true || defaultValue;
   }
 
   /**
-   * Get numeric environment variable
+   * Get numeric environment variable (simplified)
    * @param {string} key - Environment variable key
    * @param {number} defaultValue - Default numeric value
    * @returns {number}
    */
   getNumberEnv(key, defaultValue = 0) {
     const value = this.getEnvVar(key);
-    if (value === null || value === undefined) {
-      return defaultValue;
-    }
     const parsed = parseInt(value, 10);
     return isNaN(parsed) ? defaultValue : parsed;
   }

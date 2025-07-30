@@ -1,5 +1,6 @@
 import { logError, logWarning } from '../utils/errorHandler.js';
 import { DEBUG } from './constants.js';
+import Logger from '../utils/logger.js';
 
 class ConfigValidator {
   constructor() {
@@ -281,7 +282,7 @@ export class EnvironmentManager {
     }
 
     if (this.isDebugMode) {
-      console.log(`🌍 Environment detected: ${this.currentEnvironment}`);
+      Logger.info(`Environment detected: ${this.currentEnvironment}`);
     }
   }
 
@@ -321,7 +322,7 @@ export class EnvironmentManager {
       this.notifyWatchers('configRegistered', { environment, config: finalConfig });
 
       if (this.isDebugMode) {
-        console.log(`⚙️ Configuration registered for ${environment}`);
+        Logger.info(`Configuration registered for ${environment}`);
       }
 
       return true;
@@ -384,7 +385,7 @@ export class EnvironmentManager {
       });
 
       if (this.isDebugMode) {
-        console.log(`🔄 Environment switched from ${previousEnvironment} to ${environment}`);
+        Logger.info(`Environment switched from ${previousEnvironment} to ${environment}`);
       }
 
       return true;
@@ -399,7 +400,7 @@ export class EnvironmentManager {
       this.featureFlags.registerFlag(flagName, flagConfig);
       
       if (this.isDebugMode) {
-        console.log(`🚩 Feature flag registered: ${flagName}`);
+        Logger.info(`Feature flag registered: ${flagName}`);
       }
       
       return true;
@@ -498,7 +499,7 @@ export class EnvironmentManager {
       }
 
       if (this.isDebugMode) {
-        console.log('📥 Configuration imported successfully');
+        Logger.info('Configuration imported successfully');
       }
 
       return true;

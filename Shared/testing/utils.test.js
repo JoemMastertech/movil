@@ -293,7 +293,8 @@ describe('Calculation Utils', () => {
 
 // Export test runner function for manual execution
 export async function runUtilsTests() {
-  console.log('🧪 Running Shared Utils Tests...');
+  // Test output - keeping console.log for test visibility
+console.log('🧪 Running Shared Utils Tests...');
   const results = await import('./test-framework.js').then(framework => framework.runTests());
   return results;
 }

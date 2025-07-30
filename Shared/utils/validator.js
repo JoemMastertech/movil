@@ -1,26 +1,70 @@
 import { VALIDATION } from '../config/constants.js';
-import Logger from './logger.js';
-import { MemoizationManager } from './simpleCache.js';
 
-const validatorCache = new MemoizationManager({ defaultCacheSize: 150, defaultTTL: 300000 });
+/**
+ * Unified Validator Class
+ * Provides both generic and domain-specific validation methods
+ * Centralized validation logic with consistent error handling
+ */
 class Validator {
-  static #memoizedValidate = validatorCache.memoize(
-    'validation',
-    (value, type, options = {}) => {
-      switch (type) {
-        case 'email': return Validator.#validateEmail(value);
-        case 'phone': return Validator.#validatePhone(value);
-        case 'number': return Validator.#validateNumber(value, options);
-        case 'text': return Validator.#validateText(value, options);
-        case 'password': return Validator.#validatePassword(value);
-        default:
-          Logger.warn('Unknown validation type', { type });
-          return { isValid: true, message: '' };
-      }
-    },
-    { keyGenerator: (args) => `${args[1]}_${JSON.stringify(args[0])}_${JSON.stringify(args[2])}`, ttl: 300000 }
-  );
+  /**
+   * Validate email format
+   * @param {string} email - Email to validate
+   * @returns {boolean} True if valid email format
+   */
+  static isValidEmail(email) {
+    if (!email || typeof email !== 'string') return false;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email.trim());
+  }
 
+  /**
+   * Validate phone number format
+   * @param {string} phone - Phone number to validate
+   * @returns {boolean} True if valid phone format
+   */
+  static isValidPhone(phone) {
+    if (!phone || typeof phone !== 'string') return false;
+    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+    return phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''));
+  }
+
+  /**
+   * Validate if value is a positive number
+   * @param {*} value - Value to validate
+   * @returns {boolean} True if positive number
+   */
+  static isPositiveNumber(value) {
+    const num = Number(value);
+    return !isNaN(num) && num > 0;
+  }
+
+  /**
+   * Validate text length
+   * @param {string} text - Text to validate
+   * @param {number} minLength - Minimum length
+   * @param {number} maxLength - Maximum length
+   * @returns {boolean} True if within length bounds
+   */
+  static isValidLength(text, minLength = 0, maxLength = Infinity) {
+    if (typeof text !== 'string') return false;
+    const length = text.trim().length;
+    return length >= minLength && length <= maxLength;
+  }
+
+  /**
+   * Validate URL format
+   * @param {string} url - URL to validate
+   * @returns {boolean} True if valid URL
+   */
+  static isValidUrl(url) {
+    if (!url || typeof url !== 'string') return false;
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  }
   static validate(value, type, options = {}) {
     try {
       if (this.#isEmpty(value) && !options.optional) {
@@ -31,9 +75,16 @@ class Validator {
         return { isValid: true, message: '' };
       }
       
-      return this.#memoizedValidate(value, type, options);
+      switch (type) {
+        case 'email': return this.#validateEmail(value);
+        case 'phone': return this.#validatePhone(value);
+        case 'number': return this.#validateNumber(value, options);
+        case 'text': return this.#validateText(value, options);
+        case 'password': return this.#validatePassword(value);
+        default:
+          return { isValid: true, message: '' };
+      }
     } catch (error) {
-      Logger.error('Validation error', { type, value, error });
       return { isValid: false, message: 'Error en la validación' };
     }
   }
@@ -132,15 +183,7 @@ class Validator {
       .substring(0, 1000);
   }
 
-  static getValidatorStats = () => validatorCache.getGlobalStats();
 
-  static clearValidatorCache = (cacheKey = null) => {
-    if (cacheKey) {
-      validatorCache.clearCache(cacheKey);
-    } else {
-      validatorCache.clearAllCaches();
-    }
-  };
 
   static validateBatch = (validations) => validations.map(({ value, type, options = {} }) => 
     this.validate(value, type, options)
@@ -155,6 +198,80 @@ class Validator {
       sanitizedValue
     };
   };
+
+  // Domain-specific validation methods
+  /**
+   * Validate product data
+   * @param {Object} product - Product to validate
+   * @returns {Object} Validation result
+   */
+  static validateProduct(product) {
+    const errors = [];
+    if (!product?.name?.trim()) errors.push('Product name is required');
+    if (!this.isPositiveNumber(product?.price)) errors.push('Valid price is required');
+    if (!product?.category?.trim()) errors.push('Product category is required');
+    return { isValid: errors.length === 0, errors };
+  }
+
+  /**
+   * Validate cocktail data
+   * @param {Object} cocktail - Cocktail to validate
+   * @returns {Object} Validation result
+   */
+  static validateCocktail(cocktail) {
+    const errors = [];
+    if (!cocktail?.name?.trim()) errors.push('Cocktail name is required');
+    if (!this.isPositiveNumber(cocktail?.price)) errors.push('Valid price is required');
+    if (!cocktail?.ingredients?.length) errors.push('At least one ingredient is required');
+    return { isValid: errors.length === 0, errors };
+  }
+
+  /**
+   * Validate order data
+   * @param {Object} order - Order to validate
+   * @returns {Object} Validation result
+   */
+  static validateOrder(order) {
+    const errors = [];
+    if (!order?.items?.length) errors.push('Order must contain at least one item');
+    if (!this.isPositiveNumber(order?.total)) errors.push('Valid order total is required');
+    return { isValid: errors.length === 0, errors };
+  }
+
+  /**
+   * Validate beer data
+   * @param {Object} beer - Beer to validate
+   * @returns {Object} Validation result
+   */
+  static validateBeer(beer) {
+    const errors = [];
+    if (!beer?.nombre?.trim()) errors.push('Beer name is required');
+    if (!this.isPositiveNumber(beer?.precio)) errors.push('Valid price is required');
+    return { isValid: errors.length === 0, errors };
+  }
+
+  /**
+   * Validate food data
+   * @param {Object} food - Food to validate
+   * @returns {Object} Validation result
+   */
+  static validateFood(food) {
+    const errors = [];
+    if (!food?.nombre?.trim()) errors.push('Food name is required');
+    if (!this.isPositiveNumber(food?.precio)) errors.push('Valid price is required');
+    return { isValid: errors.length === 0, errors };
+  }
+
+  /**
+   * Throw error if validation fails
+   * @param {Object} validation - Validation result
+   * @param {string} context - Error context
+   */
+  static throwIfInvalid(validation, context = 'Validation') {
+    if (!validation.isValid) {
+      throw new Error(`${context} failed: ${validation.errors.join(', ')}`);
+    }
+  }
 }
 
 export default Validator;

@@ -3,16 +3,20 @@
 import { getProductRepository } from '../../../../Shared/utils/diUtils.js';
 import { setSafeInnerHTML } from '../../../../Shared/utils/domUtils.js';
 import { logError, logWarning } from '../../../../Shared/utils/errorHandler.js';
-import { LiquorCategories } from './LiquorCategories.js';
+import Logger from '../../../../Shared/utils/logger.js';
 
 const ProductRenderer = {
   // Current view mode: 'table' or 'grid'
   currentViewMode: 'table',
   
+  // Phase 3: Event delegation system
+  eventDelegationInitialized: false,
+  boundDelegatedHandler: null,
+  
   // Toggle between table and grid view
   toggleViewMode: function() {
     this.currentViewMode = this.currentViewMode === 'table' ? 'grid' : 'table';
-    console.log('🔄 View mode toggled to:', this.currentViewMode);
+    Logger.info('View mode toggled to:', this.currentViewMode);
     
     // Update toggle button text
     const toggleBtn = document.querySelector('.view-toggle-btn');
@@ -24,8 +28,104 @@ const ProductRenderer = {
     return this.currentViewMode;
   },
   
-  // Create view toggle button
+  // Phase 3: Initialize intelligent event delegation
+  initEventDelegation: function() {
+    if (this.eventDelegationInitialized) return;
+    
+    this.boundDelegatedHandler = this.handleDelegatedEvent.bind(this);
+    document.addEventListener('click', this.boundDelegatedHandler);
+    this.eventDelegationInitialized = true;
+    
+    Logger.info('Event delegation system initialized for ProductRenderer');
+  },
+  
+  // Phase 3: Centralized event handler
+  handleDelegatedEvent: function(e) {
+    const target = e.target;
+    
+    // Handle view toggle buttons
+    if (target.classList && target.classList.contains('view-toggle-btn')) {
+      e.preventDefault();
+      this.toggleViewMode();
+      const container = target.closest('.content-wrapper') || document.querySelector('.content-wrapper');
+      if (container) this.refreshCurrentView(container);
+      return;
+    }
+    
+    // Handle back buttons
+    if (target.classList && target.classList.contains('back-button')) {
+      e.preventDefault();
+      const container = target.closest('.content-wrapper') || document.querySelector('.content-wrapper');
+      if (container) this.renderLicores(container);
+      return;
+    }
+    
+    // Handle price buttons
+    if (target.classList && target.classList.contains('price-button')) {
+      e.preventDefault();
+      this.handlePriceButtonClick(target, e);
+      return;
+    }
+    
+    // Handle video thumbnails
+    if ((target.classList && target.classList.contains('video-thumb')) || (target.classList && target.classList.contains('video-thumbnail'))) {
+      e.preventDefault();
+      this.handleVideoClick(target);
+      return;
+    }
+    
+    // Handle product images
+    if (target.classList && target.classList.contains('product-image')) {
+      e.preventDefault();
+      this.handleImageClick(target);
+      return;
+    }
+    
+    // Handle product cards (grid view)
+    if (target.classList && target.classList.contains('product-card')) {
+      e.preventDefault();
+      this.handleCardClick(target, e);
+      return;
+    }
+    
+    // Handle category cards
+    if ((target.classList && target.classList.contains('category-card')) || target.closest('.category-card')) {
+      e.preventDefault();
+      this.handleCategoryCardClick(target);
+      return;
+    }
+    
+    // Handle modal close buttons
+    if (target.classList && target.classList.contains('modal-close-btn')) {
+      e.preventDefault();
+      this.handleModalClose(target);
+      return;
+    }
+    
+    // Handle modal backdrop clicks
+    if ((target.classList && target.classList.contains('modal-backdrop')) || 
+        (target.classList && target.classList.contains('video-modal-backdrop')) || 
+        (target.classList && target.classList.contains('image-modal-backdrop'))) {
+      this.handleModalBackdropClick(target, e);
+      return;
+    }
+  },
+  
+  // Phase 3: Cleanup event delegation
+  destroyEventDelegation: function() {
+    if (this.boundDelegatedHandler) {
+      document.removeEventListener('click', this.boundDelegatedHandler);
+      this.boundDelegatedHandler = null;
+      this.eventDelegationInitialized = false;
+      Logger.info('Event delegation system destroyed');
+    }
+  },
+  
+  // Create view toggle button (optimized)
   createViewToggle: function(container) {
+    // Initialize event delegation if not already done
+    this.initEventDelegation();
+    
     const toggleContainer = document.createElement('div');
     toggleContainer.className = 'view-toggle-container';
     
@@ -34,169 +134,351 @@ const ProductRenderer = {
     toggleBtn.textContent = this.currentViewMode === 'table' ? '🔲' : '📋';
     toggleBtn.classList.toggle('active', this.currentViewMode === 'grid');
     
-    toggleBtn.addEventListener('click', () => {
-      this.toggleViewMode();
-      // Re-render current content with new view mode
-      this.refreshCurrentView(container);
-    });
-    
+    // No individual event listener needed - handled by delegation
     toggleContainer.appendChild(toggleBtn);
     return toggleContainer;
   },
   
   // Refresh current view with new mode
-  refreshCurrentView: function(container) {
-    // Get current category from container or last rendered category
+  refreshCurrentView: async function(container) {
+    const viewData = this._extractViewData(container);
+    if (!viewData) return;
+    
+    const backButtonHTML = this._preserveBackButton(container);
+    const targetContainer = this._clearAndRestoreContainer(container, backButtonHTML);
+    await this._renderCategoryView(targetContainer, viewData.category);
+  },
+
+  _extractViewData: function(container) {
     const existingTable = container.querySelector('table, .product-grid');
-    if (!existingTable) return;
+    if (!existingTable) return null;
     
     const category = existingTable.dataset.category;
-    if (!category) return;
+    if (!category) return null;
     
-    // Check if we have a back button (liquor subcategory)
+    return { category };
+  },
+
+  _preserveBackButton: function(container) {
     const backButtonContainer = container.querySelector('.back-button-container');
-    let backButtonHTML = null;
-    if (backButtonContainer) {
-      backButtonHTML = backButtonContainer.outerHTML;
-    }
-    
-    // Clear container and re-render
-    container.innerHTML = '';
-    
-    // Restore back button if it existed
-    if (backButtonHTML) {
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = backButtonHTML;
-      const restoredBackButton = tempDiv.firstChild;
-      
-      // Re-attach event listener
-      const backButton = restoredBackButton.querySelector('.back-button');
-      if (backButton) {
-        backButton.addEventListener('click', () => {
-          this.renderLicores(container);
-        });
+    return backButtonContainer ? backButtonContainer.outerHTML : null;
+  },
+
+  _clearAndRestoreContainer: function(container, backButtonHTML) {
+    // Get or create content container without destroying sidebar structure
+    let targetContainer = document.getElementById('content-container');
+    if (!targetContainer) {
+      // Find the content-container-flex to maintain proper structure
+      const flexContainer = document.querySelector('.content-container-flex');
+      if (flexContainer) {
+        targetContainer = document.createElement('div');
+        targetContainer.id = 'content-container';
+        // Insert before the sidebar to maintain proper order
+        const existingSidebar = flexContainer.querySelector('#order-sidebar');
+        if (existingSidebar) {
+          flexContainer.insertBefore(targetContainer, existingSidebar);
+        } else {
+          flexContainer.appendChild(targetContainer);
+        }
+      } else {
+        // Fallback: create in the provided container
+        targetContainer = document.createElement('div');
+        targetContainer.id = 'content-container';
+        container.appendChild(targetContainer);
       }
-      
-      container.appendChild(restoredBackButton);
+    } else {
+      // Clear only the content container, leaving sidebar untouched
+      targetContainer.innerHTML = '';
     }
     
-    // Re-render based on category
-    switch(category) {
-      case 'cocteleria':
-        this.renderCocktails(container);
-        break;
-      case 'pizzas':
-        this.renderPizzas(container);
-        break;
-      case 'alitas':
-        this.renderAlitas(container);
-        break;
-      case 'sopas':
-        this.renderSopas(container);
-        break;
-      case 'ensaladas':
-        this.renderEnsaladas(container);
-        break;
-      case 'carnes':
-        this.renderCarnes(container);
-        break;
-      case 'cafe':
-        this.renderCafe(container);
-        break;
-      case 'postres':
-        this.renderPostres(container);
-        break;
-      case 'refrescos':
-        this.renderRefrescos(container);
-        break;
-      case 'cervezas':
-        this.renderCervezas(container);
-        break;
-      case 'tequila':
-        this.renderTequila(container);
-        break;
-      case 'whisky':
-        this.renderWhisky(container);
-        break;
-      case 'ron':
-        this.renderRon(container);
-        break;
-      case 'vodka':
-        this.renderVodka(container);
-        break;
-      case 'ginebra':
-        this.renderGinebra(container);
-        break;
-      case 'mezcal':
-        this.renderMezcal(container);
-        break;
-      case 'cognac':
-        this.renderCognac(container);
-        break;
-      case 'brandy':
-        this.renderBrandy(container);
-        break;
-      case 'digestivos':
-        this.renderDigestivos(container);
-        break;
-      case 'espumosos':
-        this.renderEspumosos(container);
-        break;
-      default:
-        console.warn('Unknown category for refresh:', category);
+    if (backButtonHTML) {
+      this._restoreBackButton(targetContainer, backButtonHTML);
+    }
+    
+    return targetContainer;
+  },
+
+  _restoreBackButton: function(container, backButtonHTML) {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = backButtonHTML;
+    const restoredBackButton = tempDiv.firstChild;
+    
+    // No need to add individual event listener - handled by delegation
+    container.appendChild(restoredBackButton);
+  },
+  
+  // Phase 3: Specific event handlers
+  handleCategoryCardClick: function(target) {
+    const categoryCard = target.closest('.category-card') || target;
+    const category = categoryCard.dataset.category;
+    
+    Logger.info(`🎯 Clic en categoría de licor: ${category}`);
+    
+    // Log current DOM state before navigation
+    const currentMainScreen = document.getElementById('main-screen');
+    const currentContentContainer = document.getElementById('content-container');
+    const currentOrdersBox = document.getElementById('orders-box');
+    
+    Logger.debug('📊 Estado DOM antes de clic en categoría:', {
+      category: category,
+      mainScreen: !!currentMainScreen,
+      contentContainer: !!currentContentContainer,
+      ordersBox: !!currentOrdersBox,
+      mainScreenVisible: currentMainScreen ? !currentMainScreen.classList.contains('hidden') : false,
+      mainScreenClasses: currentMainScreen ? Array.from(currentMainScreen.classList) : []
+    });
+    
+    if (category) {
+      const container = categoryCard.closest('.content-wrapper') || document.querySelector('.content-wrapper');
+      if (container) {
+        Logger.debug(`📦 Container encontrado para categoría ${category}`);
+        this.renderLicorSubcategory(container, category);
+      } else {
+        Logger.error(`❌ No se encontró container para categoría ${category}`);
+      }
+    } else {
+      Logger.warn('⚠️ No se encontró categoría en el elemento clickeado');
+    }
+  },
+  
+  handleModalClose: function(target) {
+    const modal = target.closest('.modal-backdrop');
+    if (modal) {
+      modal.remove();
+    }
+  },
+  
+  handleModalBackdropClick: function(target, event) {
+    // Only close if clicking directly on the backdrop, not on modal content
+    if (event.target === target) {
+      target.remove();
+    }
+  },
+  
+  handlePriceButtonClick: function(target, event) {
+    if (target.disabled || (target.classList && target.classList.contains('non-selectable'))) {
+      return;
+    }
+    
+    const row = target.closest('tr');
+    const card = target.closest('.product-card');
+    
+    if (row) {
+      // Table view handling
+      const nameCell = row.querySelector('.product-name');
+      const priceText = target.textContent;
+      const productName = nameCell.textContent;
+      
+      if (window.OrderSystem && window.OrderSystem.handleProductSelection) {
+        window.OrderSystem.handleProductSelection(productName, priceText, row, event);
+      }
+    } else if (card) {
+      // Grid view handling
+      const productName = target.dataset.productName;
+      const priceText = target.textContent;
+      
+      Logger.debug('[GRID DEBUG] Price button clicked:', {
+        productName,
+        priceText,
+        field: target.dataset.field,
+        orderSystemExists: !!window.OrderSystem,
+        isOrderMode: window.OrderSystem?.isOrderMode
+      });
+      
+      if (window.OrderSystem && window.OrderSystem.handleProductSelection) {
+        window.OrderSystem.handleProductSelection(productName, priceText, card, event);
+      }
+    }
+  },
+  
+  handleVideoClick: function(target) {
+    const videoUrl = target.dataset.videoUrl || target.src;
+    const productName = target.alt?.replace('Ver video de ', '') || target.alt?.replace('Video de ', '') || 'Producto';
+    const categoryElement = target.closest('table, .product-grid');
+    const category = categoryElement?.dataset.category;
+    
+    const modalCategory = (category === 'cervezas' || category === 'refrescos') ? category : null;
+    this.showVideoModal(videoUrl, productName, modalCategory);
+  },
+  
+  handleImageClick: function(target) {
+    const imageUrl = target.src;
+    const productName = target.alt || 'Producto';
+    const categoryElement = target.closest('table, .product-grid');
+    const category = categoryElement?.dataset.category;
+    
+    const modalCategory = (category === 'cervezas' || category === 'refrescos') ? category : null;
+    this.showImageModal(imageUrl, productName, modalCategory);
+  },
+  
+  handleCardClick: function(target, event) {
+    // Handle card clicks if needed for future functionality
+    Logger.debug('Product card clicked:', target);
+  },
+  
+  handleBackButton: function(target) {
+    // Handle back button navigation based on context
+    const wrapper = target.closest('.content-wrapper') || document.querySelector('.content-wrapper');
+    
+    if (wrapper) {
+      // Check if we're in a liquor subcategory and need to go back to licores
+      if (target.title === 'Volver a Licores' || target.dataset.action === 'back-to-licores') {
+        Logger.info('🔄 Navegando de vuelta a Licores desde subcategoría');
+        
+        // Log current DOM state before manipulation
+        const currentMainScreen = document.getElementById('main-screen');
+        const currentContentContainer = document.getElementById('content-container');
+        const currentOrdersBox = document.getElementById('orders-box');
+        
+        Logger.debug('📊 Estado DOM antes de volver a Licores:', {
+          mainScreen: !!currentMainScreen,
+          contentContainer: !!currentContentContainer,
+          ordersBox: !!currentOrdersBox,
+          mainScreenVisible: currentMainScreen ? !currentMainScreen.classList.contains('hidden') : false
+        });
+        
+        // Get or create content container for rendering
+        let container = wrapper.querySelector('#content-container');
+        if (!container) {
+          Logger.warn('⚠️ Content container no encontrado, creando uno nuevo');
+          container = document.createElement('div');
+          container.id = 'content-container';
+          const flexContainer = wrapper.querySelector('.content-container-flex');
+          if (flexContainer) {
+            flexContainer.insertBefore(container, flexContainer.firstChild);
+            Logger.debug('✅ Container insertado en flex container');
+          } else {
+            wrapper.appendChild(container);
+            Logger.debug('✅ Container agregado al wrapper');
+          }
+        } else {
+          Logger.debug('✅ Content container encontrado, limpiando contenido');
+          // Clear only the content container, preserving sidebar
+          container.innerHTML = '';
+        }
+        
+        Logger.info('🍷 Renderizando vista de Licores');
+        this.renderLicores(container);
+        
+        // Log DOM state after rendering
+        setTimeout(() => {
+          const afterMainScreen = document.getElementById('main-screen');
+          const afterContentContainer = document.getElementById('content-container');
+          const afterOrdersBox = document.getElementById('orders-box');
+          
+          Logger.debug('📊 Estado DOM después de renderizar Licores:', {
+            mainScreen: !!afterMainScreen,
+            contentContainer: !!afterContentContainer,
+            ordersBox: !!afterOrdersBox,
+            mainScreenVisible: afterMainScreen ? !afterMainScreen.classList.contains('hidden') : false
+          });
+        }, 100);
+      } else {
+        // Generic back navigation - could be extended for other contexts
+        Logger.debug('Back button clicked - implement specific navigation logic');
+      }
     }
   },
 
+  _renderCategoryView: async function(container, category) {
+    const categoryRenderers = this._getCategoryRenderers();
+    const renderer = categoryRenderers[category];
+    
+    if (renderer) {
+      await renderer(container);
+    } else {
+      Logger.warn('Unknown category for refresh:', category);
+    }
+  },
+
+  _getCategoryRenderers: function() {
+    return {
+      'cocteleria': (container) => this.renderCocktails(container),
+      'pizzas': (container) => this.renderPizzas(container),
+      'alitas': (container) => this.renderAlitas(container),
+      'sopas': (container) => this.renderSopas(container),
+      'ensaladas': (container) => this.renderEnsaladas(container),
+      'carnes': (container) => this.renderCarnes(container),
+      'cafe': (container) => this.renderCafe(container),
+      'postres': (container) => this.renderPostres(container),
+      'refrescos': (container) => this.renderRefrescos(container),
+      'cervezas': (container) => this.renderCervezas(container),
+      'tequila': (container) => this.renderTequila(container),
+      'whisky': (container) => this.renderWhisky(container),
+      'ron': (container) => this.renderRon(container),
+      'vodka': (container) => this.renderVodka(container),
+      'ginebra': (container) => this.renderGinebra(container),
+      'mezcal': (container) => this.renderMezcal(container),
+      'cognac': (container) => this.renderCognac(container),
+      'brandy': (container) => this.renderBrandy(container),
+      'digestivos': (container) => this.renderDigestivos(container),
+      'espumosos': (container) => this.renderEspumosos(container)
+    };
+  },
+
   createProductTable: function(container, headers, data, fields, tableClass, categoryTitle) {
+    const table = this._createTableElement(tableClass, categoryTitle);
+    const titleRow = this._createTitleRow(categoryTitle, headers.length);
+    const tableHead = this._createTableHeader(headers, titleRow);
+    const tbody = this._createTableBody(data, fields, categoryTitle);
+    
+    table.appendChild(tableHead);
+    table.appendChild(tbody);
+    container.appendChild(table);
+  },
+
+  _createTableElement: function(tableClass, categoryTitle) {
     const table = document.createElement('table');
     table.className = tableClass;
-    table.style.width = tableClass === 'product-table' ? 'var(--table-width)' : 'var(--table-width)';
-    table.style.maxWidth = tableClass === 'product-table' ? 'var(--table-max-width)' : 'var(--table-max-width)';
+    
+    const normalizedCategory = this._normalizeCategory(categoryTitle);
+    table.dataset.category = normalizedCategory;
+    table.dataset.productType = this._determineProductType(normalizedCategory, tableClass, categoryTitle);
+    
+    return table;
+  },
 
-    // Normalize categoryTitle for data-attribute
-    const normalizedCategory = categoryTitle
+  _normalizeCategory: function(categoryTitle) {
+    return categoryTitle
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .toLowerCase();
-    table.dataset.category = normalizedCategory;
+  },
 
-    // Determine productType based on category or tableClass
-    let productType;
+  _determineProductType: function(normalizedCategory, tableClass, categoryTitle) {
     const foodCategories = ['pizzas', 'alitas', 'sopas', 'ensaladas', 'carnes'];
     const beverageCategories = ['cocteleria', 'refrescos', 'cervezas', 'cafe', 'postres'];
 
     if (foodCategories.includes(normalizedCategory)) {
-      productType = 'food';
+      return 'food';
     } else if (beverageCategories.includes(normalizedCategory)) {
-      productType = 'beverage';
-    } else if (tableClass === 'liquor-table' || normalizedCategory === 'licores') { 
-      // normalizedCategory === 'licores' handles the main licores grid
-      // liquor-table handles subcategories like whisky, ron, etc.
-      productType = 'liquor';
+      return 'beverage';
+    } else if (tableClass === 'liquor-table' || normalizedCategory === 'licores') {
+      return 'liquor';
     } else {
-      productType = 'unknown'; 
       logWarning(`Unknown product type for category: ${categoryTitle} (normalized: ${normalizedCategory})`);
+      return 'unknown';
     }
-    table.dataset.productType = productType;
-    
-    // Add title at the top of the table
+  },
+
+  _createTitleRow: function(categoryTitle, headerLength) {
     const titleRow = document.createElement('tr');
     titleRow.className = 'title-row';
     const titleCell = document.createElement('td');
-    titleCell.colSpan = headers.length;
+    titleCell.colSpan = headerLength;
     const titleElement = document.createElement('h2');
     titleElement.className = 'page-title';
     titleElement.textContent = categoryTitle;
     titleCell.appendChild(titleElement);
     titleRow.appendChild(titleCell);
-    
+    return titleRow;
+  },
+
+  _createTableHeader: function(headers, titleRow) {
     const tableHead = document.createElement('thead');
     tableHead.appendChild(titleRow);
     
-    // Create table header
     const headerRow = document.createElement('tr');
-    
-    // Set data attribute for NOMBRE column position
     headerRow.setAttribute('data-nombre-column', 'true');
     
     headers.forEach(header => {
@@ -209,99 +491,126 @@ const ProductRenderer = {
     });
     
     tableHead.appendChild(headerRow);
-    table.appendChild(tableHead);
-    
-    // Create table body
+    return tableHead;
+  },
+
+  _createTableBody: function(data, fields, categoryTitle) {
     const tbody = document.createElement('tbody');
     
     data.forEach(item => {
-      const row = document.createElement('tr');
-      
-      fields.forEach(field => {
-        const td = document.createElement('td');
-        
-        if (field === 'nombre') {
-          td.className = 'product-name';
-          td.textContent = item[field];
-        } else if (field === 'ingredientes') {
-          td.className = 'product-ingredients';
-          td.textContent = item[field] || '';
-        } else if (field.includes('precio') || field === 'precioBotella' || field === 'precioLitro' || field === 'precioCopa') {
-          td.className = 'product-price';
-          const priceButton = document.createElement('button');
-          
-          // Check if price is '--' or null/undefined
-          const priceValue = item[field];
-          if (!priceValue || priceValue === '--') {
-            priceButton.textContent = '--';
-            priceButton.className = 'price-button non-selectable';
-            priceButton.disabled = true;
-          } else {
-            priceButton.className = 'price-button';
-            priceButton.textContent = priceValue;
-            priceButton.dataset.productName = item.nombre;
-            priceButton.dataset.priceType = field;
-          }
-          
-          td.appendChild(priceButton);
-        } else if (field === 'video') {
-          td.className = 'video-icon';
-          if (item[field]) {
-            // Get the thumbnail URL by mapping from the video URL
-            const thumbnailUrl = this.getThumbnailUrl(item[field], item.nombre, fields[0] === 'nombre' ? item.nombre : '');
-            
-            // Create thumbnail image for the video
-            const thumbnailImg = document.createElement('img');
-            thumbnailImg.className = 'video-thumb';
-            thumbnailImg.src = thumbnailUrl;
-            thumbnailImg.alt = `Ver video de ${item.nombre}`;
-            thumbnailImg.dataset.videoUrl = item[field];
-            thumbnailImg.addEventListener('click', () => {
-              const category = categoryTitle && (categoryTitle.toLowerCase() === 'cervezas' || categoryTitle.toLowerCase() === 'refrescos') ? categoryTitle.toLowerCase() : null;
-              this.showVideoModal(item[field], item.nombre, category);
-            });
-            
-            td.appendChild(thumbnailImg);
-          } else {
-            td.textContent = '--';
-          }
-        } else if (field === 'imagen' || field === 'ruta_archivo') {
-          td.className = 'image-icon';
-          if (item[field]) {
-            const img = document.createElement('img');
-            img.src = item[field];
-            img.alt = item.nombre;
-            
-            // Check if this is a beverage category (cervezas or refrescos) or liquor subcategory for larger images
-            const liquorCategories = ['whisky', 'tequila', 'ron', 'vodka', 'ginebra', 'mezcal', 'cognac', 'brandy', 'digestivos', 'espumosos'];
-            const isBeverage = categoryTitle && (categoryTitle.toLowerCase() === 'cervezas' || categoryTitle.toLowerCase() === 'refrescos');
-            const isLiquorSubcategory = categoryTitle && liquorCategories.includes(categoryTitle.toLowerCase());
-            const imageSize = (isBeverage || isLiquorSubcategory) ? '70px' : '40px'; // 75% total increase for beverages and liquor subcategories (40 * 1.75 = 70)
-            
-            img.style.width = imageSize;
-            img.style.height = imageSize;
-            img.style.objectFit = 'contain';
-            img.style.cursor = 'pointer';
-            img.addEventListener('click', () => {
-              const category = categoryTitle && (categoryTitle.toLowerCase() === 'cervezas' || categoryTitle.toLowerCase() === 'refrescos') ? categoryTitle.toLowerCase() : null;
-              this.showImageModal(item[field], item.nombre, category);
-            });
-            td.appendChild(img);
-          } else {
-            td.textContent = '--';
-          }
-        } else {
-          td.textContent = item[field] || '';
-        }
-        
-        row.appendChild(td);
-      });
-      
+      const row = this._createTableRow(item, fields, categoryTitle);
       tbody.appendChild(row);
     });
     
-    table.appendChild(tbody);
-    container.appendChild(table);
+    return tbody;
+  },
+
+  _createTableRow: function(item, fields, categoryTitle) {
+    const row = document.createElement('tr');
+    
+    fields.forEach(field => {
+      const td = this._createTableCell(item, field, categoryTitle);
+      row.appendChild(td);
+    });
+    
+    return row;
+  },
+
+  _createTableCell: function(item, field, categoryTitle) {
+    const td = document.createElement('td');
+    
+    if (field === 'nombre') {
+      this._createNameCell(td, item[field]);
+    } else if (field === 'ingredientes') {
+      this._createIngredientsCell(td, item[field]);
+    } else if (this._isPriceField(field)) {
+      this._createPriceCell(td, item, field);
+    } else if (field === 'video') {
+      this._createVideoCell(td, item, categoryTitle);
+    } else if (field === 'imagen' || field === 'ruta_archivo') {
+      this._createImageCell(td, item, field, categoryTitle);
+    } else {
+      td.textContent = item[field] || '';
+    }
+    
+    return td;
+  },
+
+  _createNameCell: function(td, nombre) {
+    td.className = 'product-name';
+    td.textContent = nombre;
+  },
+
+  _createIngredientsCell: function(td, ingredientes) {
+    td.className = 'product-ingredients';
+    td.textContent = ingredientes || '';
+  },
+
+  _isPriceField: function(field) {
+    return field.includes('precio') || field === 'precioBotella' || field === 'precioLitro' || field === 'precioCopa';
+  },
+
+  _createPriceCell: function(td, item, field) {
+    td.className = 'product-price';
+    const priceButton = document.createElement('button');
+    
+    const priceValue = item[field];
+    if (!priceValue || priceValue === '--') {
+      priceButton.textContent = '--';
+      priceButton.className = 'price-button non-selectable';
+      priceButton.disabled = true;
+    } else {
+      priceButton.className = 'price-button';
+      priceButton.textContent = priceValue;
+      priceButton.dataset.productName = item.nombre;
+      priceButton.dataset.priceType = field;
+    }
+    
+    td.appendChild(priceButton);
+  },
+
+  _createVideoCell: function(td, item, categoryTitle) {
+    td.className = 'video-icon';
+    if (item.video) {
+      const thumbnailUrl = this.getThumbnailUrl(item.video, item.nombre, '');
+      const thumbnailImg = document.createElement('img');
+      thumbnailImg.className = 'video-thumb';
+      thumbnailImg.src = thumbnailUrl;
+      thumbnailImg.alt = `Ver video de ${item.nombre}`;
+      thumbnailImg.dataset.videoUrl = item.video;
+      // No individual event listener - handled by delegation
+      td.appendChild(thumbnailImg);
+    } else {
+      td.textContent = '--';
+    }
+  },
+
+  _createImageCell: function(td, item, field, categoryTitle) {
+    td.className = 'image-icon';
+    if (item[field]) {
+      const img = document.createElement('img');
+      img.src = item[field];
+      img.alt = item.nombre;
+      
+      const liquorCategories = ['whisky', 'tequila', 'ron', 'vodka', 'ginebra', 'mezcal', 'cognac', 'brandy', 'digestivos', 'espumosos'];
+      const isBeverage = categoryTitle && (categoryTitle.toLowerCase() === 'cervezas' || categoryTitle.toLowerCase() === 'refrescos');
+      const isLiquorSubcategory = categoryTitle && liquorCategories.includes(categoryTitle.toLowerCase());
+      
+      img.className = 'product-image';
+      if (isBeverage || isLiquorSubcategory) {
+        img.classList.add('product-image-large');
+      } else {
+        img.classList.add('product-image-small');
+      }
+      // No individual event listener - handled by delegation
+      td.appendChild(img);
+    } else {
+      td.textContent = '--';
+    }
+  },
+
+  _getCategoryForModal: function(categoryTitle) {
+    return categoryTitle && (categoryTitle.toLowerCase() === 'cervezas' || categoryTitle.toLowerCase() === 'refrescos') ? categoryTitle.toLowerCase() : null;
   },
   
   // Create product grid view
@@ -364,20 +673,15 @@ const ProductRenderer = {
         videoThumbnail.className = 'video-thumbnail';
         videoThumbnail.src = this.getThumbnailUrl(item.video);
         videoThumbnail.alt = `Video de ${item.nombre}`;
-        videoThumbnail.addEventListener('click', () => {
-          const category = categoryTitle && (categoryTitle.toLowerCase() === 'cervezas' || categoryTitle.toLowerCase() === 'refrescos') ? categoryTitle.toLowerCase() : null;
-          this.showVideoModal(item.video, item.nombre, category);
-        });
+        videoThumbnail.dataset.videoUrl = item.video;
+        // No individual event listener - handled by delegation
         mediaContainer.appendChild(videoThumbnail);
       } else if (item.imagen || item.ruta_archivo) {
         const image = document.createElement('img');
         image.className = 'product-image';
         image.src = item.imagen || item.ruta_archivo;
         image.alt = item.nombre;
-        image.addEventListener('click', () => {
-          const category = categoryTitle && (categoryTitle.toLowerCase() === 'cervezas' || categoryTitle.toLowerCase() === 'refrescos') ? categoryTitle.toLowerCase() : null;
-          this.showImageModal(item.imagen || item.ruta_archivo, item.nombre, category);
-        });
+        // No individual event listener - handled by delegation
         mediaContainer.appendChild(image);
       }
       
@@ -428,33 +732,7 @@ const ProductRenderer = {
               priceButton.dataset.price = priceValue;
               priceButton.dataset.field = field;
               
-              // Add click event for order system
-              priceButton.addEventListener('click', (e) => {
-                e.stopPropagation();
-                console.log('[GRID DEBUG] Price button clicked:', {
-                  productName: e.target.dataset.productName,
-                  priceText: e.target.textContent,
-                  field: e.target.dataset.field,
-                  orderSystemExists: !!window.OrderSystem,
-                  isOrderMode: window.OrderSystem?.isOrderMode,
-                  handleProductSelectionExists: !!window.OrderSystem?.handleProductSelection
-                });
-                
-                if (window.OrderSystem && window.OrderSystem.handleProductSelection) {
-                  const productName = e.target.dataset.productName;
-                  const priceText = e.target.textContent;
-                  const productCard = e.target.closest('.product-card');
-                  console.log('[GRID DEBUG] Calling handleProductSelection with:', {
-                    productName,
-                    priceText,
-                    productCard,
-                    hasDataset: !!productCard?.dataset
-                  });
-                  window.OrderSystem.handleProductSelection(productName, priceText, productCard, e);
-                } else {
-                  console.error('[GRID DEBUG] OrderSystem not available or handleProductSelection missing');
-                }
-              });
+              // No individual event listener - handled by delegation
               
               priceItem.appendChild(priceButton);
               pricesContainer.appendChild(priceItem);
@@ -467,31 +745,7 @@ const ProductRenderer = {
               priceButton.dataset.price = priceValue;
               priceButton.dataset.field = field;
               
-              // Add click event for order system
-              priceButton.addEventListener('click', (e) => {
-                e.stopPropagation();
-                console.log('[GRID DEBUG] Price button clicked (non-liquor):', {
-                  productName: e.target.dataset.productName,
-                  priceText: e.target.textContent,
-                  field: e.target.dataset.field,
-                  orderSystemExists: !!window.OrderSystem,
-                  isOrderMode: window.OrderSystem?.isOrderMode
-                });
-                
-                if (window.OrderSystem && window.OrderSystem.handleProductSelection) {
-                  const productName = e.target.dataset.productName;
-                  const priceText = e.target.textContent;
-                  const productCard = e.target.closest('.product-card');
-                  console.log('[GRID DEBUG] Calling handleProductSelection (non-liquor) with:', {
-                    productName,
-                    priceText,
-                    productCard
-                  });
-                  window.OrderSystem.handleProductSelection(productName, priceText, productCard, e);
-                } else {
-                  console.error('[GRID DEBUG] OrderSystem not available for non-liquor product');
-                }
-              });
+              // No individual event listener - handled by delegation
               
               pricesContainer.appendChild(priceButton);
             }
@@ -521,8 +775,7 @@ const ProductRenderer = {
         if (nameElement) {
           // Remove any previous truncation attributes
           nameElement.removeAttribute('data-truncated');
-          nameElement.style.removeProperty('height');
-          nameElement.style.removeProperty('min-height');
+          nameElement.classList.remove('height-auto', 'min-height-auto');
         }
         
         // Handle product ingredients only
@@ -544,8 +797,7 @@ const ProductRenderer = {
     // Reset any previous modifications
     element.textContent = originalText;
     element.removeAttribute('data-truncated');
-    element.style.removeProperty('height');
-    element.style.removeProperty('min-height');
+    element.classList.remove('height-auto', 'min-height-auto');
     
     // Force a reflow to get accurate measurements
     element.offsetHeight;
@@ -642,37 +894,17 @@ const ProductRenderer = {
     // Create modal backdrop
     const modalBackdrop = document.createElement('div');
     modalBackdrop.className = 'modal-backdrop';
-    modalBackdrop.style.position = 'fixed';
-    modalBackdrop.style.top = '0';
-    modalBackdrop.style.left = '0';
-    modalBackdrop.style.width = '100%';
-    modalBackdrop.style.height = '100%';
-    modalBackdrop.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-    modalBackdrop.style.display = 'flex';
-    modalBackdrop.style.justifyContent = 'center';
-    modalBackdrop.style.alignItems = 'center';
-    modalBackdrop.style.zIndex = '9999';
     
     // Create modal content
     const modalContent = document.createElement('div');
-    modalContent.className = 'modal-content image-modal';
+    modalContent.className = 'modal-content image-modal video-modal';
     if (category) {
       modalContent.setAttribute('data-category', category);
     }
-    modalContent.style.position = 'relative';
-    modalContent.style.width = '80%';
-    modalContent.style.maxWidth = '800px';
-    modalContent.style.padding = '20px';
-    modalContent.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
-    modalContent.style.borderRadius = '10px';
-    modalContent.style.boxShadow = '0 0 20px var(--primary-light)';
     
     // Add title
     const modalTitle = document.createElement('h3');
     modalTitle.textContent = title;
-    modalTitle.style.color = 'var(--primary-color)';
-    modalTitle.style.marginBottom = '15px';
-    modalTitle.style.textAlign = 'center';
     modalContent.appendChild(modalTitle);
     
     // Add video
@@ -680,24 +912,20 @@ const ProductRenderer = {
     video.src = videoUrl;
     video.controls = true;
     video.autoplay = true;
-    video.style.width = '100%';
-    video.style.borderRadius = '5px';
     
     // Add error handling for video loading
     video.addEventListener('error', (e) => {
       logWarning('Video loading error', e, { videoUrl });
-      video.style.display = 'none';
+      video.className = 'video-hidden';
       
       const errorMessage = document.createElement('p');
       errorMessage.textContent = 'Video no disponible en este momento';
-      errorMessage.style.color = 'var(--text-color)';
-      errorMessage.style.textAlign = 'center';
-      errorMessage.style.padding = '20px';
+      errorMessage.className = 'error-message';
       modalContent.insertBefore(errorMessage, video.nextSibling);
     });
     
     video.addEventListener('loadstart', () => {
-      console.log('Loading video:', videoUrl);
+      Logger.info('Loading video:', videoUrl);
     });
     
     modalContent.appendChild(video);
@@ -705,26 +933,15 @@ const ProductRenderer = {
     // Add close button
     const closeButton = document.createElement('button');
     closeButton.textContent = 'Cerrar';
-    closeButton.className = 'nav-button';
-    closeButton.style.marginTop = '15px';
-    closeButton.style.padding = '8px 15px';
-    closeButton.style.display = 'block';
-    closeButton.style.margin = '15px auto 0';
-    closeButton.addEventListener('click', () => {
-      document.body.removeChild(modalBackdrop);
-    });
+    closeButton.className = 'nav-button modal-close-btn';
+    closeButton.dataset.modalId = 'video-modal';
+    // No individual event listener - handled by delegation
     modalContent.appendChild(closeButton);
     
     // Add modal to body
+    modalBackdrop.className += ' video-modal-backdrop';
     modalBackdrop.appendChild(modalContent);
     document.body.appendChild(modalBackdrop);
-    
-    // Close modal on backdrop click
-    modalBackdrop.addEventListener('click', (e) => {
-      if (e.target === modalBackdrop) {
-        document.body.removeChild(modalBackdrop);
-      }
-    });
   },
 
   showImageModal: function(imageUrl, title, category = null) {
@@ -745,44 +962,57 @@ const ProductRenderer = {
     const image = document.createElement('img');
     image.src = imageUrl;
     image.alt = title;
-    image.style.maxWidth = '100%';
-    image.style.maxHeight = '60vh';
-    image.style.objectFit = 'contain';
-    image.style.margin = '15px 0';
-    image.style.borderRadius = '10px';
-    image.style.boxShadow = '0 0 20px var(--price-color)';
     modalContent.appendChild(image);
     
     // Add close button
     const closeButton = document.createElement('button');
     closeButton.textContent = 'Cerrar';
-    closeButton.className = 'nav-button';
-    closeButton.style.marginTop = '15px';
-    closeButton.style.padding = '8px 15px';
-    closeButton.style.display = 'block';
-    closeButton.style.margin = '15px auto 0';
-    closeButton.addEventListener('click', () => {
-      document.body.removeChild(modalBackdrop);
-    });
+    closeButton.className = 'nav-button modal-close-btn';
+    closeButton.dataset.modalId = 'image-modal';
+    // No individual event listener - handled by delegation
     modalContent.appendChild(closeButton);
     
     // Add modal to body
+    modalBackdrop.className += ' image-modal-backdrop';
     modalBackdrop.appendChild(modalContent);
     document.body.appendChild(modalBackdrop);
-    
-    // Close modal on backdrop click
-    modalBackdrop.addEventListener('click', (e) => {
-      if (e.target === modalBackdrop) {
-        document.body.removeChild(modalBackdrop);
-      }
-    });
   },
 
-  renderLicores: function(container) {
+  renderLicores: async function(container) {
+    // Ensure we're working with the correct content container, not destroying the sidebar
+    let targetContainer = container;
+    
+    // If container is not the specific content-container, find or create it
+    if (container.id !== 'content-container') {
+      targetContainer = document.getElementById('content-container');
+      if (!targetContainer) {
+        // Create content-container within the flex structure
+        const flexContainer = document.querySelector('.content-container-flex');
+        if (flexContainer) {
+          targetContainer = document.createElement('div');
+          targetContainer.id = 'content-container';
+          const existingSidebar = flexContainer.querySelector('#order-sidebar');
+          if (existingSidebar) {
+            flexContainer.insertBefore(targetContainer, existingSidebar);
+          } else {
+            flexContainer.appendChild(targetContainer);
+          }
+        } else {
+          // Fallback: use the provided container but preserve sidebar
+          const sidebar = document.getElementById('order-sidebar');
+          const sidebarHTML = sidebar ? sidebar.outerHTML : null;
+          targetContainer = container;
+          if (sidebarHTML && !container.querySelector('#order-sidebar')) {
+            container.insertAdjacentHTML('beforeend', sidebarHTML);
+          }
+        }
+      }
+    }
+    
     const licoresHTML = `
       <div class="category-grid" data-product-type="liquor" data-category="licores">
         <h2 class="page-title">Licores</h2>
-        ${LiquorCategories.createLicoresCategories()}
+        ${this.createLicoresCategories()}
         <div class="subcategory-prompt">
           <h3>Elige una categoría</h3>
         </div>
@@ -791,24 +1021,85 @@ const ProductRenderer = {
     
     // Contenido dinámico: HTML generado con datos internos de ProductData.licoresCategories
     // Aunque los datos son controlados, se usa sanitización como medida preventiva
-    setSafeInnerHTML(container, licoresHTML);
+    setSafeInnerHTML(targetContainer, licoresHTML);
     
-    // Add click handlers for licores categories
-    const categoryCards = container.querySelectorAll('.category-card');
-    
-    categoryCards.forEach((card) => {
-      card.addEventListener('click', (e) => {
-        const category = card.getAttribute('data-category');
-        this.renderLicorSubcategory(container, category);
-      });
-    });
+    // No individual event listeners needed - handled by delegation
+    // Category cards will be handled by the centralized event system
   },
 
-  // createLicoresCategories moved to LiquorCategories.js
+  createLicoresCategories: function() {
+    const productRepository = getProductRepository();
+    const licoresCategories = productRepository.getLicoresCategories();
+    
+    const html = licoresCategories.map(category => `
+      <div class="category-card" data-category="${category.nombre.toLowerCase()}">
+        <img src="${category.icono}" alt="${category.nombre}" class="category-image">
+        <h3 class="category-name">${category.nombre}</h3>
+      </div>
+    `).join('');
+    
+    return html;
+  },
 
-  renderLicorSubcategory: function(container, category) {
-    // Asignación segura: limpieza con cadena vacía, sin riesgo XSS
-    container.innerHTML = '';
+  renderLicorSubcategory: async function(container, category) {
+    Logger.info(`🍾 Navegando hacia subcategoría de licores: ${category}`);
+    
+    // Log current DOM state before manipulation
+    const currentMainScreen = document.getElementById('main-screen');
+    const currentContentContainer = document.getElementById('content-container');
+    const currentOrdersBox = document.getElementById('orders-box');
+    
+    Logger.debug('📊 Estado DOM antes de renderizar subcategoría:', {
+      category: category,
+      mainScreen: !!currentMainScreen,
+      contentContainer: !!currentContentContainer,
+      ordersBox: !!currentOrdersBox,
+      mainScreenVisible: currentMainScreen ? !currentMainScreen.classList.contains('hidden') : false,
+      mainScreenClasses: currentMainScreen ? Array.from(currentMainScreen.classList) : []
+    });
+    
+    // Preserve the sidebar before clearing content
+    // Look for sidebar in the correct location within the DOM structure
+    const sidebar = document.getElementById('order-sidebar');
+    let sidebarHTML = null;
+    if (sidebar) {
+      sidebarHTML = sidebar.outerHTML;
+      Logger.debug('💾 Sidebar preservado para subcategoría');
+    } else {
+      Logger.warn('⚠️ No se encontró sidebar para preservar');
+      Logger.debug('🔍 Buscando sidebar en DOM completo:', {
+        sidebarInDocument: !!document.getElementById('order-sidebar'),
+        contentContainerFlex: !!document.querySelector('.content-container-flex'),
+        containerType: container.className || container.tagName
+      });
+    }
+    
+    // Get or create content container without destroying sidebar
+    let targetContainer = document.getElementById('content-container');
+    if (targetContainer) {
+      // Simply clear the content container, leaving sidebar untouched
+      targetContainer.innerHTML = '';
+      Logger.debug('🧹 Content container limpiado, sidebar intacto');
+    } else {
+      Logger.warn('⚠️ No se encontró content-container, creando uno nuevo');
+      // Find the content-container-flex to maintain proper structure
+      const flexContainer = document.querySelector('.content-container-flex');
+      if (flexContainer) {
+        targetContainer = document.createElement('div');
+        targetContainer.id = 'content-container';
+        // Insert before the sidebar to maintain proper order
+        const existingSidebar = flexContainer.querySelector('#order-sidebar');
+        if (existingSidebar) {
+          flexContainer.insertBefore(targetContainer, existingSidebar);
+        } else {
+          flexContainer.appendChild(targetContainer);
+        }
+        Logger.debug('🆕 Content container creado en estructura flex');
+      } else {
+        Logger.error('❌ No se encontró content-container-flex, estructura DOM comprometida');
+        return;
+      }
+    }
     
     // Back button container for positioning below hamburger
     const backButtonContainer = document.createElement('div');
@@ -821,12 +1112,10 @@ const ProductRenderer = {
     backButton.innerHTML = '←';
     backButton.title = 'Volver a Licores';
     
-    backButton.addEventListener('click', () => {
-      this.renderLicores(container);
-    });
+    // No individual event listener - handled by delegation
     
     backButtonContainer.appendChild(backButton);
-    container.appendChild(backButtonContainer);
+    targetContainer.appendChild(backButtonContainer);
 
     // Update the title for all subcategory renderings
     const categoryTitle = category.charAt(0).toUpperCase() + category.slice(1);
@@ -834,43 +1123,61 @@ const ProductRenderer = {
     // Load specific subcategory
     switch(category) {
       case 'whisky':
-        this.renderWhisky(container, categoryTitle);
+        await this.renderWhisky(targetContainer, categoryTitle);
         break;
       case 'tequila':
-        this.renderTequila(container, categoryTitle);
+        await this.renderTequila(targetContainer, categoryTitle);
         break;
       case 'ron':
-        this.renderRon(container, categoryTitle);
+        await this.renderRon(targetContainer, categoryTitle);
         break;
       case 'vodka':
-        this.renderVodka(container, categoryTitle);
+        await this.renderVodka(targetContainer, categoryTitle);
         break;
       case 'brandy':
-        this.renderBrandy(container, categoryTitle);
+        await this.renderBrandy(targetContainer, categoryTitle);
         break;
       case 'ginebra':
-        this.renderGinebra(container, categoryTitle);
+        await this.renderGinebra(targetContainer, categoryTitle);
         break;
       case 'mezcal':
-        this.renderMezcal(container, categoryTitle);
+        await this.renderMezcal(targetContainer, categoryTitle);
         break;
       case 'cognac':
-        this.renderCognac(container, categoryTitle);
+        await this.renderCognac(targetContainer, categoryTitle);
         break;
       case 'digestivos':
-        this.renderDigestivos(container, categoryTitle);
+        await this.renderDigestivos(targetContainer, categoryTitle);
         break;
       case 'espumosos':
-        this.renderEspumosos(container, categoryTitle);
+        await this.renderEspumosos(targetContainer, categoryTitle);
         break;
       default:
         // Asignación segura: cadena estática sin riesgo XSS
-        container.innerHTML += '<p>Categoría no disponible</p>';
+        targetContainer.innerHTML += '<p>Categoría no disponible</p>';
     }
+    
+    // Log DOM state after rendering subcategory
+    setTimeout(() => {
+      const afterMainScreen = document.getElementById('main-screen');
+      const afterContentContainer = document.getElementById('content-container');
+      const afterOrdersBox = document.getElementById('orders-box');
+      
+      Logger.debug('📊 Estado DOM después de renderizar subcategoría:', {
+        category: category,
+        mainScreen: !!afterMainScreen,
+        contentContainer: !!afterContentContainer,
+        ordersBox: !!afterOrdersBox,
+        mainScreenVisible: afterMainScreen ? !afterMainScreen.classList.contains('hidden') : false,
+        mainScreenClasses: afterMainScreen ? Array.from(afterMainScreen.classList) : []
+      });
+      
+      Logger.info(`✅ Subcategoría ${category} renderizada completamente`);
+    }, 100);
   },
 
   // Generic liquor renderer - eliminates code duplication
-  renderLiquorCategory: function(container, subcategory, title) {
+  renderLiquorCategory: async function(container, subcategory, title) {
     const productRepository = getProductRepository();
     
     // Add view toggle button
@@ -880,154 +1187,166 @@ const ProductRenderer = {
     const liquorFields = ['nombre', 'imagen', 'precioBotella', 'precioLitro', 'precioCopa'];
     const liquorHeaders = ['NOMBRE', 'IMAGEN', 'PRECIO BOTELLA', 'PRECIO LITRO', 'PRECIO COPA'];
     
-    if (this.currentViewMode === 'grid') {
-      this.createProductGrid(container, 
-        productRepository.getLiquorSubcategory(subcategory), 
-        liquorFields,
-        title
-      );
-    } else {
-      this.createProductTable(container, 
-        liquorHeaders, 
-        productRepository.getLiquorSubcategory(subcategory), 
-        liquorFields,
-        'liquor-table',
-        title
-      );
+    try {
+      const data = await productRepository.getLiquorSubcategory(subcategory);
+      
+      if (this.currentViewMode === 'grid') {
+        this.createProductGrid(container, 
+          data, 
+          liquorFields,
+          title
+        );
+      } else {
+        this.createProductTable(container, 
+          liquorHeaders, 
+          data, 
+          liquorFields,
+          'liquor-table',
+          title
+        );
+      }
+    } catch (error) {
+      logError(`Error rendering ${title}:`, error);
+      container.innerHTML += `<p>Error cargando ${title}. Por favor, intente de nuevo.</p>`;
     }
   },
 
   // Optimized render methods using generic function
-  renderWhisky: function(container, title = 'Whisky') {
-    this.renderLiquorCategory(container, 'whiskies', title);
+  renderWhisky: async function(container, title = 'Whisky') {
+    await this.renderLiquorCategory(container, 'whisky', title);
   },
 
-  renderTequila: function(container, title = 'Tequila') {
-    this.renderLiquorCategory(container, 'tequilas', title);
+  renderTequila: async function(container, title = 'Tequila') {
+    await this.renderLiquorCategory(container, 'tequila', title);
   },
 
-  renderRon: function(container, title = 'Ron') {
-    this.renderLiquorCategory(container, 'rones', title);
+  renderRon: async function(container, title = 'Ron') {
+    await this.renderLiquorCategory(container, 'ron', title);
   },
 
-  renderVodka: function(container, title = 'Vodka') {
-    this.renderLiquorCategory(container, 'vodkas', title);
+  renderVodka: async function(container, title = 'Vodka') {
+    await this.renderLiquorCategory(container, 'vodka', title);
   },
 
-  renderGinebra: function(container, title = 'Ginebra') {
-    this.renderLiquorCategory(container, 'ginebras', title);
+  renderGinebra: async function(container, title = 'Ginebra') {
+    await this.renderLiquorCategory(container, 'ginebra', title);
   },
 
-  renderMezcal: function(container, title = 'Mezcal') {
-    this.renderLiquorCategory(container, 'mezcales', title);
+  renderMezcal: async function(container, title = 'Mezcal') {
+    await this.renderLiquorCategory(container, 'mezcal', title);
   },
 
-  renderCognac: function(container, title = 'Cognac') {
-    this.renderLiquorCategory(container, 'cognacs', title);
+  renderCognac: async function(container, title = 'Cognac') {
+    await this.renderLiquorCategory(container, 'cognac', title);
   },
 
-  renderBrandy: function(container, title = 'Brandy') {
-    this.renderLiquorCategory(container, 'brandies', title);
+  renderBrandy: async function(container, title = 'Brandy') {
+    await this.renderLiquorCategory(container, 'brandy', title);
   },
 
-  renderDigestivos: function(container, title = 'Digestivos') {
+  renderDigestivos: async function(container, title = 'Digestivos') {
     const productRepository = getProductRepository();
     
     // Add view toggle button
     const toggleElement = this.createViewToggle(container);
     container.appendChild(toggleElement);
     
-    if (this.currentViewMode === 'grid') {
-      this.createProductGrid(container, 
-        productRepository.getLiquorSubcategory('digestivos'), 
-        ['nombre', 'imagen', 'precioBotella', 'precioLitro', 'precioCopa'],
-        title
-      );
-    } else {
-      this.createProductTable(container, 
-        ['NOMBRE', 'IMAGEN', 'PRECIO BOTELLA', 'PRECIO LITRO', 'PRECIO COPA'], 
-        productRepository.getLiquorSubcategory('digestivos'), 
-        ['nombre', 'imagen', 'precioBotella', 'precioLitro', 'precioCopa'],
-        'liquor-table',
-        title
-      );
+    try {
+      const data = await productRepository.getLiquorSubcategory('digestivos');
+      
+      if (this.currentViewMode === 'grid') {
+        this.createProductGrid(container, 
+          data, 
+          ['nombre', 'imagen', 'precioBotella', 'precioLitro', 'precioCopa'],
+          title
+        );
+      } else {
+        this.createProductTable(container, 
+          ['NOMBRE', 'IMAGEN', 'PRECIO BOTELLA', 'PRECIO LITRO', 'PRECIO COPA'], 
+          data, 
+          ['nombre', 'imagen', 'precioBotella', 'precioLitro', 'precioCopa'],
+          'liquor-table',
+          title
+        );
+      }
+    } catch (error) {
+      logError(`Error rendering ${title}:`, error);
+      container.innerHTML += `<p>Error cargando ${title}. Por favor, intente de nuevo.</p>`;
     }
   },
 
-  renderEspumosos: function(container, title = 'Espumosos') {
+  renderEspumosos: async function(container, title = 'Espumosos') {
+    await this.renderLiquorCategory(container, 'espumosos', title);
+  },
+
+  renderCervezas: async function(container) {
     const productRepository = getProductRepository();
     
     // Add view toggle button
     const toggleElement = this.createViewToggle(container);
     container.appendChild(toggleElement);
     
-    if (this.currentViewMode === 'grid') {
-      this.createProductGrid(container, 
-        productRepository.getLiquorSubcategory('espumosos'), 
-        ['nombre', 'imagen', 'precioBotella'],
-        title
-      );
-    } else {
-      this.createProductTable(container, 
-        ['NOMBRE', 'IMAGEN', 'PRECIO BOTELLA'], 
-        productRepository.getLiquorSubcategory('espumosos'), 
-        ['nombre', 'imagen', 'precioBotella'],
-        'liquor-table',
-        title
-      );
+    try {
+      const data = await productRepository.getCervezas();
+      
+      if (this.currentViewMode === 'grid') {
+        this.createProductGrid(container, 
+          data, 
+          ['nombre', 'ruta_archivo', 'precio'],
+          'Cervezas'
+        );
+      } else {
+        this.createProductTable(container, 
+          ['NOMBRE', 'IMAGEN', 'PRECIO'], 
+          data, 
+          ['nombre', 'ruta_archivo', 'precio'],
+          'product-table',
+          'Cervezas'
+        );
+      }
+    } catch (error) {
+      logError('Error rendering Cervezas:', error);
+      // Preserve sidebar when showing error
+      const targetContainer = container.id === 'content-container' ? container : document.getElementById('content-container') || container;
+      targetContainer.innerHTML = '<p>Error cargando Cervezas. Por favor, intente de nuevo.</p>';
     }
   },
 
-  renderCervezas: function(container) {
+  renderPizzas: async function(container) {
     const productRepository = getProductRepository();
     
     // Add view toggle button
     const toggleElement = this.createViewToggle(container);
     container.appendChild(toggleElement);
     
-    if (this.currentViewMode === 'grid') {
-      this.createProductGrid(container, 
-        productRepository.getCervezas(), 
-        ['nombre', 'ruta_archivo', 'precio'],
-        'Cervezas'
-      );
-    } else {
-      this.createProductTable(container, 
-        ['NOMBRE', 'IMAGEN', 'PRECIO'], 
-        productRepository.getCervezas(), 
-        ['nombre', 'ruta_archivo', 'precio'],
-        'product-table',
-        'Cervezas'
-      );
-    }
-  },
-
-  renderPizzas: function(container) {
-    const productRepository = getProductRepository();
-    
-    // Add view toggle button
-    const toggleElement = this.createViewToggle(container);
-    container.appendChild(toggleElement);
-    
-    if (this.currentViewMode === 'grid') {
-      this.createProductGrid(container, 
-        productRepository.getPizzas(), 
-        ['nombre', 'ingredientes', 'video', 'precio'],
-        'Pizzas'
-      );
-    } else {
-      this.createProductTable(container, 
-        ['NOMBRE', 'INGREDIENTES', 'VIDEO', 'PRECIO'], 
-        productRepository.getPizzas(), 
-        ['nombre', 'ingredientes', 'video', 'precio'],
-        'product-table',
-        'Pizzas'
-      );
+    try {
+      const data = await productRepository.getPizzas();
+      
+      if (this.currentViewMode === 'grid') {
+        this.createProductGrid(container, 
+          data, 
+          ['nombre', 'ingredientes', 'video', 'precio'],
+          'Pizzas'
+        );
+      } else {
+        this.createProductTable(container, 
+          ['NOMBRE', 'INGREDIENTES', 'VIDEO', 'PRECIO'], 
+          data, 
+          ['nombre', 'ingredientes', 'video', 'precio'],
+          'product-table',
+          'Pizzas'
+        );
+      }
+    } catch (error) {
+      logError('Error rendering Pizzas:', error);
+      // Preserve sidebar when showing error
+      const targetContainer = container.id === 'content-container' ? container : document.getElementById('content-container') || container;
+      targetContainer.innerHTML = '<p>Error cargando Pizzas. Por favor, intente de nuevo.</p>';
     }
   },
 
   // Generic food/beverage renderer - eliminates code duplication
-  renderFoodCategory: function(container, methodName, title, fields = null, headers = null) {
+  renderFoodCategory: async function(container, methodName, title, fields = null, headers = null) {
     const productRepository = getProductRepository();
     
     // Add view toggle button
@@ -1041,58 +1360,68 @@ const ProductRenderer = {
     const finalFields = fields || defaultFields;
     const finalHeaders = headers || defaultHeaders;
     
-    if (this.currentViewMode === 'grid') {
-      this.createProductGrid(container, 
-        productRepository[methodName](), 
-        finalFields,
-        title
-      );
-    } else {
-      this.createProductTable(container, 
-        finalHeaders, 
-        productRepository[methodName](), 
-        finalFields,
-        'product-table',
-        title
-      );
+    try {
+      const data = await productRepository[methodName]();
+      
+      if (this.currentViewMode === 'grid') {
+        this.createProductGrid(container, 
+          data, 
+          finalFields,
+          title
+        );
+      } else {
+        this.createProductTable(container, 
+          finalHeaders, 
+          data, 
+          finalFields,
+          'product-table',
+          title
+        );
+      }
+    } catch (error) {
+      logError(`Error rendering ${title}:`, error);
+      container.innerHTML = `<p>Error cargando ${title}. Por favor, intente de nuevo.</p>`;
     }
   },
 
   // Optimized render methods using generic function
-  renderAlitas: function(container) {
-    this.renderFoodCategory(container, 'getAlitas', 'Alitas');
+  renderAlitas: async function(container) {
+    await this.renderFoodCategory(container, 'getAlitas', 'Alitas');
   },
 
-  renderSopas: function(container) {
-    this.renderFoodCategory(container, 'getSopas', 'Sopas');
+  renderSopas: async function(container) {
+    await this.renderFoodCategory(container, 'getSopas', 'Sopas');
   },
 
-  renderEnsaladas: function(container) {
-    this.renderFoodCategory(container, 'getEnsaladas', 'Ensaladas');
+  renderEnsaladas: async function(container) {
+    await this.renderFoodCategory(container, 'getEnsaladas', 'Ensaladas');
   },
 
-  renderCarnes: function(container) {
-    this.renderFoodCategory(container, 'getCarnes', 'Carnes');
+  renderCarnes: async function(container) {
+    await this.renderFoodCategory(container, 'getCarnes', 'Carnes');
   },
 
-  renderCafe: function(container) {
-    this.renderFoodCategory(container, 'getCafe', 'Café');
+  renderCafe: async function(container) {
+    await this.renderFoodCategory(container, 'getCafe', 'Café');
   },
 
-  renderPostres: function(container) {
-    this.renderFoodCategory(container, 'getPostres', 'Postres');
+  renderPostres: async function(container) {
+    await this.renderFoodCategory(container, 'getPostres', 'Postres');
   },
 
-  renderRefrescos: function(container) {
-    this.renderFoodCategory(container, 'getRefrescos', 'Refrescos', 
+  renderRefrescos: async function(container) {
+    await this.renderFoodCategory(container, 'getRefrescos', 'Refrescos', 
       ['nombre', 'ruta_archivo', 'precio'], 
       ['NOMBRE', 'IMAGEN', 'PRECIO']
     );
   },
 
-  renderCocktails: function(container) {
-    this.renderFoodCategory(container, 'getCocteles', 'Coctelería');
+  renderCocktails: async function(container) {
+    await this.renderFoodCategory(container, 'getCocteles', 'Coctelería');
   },
 };
+
+// Make ProductRenderer globally available for legacy compatibility
+window.ProductRenderer = ProductRenderer;
 
 export default ProductRenderer;

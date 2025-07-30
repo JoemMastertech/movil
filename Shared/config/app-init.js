@@ -51,6 +51,13 @@ const AppInit = {
   modules: new Map(),
   isRecovering: false,
   
+  // Retry mechanism for DOM elements
+  retryCount: 0,
+  maxRetries: 3,
+  
+  // Loading state to prevent concurrent calls
+  isLoading: false,
+  
   /**
    * Enhanced initialization method
    * Integrates with new AppConfig system while maintaining legacy functionality
@@ -139,7 +146,7 @@ const AppInit = {
       AppConfig.validateConfiguration();
       const configSuccess = true;
       
-      console.log('⚙️ Enhanced configuration initialized');
+      Logger.info('Enhanced configuration initialized');
       
       // Store reference for easy access
       this.modules.set('appConfig', AppConfig);
@@ -162,7 +169,7 @@ const AppInit = {
     // SafeModal auto-registers itself as 'safe-modal' when imported
     // No need to register it manually here
     
-    console.log('🔧 Core systems initialized');
+    Logger.info('Core systems initialized');
   },
 
   /**
@@ -176,7 +183,7 @@ const AppInit = {
       this.initializeLegacyConfig();
     }
     
-    console.log('🔄 Legacy systems initialized');
+    Logger.info('Legacy systems initialized');
   },
 
   /**
@@ -197,7 +204,7 @@ const AppInit = {
         this.setupPerformanceMonitoring();
       }
       
-      console.log('✨ Enhanced modules initialized');
+      Logger.info('Enhanced modules initialized');
     } catch (error) {
       logWarning('Some enhanced modules failed to initialize', error);
     }
@@ -223,7 +230,7 @@ const AppInit = {
       this.initializeEnhancedUI();
     }, delay);
     
-    console.log('🎬 Application started');
+    Logger.info('Application started');
   },
 
   /**
@@ -240,7 +247,7 @@ const AppInit = {
       }
     };
     
-    console.log('🔄 Legacy configuration initialized');
+    Logger.info('Legacy configuration initialized');
   },
 
   /**
@@ -274,7 +281,7 @@ const AppInit = {
         const observer = new PerformanceObserver((list) => {
           for (const entry of list.getEntries()) {
             if (entry.duration > 50) {
-              console.warn(`⚠️ Long task in AppInit: ${entry.duration.toFixed(2)}ms`);
+              Logger.warn(`Long task in AppInit: ${entry.duration.toFixed(2)}ms`);
             }
           }
         });
@@ -294,18 +301,20 @@ const AppInit = {
     // Create a global modal enhancement function
     window.enhanceModalGlobally = function(modal) {
       if (!modal || !modal.id) {
-        console.warn('enhanceModalGlobally: Invalid modal provided');
+        Logger.warn('enhanceModalGlobally: Invalid modal provided');
         return;
       }
       
       // Force add show method (always override)
       modal.show = function() {
-        this.style.display = 'flex';
+        this.classList.remove('modal-hidden');
+        this.classList.add('modal-flex');
       };
       
       // Force add hide method (always override)
       modal.hide = function() {
-        this.style.display = 'none';
+        this.classList.remove('modal-flex');
+        this.classList.add('modal-hidden');
       };
     };
     
@@ -363,7 +372,7 @@ const AppInit = {
     document.documentElement.classList.add('js-enabled', 'enhanced-features');
     document.documentElement.classList.remove('no-js');
     
-    console.log('🎨 Enhanced UI features initialized');
+    Logger.info('Enhanced UI features initialized');
   },
 
   /**
@@ -378,7 +387,7 @@ const AppInit = {
     
     // Prevent multiple recovery attempts
     if (this.isRecovering) {
-      console.warn('Recovery already in progress, skipping duplicate attempt');
+      Logger.warn('Recovery already in progress, skipping duplicate attempt');
       return false;
     }
     
@@ -387,7 +396,7 @@ const AppInit = {
     try {
       // Try fallback initialization without enhanced features
       if (options.enableEnhancedFeatures !== false) {
-        console.log('🔄 Attempting fallback initialization...');
+        Logger.info('Attempting fallback initialization...');
         const result = await this.performEnhancedInitialization({
           ...options,
           enableEnhancedFeatures: false
@@ -397,7 +406,7 @@ const AppInit = {
       }
       
       // Last resort: basic legacy initialization
-      console.log('🆘 Attempting basic legacy initialization...');
+      Logger.info('Attempting basic legacy initialization...');
       this.basicLegacyInitialize();
       this.isRecovering = false;
       return true;
@@ -569,7 +578,7 @@ const AppInit = {
     // Menu item click handlers
     const menuButtons = drawerMenu.querySelectorAll('.nav-button');
     menuButtons.forEach(button => {
-      button.addEventListener('click', () => {
+      button.addEventListener('click', async () => {
         const target = button.getAttribute('data-target');
         const action = button.getAttribute('data-action');
         
@@ -585,7 +594,7 @@ const AppInit = {
         
         // Execute the appropriate action
         if (target) {
-          this.loadContent(target);
+          await this.loadContent(target);
         } else if (action === 'orders') {
           // Call the order system's show orders function
           const OrderSystem = window.OrderSystem;
@@ -603,10 +612,73 @@ const AppInit = {
     });
     
     // Set first button as active by default
-    const defaultButton = menuButtons[0];
-    if (defaultButton) {
-      defaultButton.classList.add('active');
-    }
+    if (menuButtons && menuButtons.length > 0) {
+      const defaultButton = menuButtons[0];
+      if (defaultButton && defaultButton.classList) {
+        defaultButton.classList.add('active');
+      }
+    };
+  },
+  
+  /**
+   * Ensures the main screen is visible by removing hidden class
+   * Used as a fallback when DOM elements are not found
+   */
+  ensureMainScreenVisible: function(contentType) {
+    Logger.info(`[NAVIGATION DEBUG] ensureMainScreenVisible called with contentType: ${contentType}`);
+    
+    setTimeout(() => {
+      Logger.info(`[NAVIGATION DEBUG] ensureMainScreenVisible timeout executed`);
+      
+      const mainScreen = document.querySelector('.main-content-screen') || 
+                        document.querySelector('[data-category]');
+      
+      Logger.info(`[NAVIGATION DEBUG] ensureMainScreenVisible - element search:`, {
+        mainScreenFound: !!mainScreen,
+        mainScreenClasses: mainScreen?.className,
+        mainScreenDisplay: mainScreen ? getComputedStyle(mainScreen).display : 'N/A',
+        mainScreenVisibility: mainScreen ? getComputedStyle(mainScreen).visibility : 'N/A'
+      });
+      
+      if (mainScreen) {
+        Logger.info(`[NAVIGATION DEBUG] Attempting to make mainScreen visible`);
+        
+        const beforeClasses = mainScreen.className;
+        mainScreen.classList.remove('screen-hidden');
+        mainScreen.classList.add('screen-visible');
+        const afterClasses = mainScreen.className;
+        
+        Logger.info(`[NAVIGATION DEBUG] Class changes:`, {
+          before: beforeClasses,
+          after: afterClasses,
+          displayAfter: getComputedStyle(mainScreen).display,
+          visibilityAfter: getComputedStyle(mainScreen).visibility
+        });
+        
+        // Screen visibility fixed, but not retrying loadContent to avoid recursion
+        Logger.info(`[NAVIGATION DEBUG] Screen visibility fixed, but stopping here to avoid recursion`);
+        this.isLoading = false; // Release lock
+      } else {
+        Logger.error(`[NAVIGATION DEBUG] MainScreen still not found in ensureMainScreenVisible`);
+        
+        // Log all available elements for debugging
+        const allElements = document.querySelectorAll('*');
+        const screenElements = Array.from(allElements).filter(el => 
+          el.className && (el.className.includes('screen') || el.className.includes('content'))
+        );
+        
+        Logger.info(`[NAVIGATION DEBUG] Available screen/content elements:`, 
+          screenElements.map(el => ({
+            tag: el.tagName,
+            id: el.id,
+            classes: el.className,
+            display: getComputedStyle(el).display
+          }))
+        );
+        
+        logError('Cannot find main screen element to make visible');
+      }
+    }, 100);
   },
   
   /**
@@ -614,15 +686,158 @@ const AppInit = {
    * Handles content switching with smooth transitions and proper state management
    * @param {string} contentType - The category of content to load (cocteleria, refrescos, etc.)
    */
-  loadContent: function(contentType = 'cocteleria') {
+  loadContent: async function(contentType = 'cocteleria') {
+    // Prevent concurrent calls
+    if (this.isLoading) {
+      Logger.warn(`[NAVIGATION DEBUG] loadContent already in progress, ignoring call for: ${contentType}`);
+      return;
+    }
+    
+    // Check if user is actively navigating (DOM is being modified)
+    const isUserNavigating = this.checkUserNavigation();
+    if (isUserNavigating && contentType === 'cocteleria') {
+      Logger.info('🚫 User navigation detected, skipping automatic cocteleria load');
+      return;
+    }
+    
+    this.isLoading = true;
+    Logger.info(`[NAVIGATION DEBUG] loadContent called with contentType: ${contentType}`);
+    Logger.info(`[NAVIGATION DEBUG] Current URL: ${window.location.href}`);
+    Logger.info(`[NAVIGATION DEBUG] Current retry count: ${this.retryCount || 0}`);
+    
     const contentContainer = document.getElementById('content-container');
     const pageTitle = document.querySelector('.page-header .page-title');
-    const mainScreen = document.querySelector('.main-content-screen');
+    // Use a more robust selector that finds the element even if hidden
+    const mainScreen = document.querySelector('.main-content-screen') || document.querySelector('[data-category]');
     const hamburgerBtn = document.getElementById('hamburger-btn');
     
+    // Log detailed element states
+    Logger.info(`[NAVIGATION DEBUG] Element search results:`, {
+      contentContainer: {
+        found: !!contentContainer,
+        id: contentContainer?.id,
+        classes: contentContainer?.className,
+        display: contentContainer ? getComputedStyle(contentContainer).display : 'N/A',
+        visibility: contentContainer ? getComputedStyle(contentContainer).visibility : 'N/A'
+      },
+      mainScreen: {
+        found: !!mainScreen,
+        classes: mainScreen?.className,
+        display: mainScreen ? getComputedStyle(mainScreen).display : 'N/A',
+        visibility: mainScreen ? getComputedStyle(mainScreen).visibility : 'N/A',
+        hasScreenHidden: mainScreen?.classList.contains('screen-hidden'),
+        hasScreenVisible: mainScreen?.classList.contains('screen-visible')
+      }
+    });
+    
+    // Log all elements with relevant classes for debugging
+    const allScreens = document.querySelectorAll('[class*="screen"]');
+    Logger.info(`[NAVIGATION DEBUG] All screen elements found: ${allScreens.length}`);
+    allScreens.forEach((screen, index) => {
+      Logger.info(`[NAVIGATION DEBUG] Screen ${index}:`, {
+        classes: screen.className,
+        id: screen.id,
+        display: getComputedStyle(screen).display,
+        visibility: getComputedStyle(screen).visibility
+      });
+    });
+    
+    // Additional debugging right before validation
+    Logger.info(`[NAVIGATION DEBUG] Pre-validation check:`, {
+      contentContainer: {
+        exists: !!contentContainer,
+        isNull: contentContainer === null,
+        isUndefined: contentContainer === undefined,
+        type: typeof contentContainer
+      },
+      mainScreen: {
+        exists: !!mainScreen,
+        isNull: mainScreen === null,
+        isUndefined: mainScreen === undefined,
+        type: typeof mainScreen,
+        nodeType: mainScreen?.nodeType,
+        parentNode: !!mainScreen?.parentNode
+      }
+    });
+    
+    // Additional debugging for mainScreen validation issue
+    Logger.info(`[NAVIGATION DEBUG] Validation check details:`, {
+      contentContainer: {
+        exists: !!contentContainer,
+        truthyCheck: !contentContainer,
+        actualValue: contentContainer
+      },
+      mainScreen: {
+        exists: !!mainScreen,
+        truthyCheck: !mainScreen,
+        actualValue: mainScreen,
+        isElement: mainScreen instanceof Element,
+        nodeType: mainScreen?.nodeType
+      }
+    });
+    
     if (!contentContainer || !mainScreen) {
-      logError('Required DOM elements not found');
-      return;
+      Logger.warn(`[NAVIGATION DEBUG] Required DOM elements not found, retrying in 100ms... (attempt ${(this.retryCount || 0) + 1})`);
+      Logger.warn('[NAVIGATION DEBUG] Missing elements:', {
+        contentContainer: !!contentContainer,
+        mainScreen: !!mainScreen
+      });
+      
+      // Retry once after a short delay, but limit retries to prevent infinite loops
+      if (!this.retryCount) this.retryCount = 0;
+      if (this.retryCount < 3) {
+        this.retryCount++;
+        setTimeout(() => {
+          const retryContainer = document.getElementById('content-container');
+          const retryMainScreen = document.querySelector('.main-content-screen') || document.querySelector('[data-category]');
+          
+          Logger.info(`[NAVIGATION DEBUG] Retry ${this.retryCount} - Element check:`, {
+            retryContainer: !!retryContainer,
+            retryMainScreen: !!retryMainScreen
+          });
+          
+          if (!retryContainer || !retryMainScreen) {
+            logError('Required DOM elements still not found after retry ' + this.retryCount);
+            this.isLoading = false; // Release lock on error
+            if (this.retryCount >= 3) {
+              Logger.error(`[NAVIGATION DEBUG] Max retries reached. Attempting recovery...`);
+              // Reset retry count and try to show the main screen
+              this.retryCount = 0;
+              this.ensureMainScreenVisible();
+            }
+            return;
+          }
+          
+          // Elements found in retry, but not calling loadContent recursively to avoid concurrency issues
+          Logger.info(`[NAVIGATION DEBUG] Elements found in retry, releasing lock`);
+          this.isLoading = false; // Release lock
+        }, 100);
+        return;
+      } else {
+        Logger.error(`[NAVIGATION DEBUG] Max retries reached. Attempting recovery...`);
+        // Reset retry count and try to show the main screen
+        this.retryCount = 0;
+        this.ensureMainScreenVisible();
+        return;
+      }
+    }
+    
+    // Reset retry count on successful element finding
+    this.retryCount = 0;
+    
+    Logger.info(`[NAVIGATION DEBUG] Elements found successfully. Processing visibility...`);
+    
+    // Ensure main screen is visible
+    if (mainScreen.classList.contains('screen-hidden')) {
+      Logger.info(`[NAVIGATION DEBUG] MainScreen was hidden, making it visible`);
+      mainScreen.classList.remove('screen-hidden');
+      mainScreen.classList.add('screen-visible');
+    } else {
+      Logger.info(`[NAVIGATION DEBUG] MainScreen visibility state:`, {
+        hasScreenHidden: mainScreen.classList.contains('screen-hidden'),
+        hasScreenVisible: mainScreen.classList.contains('screen-visible'),
+        allClasses: mainScreen.className
+      });
     }
 
     // Ensure contentType is valid - Fallback to default if invalid category provided
@@ -633,41 +848,63 @@ const AppInit = {
     
     // No longer needed as title is integrated in tables
     if (pageTitle) {
-      pageTitle.style.display = 'none';
+      pageTitle.classList.add('page-title-hidden');
+      pageTitle.classList.remove('page-title-visible');
     }
 
-    contentContainer.style.opacity = 0;
+    contentContainer.classList.add('opacity-0');
+    contentContainer.classList.remove('opacity-1');
     
-    setTimeout(() => {
-      // Asignación segura: limpieza con cadena vacía, sin riesgo XSS
-      contentContainer.innerHTML = '';
+    setTimeout(async () => {
+      // Preserve sidebar while clearing content
+      const sidebar = document.getElementById('order-sidebar');
+      const sidebarHTML = sidebar ? sidebar.outerHTML : null;
       
-      const success = this.initializeContent(contentType, contentContainer);
+      // Clear only the content, not the entire container structure
+      const actualContentContainer = document.getElementById('content-container');
+      if (actualContentContainer) {
+        // Only clear the content container, leaving sidebar intact
+        actualContentContainer.innerHTML = '';
+      } else {
+        // If content-container doesn't exist, clear main container but preserve sidebar
+        contentContainer.innerHTML = '';
+        if (sidebarHTML) {
+          contentContainer.insertAdjacentHTML('beforeend', sidebarHTML);
+        }
+      }
+      
+      const success = await this.initializeContent(contentType, actualContentContainer || contentContainer);
       
       if (success) {
-        contentContainer.style.opacity = 1;
+        contentContainer.classList.add('opacity-1');
+        contentContainer.classList.remove('opacity-0');
         
-        // Position hamburger button based on NOMBRE column header
-        setTimeout(() => {
-          const nombreHeader = document.querySelector('[data-nombre-header="true"]');
-          if (nombreHeader) {
-            const rect = nombreHeader.getBoundingClientRect();
-            hamburgerBtn.style.left = `${rect.left - 80}px`;
-          }
-        }, 100);
+        // Hamburger button position is now fixed via CSS - no dynamic repositioning needed
+        
+        // Dispatch event to notify that content initialization is complete
+        document.dispatchEvent(new CustomEvent('app-content-ready', {
+          detail: { contentType }
+        }));
       }
     }, 50);
     
     // Update active state in drawer menu
     const drawerButtons = document.querySelectorAll('#drawer-menu .nav-button');
-    drawerButtons.forEach(btn => {
-      const btnTarget = btn.getAttribute('data-target');
-      if (btnTarget === contentType) {
-        btn.classList.add('active');
-      } else {
-        btn.classList.remove('active');
-      }
-    });
+    if (drawerButtons) {
+      drawerButtons.forEach(btn => {
+        if (btn && btn.classList) {
+          const btnTarget = btn.getAttribute('data-target');
+          if (btnTarget === contentType) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        }
+      });
+    }
+    
+    // Always release the loading lock
+    this.isLoading = false;
   },
   
   validateContentType: function(contentType) {
@@ -712,58 +949,112 @@ const AppInit = {
     return titles[contentType] || contentType.charAt(0).toUpperCase() + contentType.slice(1);
   },
 
-  initializeContent: function(contentType, container) {
+  initializeContent: async function(contentType, container) {
     if (!container) return false;
     
-    // Asignación segura: limpieza con cadena vacía, sin riesgo XSS
-    container.innerHTML = '';
+    // Always work with content-container to preserve sidebar structure
+    let targetContainer = document.getElementById('content-container');
+    
+    if (!targetContainer) {
+      // Create content-container within the proper structure
+      const flexContainer = document.querySelector('.content-container-flex');
+      if (flexContainer) {
+        targetContainer = document.createElement('div');
+        targetContainer.id = 'content-container';
+        const existingSidebar = flexContainer.querySelector('#order-sidebar');
+        if (existingSidebar) {
+          flexContainer.insertBefore(targetContainer, existingSidebar);
+        } else {
+          flexContainer.appendChild(targetContainer);
+        }
+      } else {
+        // Fallback: create the entire structure if missing
+        targetContainer = document.createElement('div');
+        targetContainer.id = 'content-container';
+        container.appendChild(targetContainer);
+      }
+    } else {
+      // Simply clear the existing content-container
+      targetContainer.innerHTML = '';
+    }
+    
+    container = targetContainer;
     
     try {
       switch(contentType) {
         case 'cocteleria':
-          ProductRenderer.renderCocktails(container);
+          await ProductRenderer.renderCocktails(container);
           break;
         case 'refrescos':
-          ProductRenderer.renderRefrescos(container);
+          await ProductRenderer.renderRefrescos(container);
           break;
         case 'licores':
-          ProductRenderer.renderLicores(container);
+          await ProductRenderer.renderLicores(container);
           break;
         case 'cervezas':
-          ProductRenderer.renderCervezas(container);
+          await ProductRenderer.renderCervezas(container);
           break;
         case 'pizzas':
-          ProductRenderer.renderPizzas(container);
+          await ProductRenderer.renderPizzas(container);
           break;
         case 'alitas':
-          ProductRenderer.renderAlitas(container);
+          await ProductRenderer.renderAlitas(container);
           break;
         case 'sopas':
-          ProductRenderer.renderSopas(container);
+          await ProductRenderer.renderSopas(container);
           break;
         case 'ensaladas':
-          ProductRenderer.renderEnsaladas(container);
+          await ProductRenderer.renderEnsaladas(container);
           break;
         case 'carnes':
-          ProductRenderer.renderCarnes(container);
+          await ProductRenderer.renderCarnes(container);
           break;
         case 'cafe':
-          ProductRenderer.renderCafe(container);
+          await ProductRenderer.renderCafe(container);
           break;
         case 'postres':
-          ProductRenderer.renderPostres(container);
+          await ProductRenderer.renderPostres(container);
           break;
         default:
           logWarning(`Contenido no disponible para: ${contentType}`);
           setSafeInnerHTML(container, '<p>Contenido no disponible</p>');
           return false;
       }
+      
+      // Initialize ProductRenderer event delegation after content is rendered
+      ProductRenderer.initEventDelegation();
+      
       return true;
     } catch (err) {
       logError('Error loading content', err);
       setSafeInnerHTML(container, '<p>Error cargando contenido</p>');
       return false;
     }
+  },
+
+  /**
+   * Checks if user is actively navigating by detecting recent DOM changes
+   * @returns {boolean} True if user navigation is detected
+   */
+  checkUserNavigation: function() {
+    // Check if drawer menu is open (user is selecting)
+    const drawerMenu = document.getElementById('drawer-menu');
+    if (drawerMenu && drawerMenu.classList.contains('open')) {
+      return true;
+    }
+    
+    // Check if any navigation button was recently clicked
+    const activeButtons = document.querySelectorAll('.nav-button.active');
+    if (activeButtons.length > 0) {
+      const lastActiveButton = activeButtons[activeButtons.length - 1];
+      const target = lastActiveButton.getAttribute('data-target');
+      // If active button is not cocteleria, user is navigating
+      if (target && target !== 'cocteleria') {
+        return true;
+      }
+    }
+    
+    return false;
   },
 
   /**
@@ -774,12 +1065,17 @@ const AppInit = {
     // Create minimal DI container for ProductDataAdapter only
     window.container = new DIContainer();
     
+    // Register AppConfig as singleton
+    window.container.singleton('AppConfig', () => {
+      return AppConfig;
+    });
+    
     // Register ProductRepository as singleton (still used by some components)
     window.container.singleton('ProductRepository', () => {
       return new ProductDataAdapter();
     });
 
-    console.log('DI Container initialized (simplified)');
+    Logger.info('DI Container initialized (simplified)');
   }
 };
 

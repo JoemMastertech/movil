@@ -1,8 +1,10 @@
 /**
- * ProductCarousel Component - Optimized Implementation
- * Lightweight carousel for product display with touch/swipe support
- * Follows YAGNI principles - only essential features
+ * ProductCarousel Component - Phase 3 Optimized Implementation
+ * Lightweight carousel with event delegation, memory cleanup, and re-render optimization
+ * Follows YAGNI principles with advanced performance optimizations
  */
+
+import { formatPrice, formatProductName } from '../../../../Shared/utils/formatters.js';
 
 class ProductCarousel {
   constructor(container, products = []) {
@@ -10,6 +12,9 @@ class ProductCarousel {
     this.products = products;
     this.currentIndex = 0;
     this.isInitialized = false;
+    this.boundHandlers = new Map();
+    this.renderCache = new Map();
+    this.lastRenderHash = null;
   }
 
   /**
@@ -26,12 +31,25 @@ class ProductCarousel {
   }
 
   /**
-   * Render carousel HTML structure
+   * Render carousel HTML structure with optimization
    */
   render() {
     if (!this.container) return;
     
-    this.container.innerHTML = `
+    // Generate hash for current state to avoid unnecessary re-renders
+    const currentHash = this._generateRenderHash();
+    if (this.lastRenderHash === currentHash) {
+      return; // Skip re-render if content hasn't changed
+    }
+    
+    // Check cache first
+    if (this.renderCache.has(currentHash)) {
+      this.container.innerHTML = this.renderCache.get(currentHash);
+      this.lastRenderHash = currentHash;
+      return;
+    }
+    
+    const html = `
       <div class="carousel-wrapper">
         <div class="carousel-track" id="carousel-track">
           ${this.products.map((product, index) => `
@@ -39,8 +57,8 @@ class ProductCarousel {
               <img src="${product.imagen || product.ruta_archivo || '/placeholder.jpg'}" 
                    alt="${product.nombre}" 
                    loading="lazy">
-              <h3>${product.nombre}</h3>
-              <p class="price">$${product.precio}</p>
+              <h3>${formatProductName(product.nombre)}</h3>
+              <p class="price">${formatPrice(product.precio)}</p>
             </div>
           `).join('')}
         </div>
@@ -55,27 +73,64 @@ class ProductCarousel {
         ` : ''}
       </div>
     `;
+    
+    // Cache the rendered HTML
+    this.renderCache.set(currentHash, html);
+    this.container.innerHTML = html;
+    this.lastRenderHash = currentHash;
+    
+    // Limit cache size to prevent memory bloat
+    if (this.renderCache.size > 10) {
+      const firstKey = this.renderCache.keys().next().value;
+      this.renderCache.delete(firstKey);
+    }
+  }
+  
+  /**
+   * Generate hash for current render state
+   */
+  _generateRenderHash() {
+    return JSON.stringify({
+      products: this.products.map(p => ({ nombre: p.nombre, precio: p.precio, imagen: p.imagen || p.ruta_archivo })),
+      currentIndex: this.currentIndex
+    });
   }
 
   /**
-   * Attach event listeners
+   * Attach event listeners using intelligent event delegation
    */
   attachEvents() {
     if (this.products.length <= 1) return;
     
-    const prevBtn = this.container.querySelector('#carousel-prev');
-    const nextBtn = this.container.querySelector('#carousel-next');
-    const dots = this.container.querySelectorAll('.dot');
+    // Remove existing listeners to prevent memory leaks
+    this.removeEvents();
     
-    if (prevBtn) prevBtn.addEventListener('click', () => this.prev());
-    if (nextBtn) nextBtn.addEventListener('click', () => this.next());
-    
-    dots.forEach(dot => {
-      dot.addEventListener('click', (e) => {
+    // Single delegated event listener for all carousel interactions
+    const delegatedHandler = (e) => {
+      e.preventDefault();
+      
+      if (e.target.id === 'carousel-prev') {
+        this.prev();
+      } else if (e.target.id === 'carousel-next') {
+        this.next();
+      } else if (e.target.classList.contains('dot')) {
         const index = parseInt(e.target.dataset.index);
         this.goTo(index);
-      });
+      }
+    };
+    
+    this.boundHandlers.set('click', delegatedHandler);
+    this.container.addEventListener('click', delegatedHandler);
+  }
+  
+  /**
+   * Remove event listeners for memory cleanup
+   */
+  removeEvents() {
+    this.boundHandlers.forEach((handler, event) => {
+      this.container.removeEventListener(event, handler);
     });
+    this.boundHandlers.clear();
   }
 
   /**
@@ -113,25 +168,42 @@ class ProductCarousel {
     const dots = this.container.querySelectorAll('.dot');
     
     items.forEach((item, index) => {
-      item.classList.toggle('active', index === this.currentIndex);
+      if (item && item.classList) {
+        item.classList.toggle('active', index === this.currentIndex);
+      }
     });
     
     dots.forEach((dot, index) => {
-      dot.classList.toggle('active', index === this.currentIndex);
+      if (dot && dot.classList) {
+        dot.classList.toggle('active', index === this.currentIndex);
+      }
     });
   }
 
   /**
-   * Update products and re-render
+   * Update products and re-render with optimization
    * @param {Array} newProducts - New product array
    */
   updateProducts(newProducts) {
     this.products = newProducts;
     this.currentIndex = 0;
+    this.lastRenderHash = null; // Force re-render
     if (this.isInitialized) {
       this.render();
       this.attachEvents();
     }
+  }
+  
+  /**
+   * Cleanup method for memory management
+   */
+  destroy() {
+    this.removeEvents();
+    this.renderCache.clear();
+    this.boundHandlers.clear();
+    this.container = null;
+    this.products = null;
+    this.isInitialized = false;
   }
 }
 

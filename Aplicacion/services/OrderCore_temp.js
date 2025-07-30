@@ -16,7 +16,7 @@ class OrderSystemCore {
       ...itemData,
       id: this.generateUniqueId(),
       addedAt: new Date().toISOString(),
-      price: parseFloat(itemData.price) || 0
+      price: formatPrice(itemData.price)
     };
     this.items.push(newItem);
     return newItem;
@@ -43,7 +43,7 @@ class OrderSystemCore {
   }
 
   getTotal() {
-    return this.items.reduce((sum, item) => sum + (item.price || 0), 0);
+    return this.items.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
   }
 
   getItems() {

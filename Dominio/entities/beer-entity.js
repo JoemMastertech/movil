@@ -1,20 +1,27 @@
 import { BaseEntity } from '../../Shared/base/BaseEntity.js';
+import Validator from '../../Shared/utils/validator.js';
+import { formatProductName, formatPrice } from '../../Shared/utils/formatters.js';
 
 class BeerEntity extends BaseEntity {
   constructor(id, nombre, imagen, precio) {
-    super({ id, nombre, imagen, precio });
+    // Formatear datos antes de crear la entidad
+    const formattedData = {
+      id,
+      nombre: formatProductName(nombre),
+      imagen,
+      precio: formatPrice(precio)
+    };
+    
+    // Validar usando el validator unificado
+    const validation = Validator.validateBeer(formattedData);
+    Validator.throwIfInvalid(validation, 'Cerveza');
+    
+    super(formattedData);
     this.type = 'beer';
     this.category = 'bebida';
   }
 
-  validateSpecific() {
-    super.validateSpecific();
-    
-    // Validaciones específicas de cerveza si son necesarias
-    if (this.imagen && typeof this.imagen !== 'string') {
-      throw new ValidationError('La imagen debe ser una URL válida');
-    }
-  }
+  // Eliminamos validateSpecific ya que usamos el validator unificado
 }
 
 export { BeerEntity };

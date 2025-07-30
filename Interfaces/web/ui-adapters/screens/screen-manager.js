@@ -4,6 +4,8 @@
  * Eliminates callback hell and provides better error handling
  */
 
+import Logger from '../../../../Shared/utils/logger.js';
+
 /* Animation durations in milliseconds */
 const DURATIONS = {
   WELCOME: 3000,    // How long to show welcome screen
@@ -29,16 +31,24 @@ const ScreenManager = {
    * @param {string} logMessage - Message to log
    */
   async transitionScreen(fromScreen, toScreen, logMessage) {
-    console.log(logMessage);
+    Logger.info(logMessage);
     
     // Start fade out
-    fromScreen.classList.add('fade-out');
+    if (fromScreen && fromScreen.classList) {
+      fromScreen.classList.add('fade-out');
+    }
     await this.delay(DURATIONS.FADE);
     
     // Switch screens
-    fromScreen.style.display = 'none';
-    toScreen.style.display = 'flex';
-    toScreen.classList.add('fade-in');
+    if (fromScreen && fromScreen.classList) {
+      fromScreen.classList.remove('screen-visible');
+      fromScreen.classList.add('screen-hidden');
+    }
+    if (toScreen && toScreen.classList) {
+      toScreen.classList.remove('screen-hidden');
+      toScreen.classList.add('screen-visible');
+      toScreen.classList.add('fade-in');
+    }
   },
 
   /**
@@ -60,7 +70,7 @@ const ScreenManager = {
       .map(([key]) => key);
 
     if (missingElements.length > 0) {
-      console.error('❌ Missing required screen elements:', missingElements);
+      Logger.error('Missing required screen elements:', missingElements);
       return null;
     }
 
@@ -71,7 +81,7 @@ const ScreenManager = {
    * Load initial content with error handling
    */
   async loadInitialContent() {
-    console.log('📋 Loading initial content...');
+    Logger.info('Loading initial content...');
     
     try {
       const AppInit = window.AppInit;
@@ -82,15 +92,15 @@ const ScreenManager = {
       // Small delay to ensure DOM is ready
       await this.delay(100);
       
-      console.log('🎯 Calling AppInit.loadContent("cocteleria")');
+      Logger.info('Calling AppInit.loadContent("cocteleria")');
       await AppInit.loadContent('cocteleria');
-      console.log('✅ Welcome sequence completed successfully');
+      Logger.info('Welcome sequence completed successfully');
       
     } catch (error) {
-      console.error('❌ Error loading content:', error);
-      // Optionally show fallback content or error message
-      this.showErrorFallback(error);
-    }
+        Logger.error('Error loading content:', error);
+        // Optionally show fallback content or error message
+        this.showErrorFallback(error);
+      }
   },
 
   /**
@@ -115,7 +125,7 @@ const ScreenManager = {
    * Start the welcome sequence with optimized async/await pattern
    */
   async startWelcomeSequence() {
-    console.log('🎬 Starting welcome sequence...');
+    Logger.info('Starting welcome sequence...');
     
     try {
       // Validate all required elements
@@ -125,7 +135,7 @@ const ScreenManager = {
       const { welcomeScreen, logoScreen, categoryTitleScreen, mainContentScreen, hamburgerBtn } = elements;
 
       // Step 1: Show welcome screen
-      console.log('👋 Showing welcome screen for', DURATIONS.WELCOME, 'ms');
+      Logger.info('Showing welcome screen for', DURATIONS.WELCOME, 'ms');
       await this.delay(DURATIONS.WELCOME);
 
       // Step 2: Transition to logo screen
@@ -135,7 +145,7 @@ const ScreenManager = {
         '🔄 Transitioning from welcome to logo screen'
       );
       
-      console.log('🏷️ Showing logo screen for', DURATIONS.LOGO, 'ms');
+      Logger.info('Showing logo screen for', DURATIONS.LOGO, 'ms');
       await this.delay(DURATIONS.LOGO);
 
       // Step 3: Transition to category screen
@@ -145,7 +155,7 @@ const ScreenManager = {
         '🔄 Transitioning from logo to category screen'
       );
       
-      console.log('📂 Showing category screen for', DURATIONS.CATEGORY, 'ms');
+      Logger.info('Showing category screen for', DURATIONS.CATEGORY, 'ms');
       await this.delay(DURATIONS.CATEGORY);
 
       // Step 4: Transition to main content
@@ -155,17 +165,17 @@ const ScreenManager = {
         '🔄 Transitioning to main content screen'
       );
 
-      // Step 5: Show hamburger menu and load content
+      // Show hamburger menu and load content
       if (hamburgerBtn) {
-        hamburgerBtn.style.display = 'block';
-        console.log('🍔 Hamburger menu displayed');
+        hamburgerBtn.className = 'hamburger-btn hamburger-visible';
+        Logger.info('Hamburger menu displayed');
       }
 
       // Step 6: Load initial content
       await this.loadInitialContent();
       
     } catch (error) {
-      console.error('❌ Error in welcome sequence:', error);
+      Logger.error('Error in welcome sequence:', error);
       this.showErrorFallback(error);
     }
   },
@@ -174,7 +184,7 @@ const ScreenManager = {
    * Skip welcome sequence and go directly to main content
    */
   skipToMainContent() {
-    console.log('⏭️ Skipping welcome sequence...');
+    Logger.info('Skipping welcome sequence...');
     
     const elements = this.validateScreenElements();
     if (!elements) return;
@@ -183,16 +193,22 @@ const ScreenManager = {
 
     // Hide all intro screens
     [welcomeScreen, logoScreen, categoryTitleScreen].forEach(screen => {
-      if (screen) screen.style.display = 'none';
+      if (screen && screen.classList) {
+        screen.classList.remove('screen-visible');
+        screen.classList.add('screen-hidden');
+      }
     });
 
     // Show main content
-    mainContentScreen.style.display = 'flex';
-    mainContentScreen.classList.add('fade-in');
+    if (mainContentScreen && mainContentScreen.classList) {
+      mainContentScreen.classList.remove('screen-hidden');
+      mainContentScreen.classList.add('screen-visible');
+      mainContentScreen.classList.add('fade-in');
+    }
 
     // Show hamburger menu
     if (hamburgerBtn) {
-      hamburgerBtn.style.display = 'block';
+      hamburgerBtn.className = 'hamburger-btn hamburger-visible';
     }
 
     // Load content immediately

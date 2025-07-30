@@ -83,8 +83,7 @@ class ErrorHandler {
       const element = document.getElementById(elementId);
       if (element) {
         element.textContent = message;
-        element.style.color = 'red';
-        element.style.display = 'block';
+        element.className = element.className.replace('error-hidden', '').trim() + ' error-red error-visible';
       }
     } else {
       // Fallback to alert if no element specified
@@ -96,7 +95,7 @@ class ErrorHandler {
     const element = document.getElementById(elementId);
     if (element) {
       element.textContent = '';
-      element.style.display = 'none';
+      element.className = element.className.replace('error-visible', '').replace('error-red', '').trim() + ' error-hidden';
     }
   }
 

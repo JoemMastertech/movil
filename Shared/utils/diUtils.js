@@ -4,6 +4,9 @@
  * Part of Phase 3A: Common Logic Extraction
  */
 
+import { logError, logWarning } from './errorHandler.js';
+import Logger from './logger.js';
+
 /**
  * Gets the ProductRepository from DI Container
  * Consolidates getProductRepository functions from multiple files
@@ -61,7 +64,7 @@ export function safeResolveService(serviceName, fallback = null) {
   try {
     return resolveService(serviceName);
   } catch (error) {
-    console.warn(`Failed to resolve service '${serviceName}':`, error.message);
+    Logger.warn(`Failed to resolve service '${serviceName}':`, error.message);
     return fallback;
   }
 }
