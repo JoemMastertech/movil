@@ -17,7 +17,7 @@
    ================================================================= */
 @media (max-width: 480px) and (orientation: landscape) {
   /* Reset completo del layout */
-  body.order-mode-active #app {
+  #app {
     margin: 0 !important;
     padding: 0 !important;
     width: 100vw !important;
@@ -186,7 +186,7 @@
    ================================================================= */
 @media (max-width: 480px) and (orientation: portrait) {
   /* Reset del layout para portrait */
-  body.order-mode-active #app {
+  #app {
     margin: 0 !important;
     padding: 0 !important;
     width: 100vw !important;
