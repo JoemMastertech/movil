@@ -415,6 +415,12 @@ class OrderSystem {
       
       sidebar.classList.toggle('sidebar-visible', shouldBeVisible);
       sidebar.classList.toggle('sidebar-hidden', !shouldBeVisible);
+      
+      // Add/remove 'with-sidebar' class to content wrapper for mobile landscape mode
+      const contentWrapper = document.querySelector('.content-wrapper');
+      if (contentWrapper) {
+        contentWrapper.classList.toggle('with-sidebar', shouldBeVisible);
+      }
     }
   }
 
@@ -1543,6 +1549,12 @@ class OrderSystem {
         sidebar.classList.remove('sidebar-hidden');
         sidebar.classList.add('sidebar-visible');
         
+        // Add 'with-sidebar' class to content wrapper for mobile landscape mode
+        const contentWrapper = document.querySelector('.content-wrapper');
+        if (contentWrapper) {
+          contentWrapper.classList.add('with-sidebar');
+        }
+        
         // Wait a bit for the sidebar to become visible before updating display
         setTimeout(() => {
           this.core.addProduct(orderItem);
@@ -1588,6 +1600,13 @@ class OrderSystem {
           // Force sidebar to be visible
           sidebar.classList.remove('sidebar-hidden');
           sidebar.classList.add('sidebar-visible');
+          
+          // Add 'with-sidebar' class to content wrapper for mobile landscape mode
+          const contentWrapper = document.querySelector('.content-wrapper');
+          if (contentWrapper) {
+            contentWrapper.classList.add('with-sidebar');
+          }
+          
           console.log('  - sidebar classes after change:', sidebar.className);
           
           // Try again after a short delay to allow DOM to update

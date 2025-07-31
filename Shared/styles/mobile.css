@@ -13,10 +13,10 @@
 }
 
 /* =================================================================
-   MÓVIL LANDSCAPE - SIDEBAR LATERAL
+   MÓVIL LANDSCAPE - COMPORTAMIENTO DE ESCRITORIO
    ================================================================= */
 @media (max-width: 480px) and (orientation: landscape) {
-  /* Reset completo del layout */
+  /* Reset del layout para landscape */
   #app {
     margin: 0 !important;
     padding: 0 !important;
@@ -25,20 +25,33 @@
     overflow: hidden !important;
   }
   
-  /* Contenedor principal ajustado para sidebar lateral */
+  /* Contenedor principal para landscape - sin sidebar por defecto */
   .content-wrapper {
     display: flex !important;
     flex-direction: row !important;
-    width: calc(100vw - var(--mobile-sidebar-width)) !important;
+    width: 100vw !important;
     height: 100vh !important;
     margin: 0 !important;
     padding: 0 !important;
     overflow-y: auto;
     overflow-x: hidden;
     box-sizing: border-box;
+    transition: width 0.3s ease;
   }
   
-  /* Sidebar fijo en el lado derecho */
+  /* Contenedor principal cuando hay sidebar activo */
+  .content-wrapper.with-sidebar {
+    width: calc(100vw - var(--mobile-sidebar-width)) !important;
+  }
+  
+  /* Resetear contenedor flex para móvil landscape */
+  .content-container-flex {
+    display: flex !important;
+    width: 100% !important;
+    position: relative !important;
+  }
+  
+  /* Sidebar fijo en el lado derecho - comportamiento de escritorio */
   #order-sidebar {
     position: fixed !important;
     top: 0 !important;
@@ -47,14 +60,63 @@
     height: 100vh !important;
     max-height: 100vh !important;
     margin: 0 !important;
-    padding: 6px !important;
+    padding: 12px !important;
     overflow-y: auto;
     overflow-x: hidden;
     border-radius: 0 !important;
     z-index: 1000;
     box-sizing: border-box;
     background: var(--card-bg);
-    border-left: 1px solid var(--border-color);
+    border-left: 2px solid var(--border-color);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+  }
+  
+  /* Sidebar visible cuando está activo */
+  #order-sidebar.active {
+    transform: translateX(0);
+  }
+  
+  /* Botón hamburguesa fijo en landscape */
+  .hamburger-btn,
+  .back-btn {
+    position: fixed !important;
+    top: 20px !important;
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 50% !important;
+    background: var(--primary-color) !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+    z-index: 1001 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 18px !important;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .hamburger-btn {
+    left: 20px !important;
+  }
+  
+  .back-btn {
+    right: 20px !important;
+  }
+  
+  .hamburger-btn:hover,
+  .back-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+  }
+  
+  /* Modo tabla - comportamiento de escritorio */
+  .product-table,
+  .liquor-table {
+    width: 100% !important;
+    font-size: inherit !important;
   }
   
   /* Contenido del sidebar optimizado */
@@ -120,7 +182,7 @@
     box-sizing: border-box;
   }
   
-  /* Grids optimizados - 3 columnas en landscape */
+  /* Grids optimizados - 3 columnas por defecto, 2 con sidebar */
   .product-grid,
   .category-grid {
     grid-template-columns: repeat(3, 1fr) !important;
@@ -129,6 +191,12 @@
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;
+  }
+  
+  /* Grids con sidebar activo - 2 columnas */
+  .content-wrapper.with-sidebar .product-grid,
+  .content-wrapper.with-sidebar .category-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
   
   /* Tarjetas de producto optimizadas */
@@ -190,24 +258,44 @@
     margin: 0 !important;
     padding: 0 !important;
     width: 100vw !important;
+    min-height: 100vh !important;
   }
   
-  /* Contenedor principal para portrait */
+  /* Contenedor principal para portrait - sin sidebar lateral */
+  .content-wrapper {
+    width: 100vw !important;
+    min-height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+  
+  /* Resetear contenedor flex para móvil portrait */
+  .content-container-flex {
+    display: block !important;
+    width: 100% !important;
+    position: relative !important;
+    padding-bottom: 200px !important; /* Espacio para el sidebar inferior */
+  }
+  
   #content-container {
     padding: var(--mobile-padding) !important;
     width: 100% !important;
     box-sizing: border-box;
   }
   
-  /* Grids para portrait - 2 columnas */
+  /* Grids para portrait - 2 columnas con ancho ampliado */
   .product-grid,
   .category-grid {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: var(--mobile-gap) !important;
     padding: var(--mobile-padding) !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
+    width: 125% !important; /* Ampliado 25% para cubrir bordes */
+    max-width: 125% !important;
+    margin: 0 -12.5% !important; /* Centrar el contenido ampliado */
+    box-sizing: border-box;
   }
   
   /* Tarjetas optimizadas para portrait */
@@ -260,49 +348,102 @@
     top: 50px !important;
   }
   
-  /* Sidebar en la parte inferior para portrait */
+  /* Botones hamburguesa y back como overlays fijos */
+  .hamburger-btn,
+  .back-btn {
+    position: fixed !important;
+    top: 20px !important;
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 50% !important;
+    background: var(--primary-color) !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+    z-index: 1001 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 18px !important;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .hamburger-btn {
+    left: 20px !important;
+  }
+  
+  .back-btn {
+    right: 20px !important;
+  }
+  
+  .hamburger-btn:hover,
+  .back-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+  }
+  
+  /* Sidebar fijo en la parte inferior para portrait */
   #order-sidebar {
-    width: 100% !important;
-    position: relative !important;
-    top: auto !important;
-    right: auto !important;
-    margin: 15px 0 0 0 !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100vw !important;
+    height: auto !important;
+    max-height: 180px !important;
+    margin: 0 !important;
     padding: 12px !important;
-    max-height: 50vh !important;
     overflow-y: auto;
+    overflow-x: hidden;
     border-radius: 15px 15px 0 0 !important;
-    border-top: 2px solid var(--primary-color);
+    z-index: 1000;
+    box-sizing: border-box;
+    background: var(--card-bg);
+    border-top: 2px solid var(--border-color);
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
   }
   
   #order-sidebar h3 {
-    font-size: 1.1rem !important;
-    margin-bottom: 10px !important;
+    font-size: var(--mobile-font-base) !important;
+    margin-bottom: 8px !important;
     text-align: center;
+    padding: 0;
   }
   
   .order-item {
-    padding: 8px 0 !important;
-    margin-bottom: 6px !important;
+    padding: 4px 8px !important;
+    margin-bottom: 4px !important;
     border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
   
   .order-item-name {
-    font-size: var(--mobile-font-base) !important;
-    line-height: 1.3 !important;
+    font-size: var(--mobile-font-small) !important;
+    line-height: 1.2 !important;
+    margin-bottom: 0;
+    flex: 1;
   }
   
   .order-item-price {
     font-size: var(--mobile-font-small) !important;
+    color: var(--primary-color);
+    font-weight: bold;
+    margin-left: 8px;
   }
   
   .order-item-customization {
-    font-size: var(--mobile-font-small) !important;
-    margin-top: 3px !important;
+    font-size: var(--mobile-font-tiny) !important;
+    margin-top: 2px !important;
+    opacity: 0.8;
+    width: 100%;
   }
   
   .order-total {
-    margin-top: 15px !important;
-    font-size: 1.1rem !important;
+    margin-top: 8px !important;
+    font-size: var(--mobile-font-base) !important;
     font-weight: bold;
     text-align: center;
     padding: 8px 0;
@@ -310,17 +451,23 @@
   }
   
   .order-buttons {
-    margin-top: 10px !important;
+    margin-top: 8px !important;
     display: flex;
+    flex-direction: row;
     gap: 8px;
+    justify-content: center;
   }
   
   .order-buttons button {
-    font-size: var(--mobile-font-base) !important;
-    padding: 8px 12px !important;
+    font-size: var(--mobile-font-small) !important;
+    padding: 8px 16px !important;
     margin: 0 !important;
     flex: 1;
-    border-radius: 8px;
+    max-width: 120px;
+    border-radius: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   
   /* Navegación optimizada para portrait */
@@ -353,6 +500,25 @@
     font-size: 1.6rem !important;
     text-align: center;
     margin: 10px 0;
+  }
+  
+  /* Modo tabla mínimo óptimo por defecto */
+  .product-table,
+  .liquor-table {
+    width: 100% !important;
+    font-size: var(--mobile-font-small) !important;
+    transform: scale(0.85) !important;
+    transform-origin: top left !important;
+    margin-bottom: 20px !important;
+  }
+  
+  .product-table th,
+  .product-table td,
+  .liquor-table th,
+  .liquor-table td {
+    padding: 4px 2px !important;
+    font-size: var(--mobile-font-tiny) !important;
+    line-height: 1.2 !important;
   }
   
   /* Modales optimizados */
