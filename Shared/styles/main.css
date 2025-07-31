@@ -2008,9 +2008,10 @@ textarea:focus {
     font-size: 0.9rem;
     margin-left: 5px;
   }
-  .category-grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: auto auto auto repeat(5, auto); gap: 10px; padding: 10px; }
   .category-image { width: clamp(60px, 8vw, 90px); height: clamp(60px, 8vw, 90px); }
+  /* Grid por defecto para móviles (se sobrescribe con orientation) */
   .product-grid { grid-template-columns: 1fr; gap: 15px; padding: 15px; }
+  .category-grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: auto auto auto repeat(5, auto); gap: 10px; padding: 10px; }
   .product-card { min-height: 260px; height: auto; /* max-height removido */ }
   .product-card .product-name { font-size: 0.775rem; height: clamp(1.386rem, 2.07vw + 0.576rem, 1.845rem); -webkit-line-clamp: unset; line-clamp: unset; overflow: visible; text-overflow: unset; display: block; }
   .product-card .product-ingredients { font-size: 0.7rem; }
@@ -2068,11 +2069,13 @@ textarea:focus {
     width: 100%;
   }
   
-  /* Hamburger and back button positioning */
-  .hamburger-btn { left: calc((100vw - var(--table-width)) / 2 + 10px); }
-  .back-button-container {
-    left: calc((100vw - var(--table-width)) / 2 + 10px);
-    top: 80px;
+  /* Hamburger and back button positioning - solo para tablets */
+  @media (min-width: 481px) {
+    .hamburger-btn { left: calc((100vw - var(--table-width)) / 2 + 10px); }
+    .back-button-container {
+      left: calc((100vw - var(--table-width)) / 2 + 10px);
+      top: 80px;
+    }
   }
   
   /* Category-specific table adjustments */
@@ -2127,6 +2130,131 @@ textarea:focus {
   .product-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 20px; }
   .category-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 20px; }
   .product-card { min-height: 320px; }
+}
+
+/* =================================================================
+   RESPONSIVE DESIGN - MOBILE LANDSCAPE (max-width: 480px)
+   ================================================================= */
+@media (max-width: 480px) and (orientation: landscape) {
+  /* Replicar comportamiento de escritorio en móviles landscape */
+  .content-wrapper { 
+    flex-direction: row;
+    gap: 15px;
+  }
+  
+  /* Grid con 3 columnas en landscape */
+  .product-grid { 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 12px; 
+    padding: 12px; 
+  }
+  
+  .category-grid { 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 12px; 
+    padding: 12px; 
+  }
+  
+  /* Modales más pequeños para landscape móvil */
+  .modal-content.image-modal {
+    max-width: 280px;
+    padding: 10px 8px;
+    margin: 8px;
+  }
+  
+  .modal-content.image-modal.video-modal {
+    width: 45%;
+    max-width: 320px;
+  }
+  
+  .modal-content.image-modal img {
+    max-height: 30vh;
+    margin: 4px 0;
+  }
+  
+  /* ORDER SIDEBAR - MOBILE LANDSCAPE (lado derecho como escritorio) */
+  body.order-mode-active #app {
+    margin-left: 0;
+    margin-right: 200px;
+  }
+  
+  #order-sidebar {
+    width: 190px;
+    position: fixed;
+    top: 20px;
+    right: 10px;
+    margin: 0;
+    padding: 10px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+  
+  /* Botones hamburguesa y volver superpuestos */
+  .hamburger-btn,
+  .back-button-container {
+    position: fixed;
+    z-index: 1001;
+  }
+  
+  .hamburger-btn {
+    left: 15px;
+    top: 15px;
+  }
+  
+  .back-button-container {
+    left: 15px;
+    top: 65px;
+  }
+}
+
+/* =================================================================
+   RESPONSIVE DESIGN - MOBILE PORTRAIT (max-width: 480px)
+   ================================================================= */
+@media (max-width: 480px) and (orientation: portrait) {
+  /* Grid con 2 columnas en portrait */
+  .product-grid { 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 12px; 
+    padding: 12px; 
+  }
+  
+  .category-grid { 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 10px; 
+    padding: 10px; 
+  }
+  
+  /* Botones hamburguesa y volver superpuestos */
+  .hamburger-btn,
+  .back-button-container {
+    position: fixed;
+    z-index: 1001;
+  }
+  
+  .hamburger-btn {
+    left: 15px;
+    top: 15px;
+  }
+  
+  .back-button-container {
+    left: 15px;
+    top: 65px;
+  }
+  
+  /* ORDER SIDEBAR - MOBILE PORTRAIT (parte inferior) */
+  #order-sidebar {
+    width: 100%;
+    position: relative;
+    top: auto;
+    right: auto;
+    margin: 15px 0 0 0;
+    padding: 12px;
+    max-height: 60vh;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
 }
 
 /* =================================================================
