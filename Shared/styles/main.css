@@ -2142,17 +2142,33 @@ textarea:focus {
     gap: 8px;
   }
   
-  /* Grid con 3 columnas en landscape */
+  /* Grid con 3 columnas en landscape - ancho completo */
   .product-grid { 
     grid-template-columns: repeat(3, 1fr); 
-    gap: 12px; 
-    padding: 12px; 
+    gap: 8px; 
+    padding: 8px;
+    width: 100%;
+    max-width: 100%;
   }
   
   .category-grid { 
     grid-template-columns: repeat(3, 1fr); 
-    gap: 12px; 
-    padding: 12px; 
+    gap: 8px; 
+    padding: 8px;
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  /* Tabla de productos - ancho completo */
+  .product-table {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+  }
+  
+  #content-container {
+    padding: 0;
+    width: 100%;
   }
   
   /* Modales más pequeños para landscape móvil */
@@ -2172,24 +2188,29 @@ textarea:focus {
     margin: 4px 0;
   }
   
-  /* ORDER SIDEBAR - MOBILE LANDSCAPE (proporción mejorada) */
+  /* ORDER SIDEBAR - MOBILE LANDSCAPE (pegado al borde derecho) */
   body.order-mode-active #app {
     margin-left: 0;
-    margin-right: 140px;
+    margin-right: 0;
+  }
+  
+  .content-wrapper {
+    width: calc(100% - 140px);
   }
   
   #order-sidebar {
-    width: 130px;
+    width: 140px;
     position: fixed;
-    top: 15px;
-    right: 8px;
+    top: 0;
+    right: 0;
     margin: 0;
     padding: 8px;
-    max-height: calc(100vh - 30px);
+    max-height: 100vh;
     overflow-y: auto;
     overflow-x: hidden;
     box-sizing: border-box;
     font-size: 0.8rem;
+    border-radius: 0;
   }
   
   #order-sidebar h3 {
