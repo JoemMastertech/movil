@@ -2139,7 +2139,7 @@ textarea:focus {
   /* Replicar comportamiento de escritorio en móviles landscape */
   .content-wrapper { 
     flex-direction: row;
-    gap: 15px;
+    gap: 8px;
   }
   
   /* Grid con 3 columnas en landscape */
@@ -2172,23 +2172,65 @@ textarea:focus {
     margin: 4px 0;
   }
   
-  /* ORDER SIDEBAR - MOBILE LANDSCAPE (lado derecho como escritorio) */
+  /* ORDER SIDEBAR - MOBILE LANDSCAPE (proporción mejorada) */
   body.order-mode-active #app {
     margin-left: 0;
-    margin-right: 200px;
+    margin-right: 140px;
   }
   
   #order-sidebar {
-    width: 190px;
+    width: 130px;
     position: fixed;
-    top: 20px;
-    right: 10px;
+    top: 15px;
+    right: 8px;
     margin: 0;
-    padding: 10px;
-    max-height: calc(100vh - 40px);
+    padding: 8px;
+    max-height: calc(100vh - 30px);
     overflow-y: auto;
     overflow-x: hidden;
     box-sizing: border-box;
+    font-size: 0.8rem;
+  }
+  
+  #order-sidebar h3 {
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+  
+  .order-item {
+    padding: 4px 0;
+    margin-bottom: 4px;
+  }
+  
+  .order-item-name {
+    font-size: 0.75rem;
+    line-height: 1.1;
+  }
+  
+  .order-item-price {
+    font-size: 0.7rem;
+  }
+  
+  .order-item-customization {
+    font-size: 0.65rem;
+    margin-top: 2px;
+  }
+  
+  .order-total h4 {
+    font-size: 0.85rem;
+    margin: 8px 0 4px 0;
+  }
+  
+  .order-actions {
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 8px;
+  }
+  
+  .order-actions button {
+    padding: 6px 4px;
+    font-size: 0.7rem;
+    min-height: 28px;
   }
   
   /* Botones hamburguesa y volver superpuestos */
@@ -2213,17 +2255,38 @@ textarea:focus {
    RESPONSIVE DESIGN - MOBILE PORTRAIT (max-width: 480px)
    ================================================================= */
 @media (max-width: 480px) and (orientation: portrait) {
-  /* Grid con 2 columnas en portrait */
+  /* Maximizar ancho disponible en portrait */
+  :root { 
+    --table-width: 100%; 
+    --table-margin: 0px; 
+  }
+  
+  #content-container {
+    padding: 0 2px;
+  }
+  
+  /* Grid con 2 columnas en portrait - ancho completo */
   .product-grid { 
     grid-template-columns: repeat(2, 1fr); 
-    gap: 12px; 
-    padding: 12px; 
+    gap: 8px; 
+    padding: 8px 4px; 
+    width: 100%;
+    max-width: 100%;
   }
   
   .category-grid { 
     grid-template-columns: repeat(2, 1fr); 
-    gap: 10px; 
-    padding: 10px; 
+    gap: 8px; 
+    padding: 8px 4px;
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  /* Tablas de productos - ancho completo */
+  .product-table {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
   }
   
   /* Botones hamburguesa y volver superpuestos */
@@ -2234,13 +2297,13 @@ textarea:focus {
   }
   
   .hamburger-btn {
-    left: 15px;
-    top: 15px;
+    left: 8px;
+    top: 8px;
   }
   
   .back-button-container {
-    left: 15px;
-    top: 65px;
+    left: 8px;
+    top: 58px;
   }
   
   /* ORDER SIDEBAR - MOBILE PORTRAIT (parte inferior) */
@@ -2249,8 +2312,8 @@ textarea:focus {
     position: relative;
     top: auto;
     right: auto;
-    margin: 15px 0 0 0;
-    padding: 12px;
+    margin: 10px 0 0 0;
+    padding: 12px 8px;
     max-height: 60vh;
     overflow-x: hidden;
     box-sizing: border-box;
