@@ -646,20 +646,36 @@
 }
 
 /* =================================================================
-   AJUSTES DE CONTENEDORES PARA MÓVIL
+   AJUSTES DE CONTENEDORES PARA MÓVIL - PORTRAIT
    ================================================================= */
-@media (max-width: 480px) {
-  /* MODO TABLA: Igualar anchos de refrescos y cervezas al de coctelería */
-  .product-table[data-category="refrescos"],
-  .product-table[data-category="cervezas"] {
-    width: var(--table-width) !important;
-    max-width: var(--table-max-width) !important;
-  }
-  
-  /* MODO GRID: Aumentar 10% el ancho de todos los contenedores padre */
+@media (max-width: 480px) and (orientation: portrait) {
+  /* MODO GRID: Reducir 5% el ancho de contenedores padre y centrar */
   .product-grid,
   .category-grid {
-    width: calc(100% + 10%) !important;
-    max-width: calc(100% + 10%) !important;
+    width: 85% !important; /* Reducido 5% del 90% anterior = 85% */
+    max-width: 85% !important;
+    margin: 0 auto !important; /* Centrar en la pantalla */
+  }
+  
+  /* MODO TABLA: Centrar todos los contenedores padre */
+  .product-table,
+  .liquor-table {
+    margin: 0 auto !important; /* Centrar en la pantalla */
+  }
+  
+  /* MODO TABLA: Contenedores de 5 columnas (subcategorías de licores) - reducir 10% y centrar */
+  .liquor-table[data-category="whisky"],
+  .liquor-table[data-category="tequila"],
+  .liquor-table[data-category="ron"],
+  .liquor-table[data-category="vodka"],
+  .liquor-table[data-category="ginebra"],
+  .liquor-table[data-category="mezcal"],
+  .liquor-table[data-category="cognac"],
+  .liquor-table[data-category="brandy"],
+  .liquor-table[data-category="digestivos"],
+  .liquor-table[data-category="espumosos"] {
+    width: 75% !important; /* Reducido 10% del 85% anterior = 75% */
+    max-width: 75% !important;
+    margin: 0 auto !important; /* Centrar para evitar que se vea entrecortado */
   }
 }
