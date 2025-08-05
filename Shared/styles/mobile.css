@@ -96,6 +96,30 @@
     box-shadow: 0 6px 16px rgba(0,0,0,0.4);
   }
   
+  /* Reducir tamaño del logo 30% en móviles landscape también */
+  .logo, .main-logo {
+    max-width: 210px !important; /* 300px - 30% = 210px */
+  }
+  
+  /* Eliminar efectos cyan del drawer-menu en landscape */
+  .drawer-menu {
+    border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: none !important;
+  }
+  
+  .drawer-menu .nav-button {
+    border: 1.4px solid rgba(255, 255, 255, 0.3) !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+    box-shadow: none !important;
+  }
+  
+  .drawer-menu .nav-button:hover,
+  .drawer-menu .nav-button.active {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+    box-shadow: none !important;
+  }
+  
   /* Modo tabla - comportamiento de escritorio */
   .product-table,
   .liquor-table {
@@ -248,6 +272,25 @@
   /* Reducir tamaño del logo 30% en móviles portrait */
   .logo, .main-logo {
     max-width: 210px !important; /* 300px - 30% = 210px */
+  }
+  
+  /* Eliminar efectos cyan del drawer-menu en móviles */
+  .drawer-menu {
+    border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: none !important;
+  }
+  
+  .drawer-menu .nav-button {
+    border: 1.4px solid rgba(255, 255, 255, 0.3) !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+    box-shadow: none !important;
+  }
+  
+  .drawer-menu .nav-button:hover,
+  .drawer-menu .nav-button.active {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+    box-shadow: none !important;
   }
   
   /* Contenedor principal para portrait - sin sidebar lateral */
@@ -477,6 +520,30 @@
    OPTIMIZACIONES GENERALES MÓVILES
    ================================================================= */
 @media (max-width: 480px) {
+  /* Reducir tamaño del logo 30% en todos los móviles */
+  .logo, .main-logo {
+    max-width: 210px !important; /* 300px - 30% = 210px */
+  }
+  
+  /* Eliminar efectos cyan del drawer-menu en todos los móviles */
+  .drawer-menu {
+    border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: none !important;
+  }
+  
+  .drawer-menu .nav-button {
+    border: 1.4px solid rgba(255, 255, 255, 0.3) !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+    box-shadow: none !important;
+  }
+  
+  .drawer-menu .nav-button:hover,
+  .drawer-menu .nav-button.active {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+    box-shadow: none !important;
+  }
+  
   /* Tipografía base */
   body {
     font-size: var(--mobile-font-base) !important;
