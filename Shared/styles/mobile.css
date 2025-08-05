@@ -116,9 +116,9 @@
   }
   
   /* Aumentar contenedor padre 7% en modo grid para móviles landscape */
-  .product-grid {
+  /* .product-grid {
     width: 97% !important; /* 90% + 7% = 97% */
-  }
+  /* } */
   
   /* Reducir botones de precios 20% en móviles landscape */
   .price-button {
@@ -552,9 +552,9 @@
   }
   
   /* Aumentar contenedor padre 7% en modo grid para todos los móviles */
-  .product-grid {
+  /* .product-grid {
     width: 97% !important; /* 90% + 7% = 97% */
-  }
+  /* } */
   
   /* Reducir botones de precios 20% en todos los móviles */
   .price-button {
@@ -659,6 +659,8 @@
     max-width: 85% !important;
     margin: 0 auto !important; /* Centrar en la pantalla */
     box-sizing: border-box !important;
+    display: grid !important;
+    justify-content: center !important;
   }
   
   /* MODO TABLA: Centrar todos los contenedores padre */
@@ -687,5 +689,13 @@
     margin: 0 auto !important; /* Centrar para evitar que se vea entrecortado */
     padding: var(--mobile-padding) !important;
     box-sizing: border-box !important;
+  }
+
+  /* REGLA ADICIONAL DE ALTA ESPECIFICIDAD PARA ASEGURAR APLICACIÓN */
+  body .product-grid,
+  body .category-grid {
+    width: 85% !important;
+    max-width: 85% !important;
+    margin: 0 auto !important;
   }
 }
