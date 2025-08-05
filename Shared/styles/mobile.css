@@ -644,3 +644,22 @@
     opacity: 0.8;
   }
 }
+
+/* =================================================================
+   AJUSTES DE CONTENEDORES PARA MÓVIL
+   ================================================================= */
+@media (max-width: 480px) {
+  /* MODO TABLA: Igualar anchos de refrescos y cervezas al de coctelería */
+  .product-table[data-category="refrescos"],
+  .product-table[data-category="cervezas"] {
+    width: var(--table-width) !important;
+    max-width: var(--table-max-width) !important;
+  }
+  
+  /* MODO GRID: Aumentar 10% el ancho de todos los contenedores padre */
+  .product-grid,
+  .category-grid {
+    width: calc(100% + 10%) !important;
+    max-width: calc(100% + 10%) !important;
+  }
+}
