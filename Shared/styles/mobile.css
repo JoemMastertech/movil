@@ -294,10 +294,10 @@
     box-shadow: 0 0 20px rgba(0, 247, 255, 0.6) !important;
   }
   
-  /* Aumentar contenedor padre 7% en modo grid para móviles portrait */
-  .product-grid {
-    width: 97% !important; /* 90% + 7% = 97% */
-  }
+  /* Regla comentada - conflictaba con ajustes específicos al final del archivo */
+  /* .product-grid {
+    width: 97% !important;
+  } */
   
   /* Reducir botones de precios 20% en móviles portrait */
   .price-button {
@@ -330,17 +330,17 @@
     box-sizing: border-box;
   }
   
-  /* Grids para portrait - 2 columnas con ancho reducido 10% */
-  .product-grid,
+  /* Regla comentada - conflictaba con ajustes específicos al final del archivo */
+  /* .product-grid,
   .category-grid {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: var(--mobile-gap) !important;
     padding: var(--mobile-padding) !important;
-    width: 90% !important; /* Reducido 10% para mejor visualización */
+    width: 90% !important;
     max-width: 90% !important;
-    margin: 0 auto !important; /* Centrar el contenido */
+    margin: 0 auto !important;
     box-sizing: border-box;
-  }
+  } */
   
   /* Tarjetas optimizadas para portrait */
   .product-card {
@@ -357,14 +357,14 @@
     font-size: var(--mobile-font-small) !important;
   }
   
-  /* Tablas para portrait - reducido 15% y centrado */
-  .product-table,
+  /* Regla comentada - conflictaba con ajustes específicos al final del archivo */
+  /* .product-table,
   .liquor-table {
-    width: 85% !important; /* Reducido 15% */
+    width: 85% !important;
     max-width: 85% !important;
-    margin: 0 auto !important; /* Centrado */
+    margin: 0 auto !important;
     padding: var(--mobile-padding) !important;
-  }
+  } */
   
   .product-table th,
   .product-table td {
@@ -652,15 +652,23 @@
   /* MODO GRID: Reducir 5% el ancho de contenedores padre y centrar */
   .product-grid,
   .category-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: var(--mobile-gap) !important;
+    padding: var(--mobile-padding) !important;
     width: 85% !important; /* Reducido 5% del 90% anterior = 85% */
     max-width: 85% !important;
     margin: 0 auto !important; /* Centrar en la pantalla */
+    box-sizing: border-box !important;
   }
   
   /* MODO TABLA: Centrar todos los contenedores padre */
   .product-table,
   .liquor-table {
+    width: 100% !important;
+    max-width: 100% !important;
     margin: 0 auto !important; /* Centrar en la pantalla */
+    padding: var(--mobile-padding) !important;
+    box-sizing: border-box !important;
   }
   
   /* MODO TABLA: Contenedores de 5 columnas (subcategorías de licores) - reducir 10% y centrar */
@@ -677,5 +685,7 @@
     width: 75% !important; /* Reducido 10% del 85% anterior = 75% */
     max-width: 75% !important;
     margin: 0 auto !important; /* Centrar para evitar que se vea entrecortado */
+    padding: var(--mobile-padding) !important;
+    box-sizing: border-box !important;
   }
 }
