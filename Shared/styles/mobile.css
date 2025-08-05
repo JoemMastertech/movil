@@ -101,23 +101,29 @@
     max-width: 210px !important; /* 300px - 30% = 210px */
   }
   
-  /* Eliminar efectos cyan del drawer-menu en landscape */
-  .drawer-menu {
-    border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
-    box-shadow: none !important;
-  }
-  
+  /* Mantener efectos cyan del drawer-menu en landscape */
   .drawer-menu .nav-button {
-    border: 1.4px solid rgba(255, 255, 255, 0.3) !important;
-    background: rgba(255, 255, 255, 0.02) !important;
-    box-shadow: none !important;
+    border: 1.4px solid rgba(0, 247, 255, 0.3) !important;
+    background: rgba(0, 247, 255, 0.02) !important;
+    box-shadow: 0 0 10px rgba(0, 247, 255, 0.2) !important;
   }
   
   .drawer-menu .nav-button:hover,
   .drawer-menu .nav-button.active {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    border-color: rgba(255, 255, 255, 0.5) !important;
-    box-shadow: none !important;
+    background-color: rgba(0, 247, 255, 0.1) !important;
+    border-color: rgba(0, 247, 255, 0.6) !important;
+    box-shadow: 0 0 15px rgba(0, 247, 255, 0.4) !important;
+  }
+  
+  /* Aumentar contenedor padre 7% en modo grid para móviles landscape */
+  .product-grid {
+    width: 97% !important; /* 90% + 7% = 97% */
+  }
+  
+  /* Reducir botones de precios 20% en móviles landscape */
+  .price-button {
+    font-size: 0.8rem !important; /* Reducción del 20% */
+    padding: 6px 10px !important; /* Reducción del 20% */
   }
   
   /* Modo tabla - comportamiento de escritorio */
@@ -274,23 +280,29 @@
     max-width: 210px !important; /* 300px - 30% = 210px */
   }
   
-  /* Eliminar efectos cyan del drawer-menu en móviles */
-  .drawer-menu {
-    border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
-    box-shadow: none !important;
-  }
-  
+  /* Mantener efectos cyan del drawer-menu en móviles portrait */
   .drawer-menu .nav-button {
-    border: 1.4px solid rgba(255, 255, 255, 0.3) !important;
-    background: rgba(255, 255, 255, 0.02) !important;
-    box-shadow: none !important;
+    border: 1.4px solid rgba(0, 247, 255, 0.3) !important;
+    background: rgba(0, 247, 255, 0.02) !important;
+    box-shadow: 0 0 10px rgba(0, 247, 255, 0.2) !important;
   }
   
   .drawer-menu .nav-button:hover,
   .drawer-menu .nav-button.active {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    border-color: rgba(255, 255, 255, 0.5) !important;
-    box-shadow: none !important;
+    background-color: rgba(0, 247, 255, 0.1) !important;
+    border-color: rgba(0, 247, 255, 0.6) !important;
+    box-shadow: 0 0 15px rgba(0, 247, 255, 0.4) !important;
+  }
+  
+  /* Aumentar contenedor padre 7% en modo grid para móviles portrait */
+  .product-grid {
+    width: 97% !important; /* 90% + 7% = 97% */
+  }
+  
+  /* Reducir botones de precios 20% en móviles portrait */
+  .price-button {
+    font-size: 0.8rem !important; /* Reducción del 20% */
+    padding: 6px 10px !important; /* Reducción del 20% */
   }
   
   /* Contenedor principal para portrait - sin sidebar lateral */
@@ -525,23 +537,29 @@
     max-width: 210px !important; /* 300px - 30% = 210px */
   }
   
-  /* Eliminar efectos cyan del drawer-menu en todos los móviles */
-  .drawer-menu {
-    border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
-    box-shadow: none !important;
-  }
-  
+  /* Mantener efectos cyan del drawer-menu en todos los móviles */
   .drawer-menu .nav-button {
-    border: 1.4px solid rgba(255, 255, 255, 0.3) !important;
-    background: rgba(255, 255, 255, 0.02) !important;
-    box-shadow: none !important;
+    border: 1.4px solid rgba(0, 247, 255, 0.3) !important;
+    background: rgba(0, 247, 255, 0.02) !important;
+    box-shadow: 0 0 10px rgba(0, 247, 255, 0.2) !important;
   }
   
   .drawer-menu .nav-button:hover,
   .drawer-menu .nav-button.active {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    border-color: rgba(255, 255, 255, 0.5) !important;
-    box-shadow: none !important;
+    background-color: rgba(0, 247, 255, 0.1) !important;
+    border-color: rgba(0, 247, 255, 0.6) !important;
+    box-shadow: 0 0 15px rgba(0, 247, 255, 0.4) !important;
+  }
+  
+  /* Aumentar contenedor padre 7% en modo grid para todos los móviles */
+  .product-grid {
+    width: 97% !important; /* 90% + 7% = 97% */
+  }
+  
+  /* Reducir botones de precios 20% en todos los móviles */
+  .price-button {
+    font-size: 0.8rem !important; /* Reducción del 20% */
+    padding: 6px 10px !important; /* Reducción del 20% */
   }
   
   /* Tipografía base */
