@@ -717,7 +717,34 @@
     }
   }
   
-  /* MODO TABLA: Subcategorías de licores (5 columnas) */
+  /* MODO TABLA: Contenedores de 4 columnas - Estandarizar usando diseño de Alitas */
+  html body #app .product-table[data-category="alitas"],
+  html body #app .product-table[data-category="pizzas"],
+  html body #app .product-table[data-category="sopas"],
+  html body #app .product-table[data-category="postres"],
+  html body #app .product-table[data-category="ensaladas"],
+  html body #app .product-table[data-category="carnes"],
+  body .product-table[data-category="alitas"],
+  body .product-table[data-category="pizzas"],
+  body .product-table[data-category="sopas"],
+  body .product-table[data-category="postres"],
+  body .product-table[data-category="ensaladas"],
+  body .product-table[data-category="carnes"],
+  .product-table[data-category="alitas"],
+  .product-table[data-category="pizzas"],
+  .product-table[data-category="sopas"],
+  .product-table[data-category="postres"],
+  .product-table[data-category="ensaladas"],
+  .product-table[data-category="carnes"] {
+    width: 95% !important;
+    max-width: 95% !important;
+    margin: 0 auto !important;
+    padding: var(--mobile-padding) !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+  }
+
+  /* MODO TABLA: Contenedores de 5 columnas - Reducir 15% */
   html body #app .liquor-table[data-category="whisky"],
   html body #app .liquor-table[data-category="tequila"],
   html body #app .liquor-table[data-category="ron"],
@@ -738,13 +765,36 @@
   body .liquor-table[data-category="brandy"],
   body .liquor-table[data-category="digestivos"],
   body .liquor-table[data-category="espumosos"] {
-    width: 75% !important;
-    max-width: 75% !important;
+    width: 80% !important; /* 95% - 15% = 80% */
+    max-width: 80% !important;
+    height: 85% !important; /* Reducir altura 15% */
     margin: 0 auto !important;
     padding: var(--mobile-padding) !important;
     box-sizing: border-box !important;
-    transform: none !important; /* Resetear cualquier transform */
+    transform: none !important;
    }
+
+  /* Reducir botones de precio 20% en todas las categorías afectadas */
+  .product-table[data-category="alitas"] .price-button,
+  .product-table[data-category="pizzas"] .price-button,
+  .product-table[data-category="sopas"] .price-button,
+  .product-table[data-category="postres"] .price-button,
+  .product-table[data-category="ensaladas"] .price-button,
+  .product-table[data-category="carnes"] .price-button,
+  .liquor-table[data-category="whisky"] .price-button,
+  .liquor-table[data-category="tequila"] .price-button,
+  .liquor-table[data-category="ron"] .price-button,
+  .liquor-table[data-category="vodka"] .price-button,
+  .liquor-table[data-category="ginebra"] .price-button,
+  .liquor-table[data-category="mezcal"] .price-button,
+  .liquor-table[data-category="cognac"] .price-button,
+  .liquor-table[data-category="brandy"] .price-button,
+  .liquor-table[data-category="digestivos"] .price-button,
+  .liquor-table[data-category="espumosos"] .price-button {
+    font-size: 0.64rem !important; /* Reducción del 20% desde 0.8rem */
+    padding: 4.8px 8px !important; /* Reducción del 20% desde 6px 10px */
+    min-width: 48px !important; /* Reducción del 20% desde 60px */
+  }
  }
 
 /* =================================================================
