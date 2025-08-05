@@ -110,9 +110,9 @@
   
   .drawer-menu .nav-button:hover,
   .drawer-menu .nav-button.active {
-    background-color: rgba(0, 247, 255, 0.1) !important;
-    border-color: rgba(0, 247, 255, 0.6) !important;
-    box-shadow: 0 0 15px rgba(0, 247, 255, 0.4) !important;
+    background-color: transparent !important;
+    border-color: rgba(0, 247, 255, 1) !important;
+    box-shadow: 0 0 20px rgba(0, 247, 255, 0.6) !important;
   }
   
   /* Aumentar contenedor padre 7% en modo grid para móviles landscape */
@@ -289,9 +289,9 @@
   
   .drawer-menu .nav-button:hover,
   .drawer-menu .nav-button.active {
-    background-color: rgba(0, 247, 255, 0.1) !important;
-    border-color: rgba(0, 247, 255, 0.6) !important;
-    box-shadow: 0 0 15px rgba(0, 247, 255, 0.4) !important;
+    background-color: transparent !important;
+    border-color: rgba(0, 247, 255, 1) !important;
+    box-shadow: 0 0 20px rgba(0, 247, 255, 0.6) !important;
   }
   
   /* Aumentar contenedor padre 7% en modo grid para móviles portrait */
@@ -546,9 +546,9 @@
   
   .drawer-menu .nav-button:hover,
   .drawer-menu .nav-button.active {
-    background-color: rgba(0, 247, 255, 0.1) !important;
-    border-color: rgba(0, 247, 255, 0.6) !important;
-    box-shadow: 0 0 15px rgba(0, 247, 255, 0.4) !important;
+    background-color: transparent !important;
+    border-color: rgba(0, 247, 255, 1) !important;
+    box-shadow: 0 0 20px rgba(0, 247, 255, 0.6) !important;
   }
   
   /* Aumentar contenedor padre 7% en modo grid para todos los móviles */
