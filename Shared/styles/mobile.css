@@ -51,30 +51,14 @@
     position: relative !important;
   }
   
-  /* Sidebar fijo en el lado derecho - comportamiento de escritorio */
+  /* Sidebar derecho eliminado como se solicitó */
   #order-sidebar {
-    position: fixed !important;
-    top: 0 !important;
-    right: 0 !important;
-    width: var(--mobile-sidebar-width) !important;
-    height: 100vh !important;
-    max-height: 100vh !important;
-    margin: 0 !important;
-    padding: 12px !important;
-    overflow-y: auto;
-    overflow-x: hidden;
-    border-radius: 0 !important;
-    z-index: 1000;
-    box-sizing: border-box;
-    background: var(--card-bg);
-    border-left: 2px solid var(--border-color);
-    transform: translateX(100%);
-    transition: transform 0.3s ease;
+    display: none !important;
   }
   
-  /* Sidebar visible cuando está activo */
+  /* Sidebar visible cuando está activo - deshabilitado */
   #order-sidebar.active {
-    transform: translateX(0);
+    display: none !important;
   }
   
   /* Botón hamburguesa fijo en landscape */
@@ -261,6 +245,11 @@
     min-height: 100vh !important;
   }
   
+  /* Reducir tamaño del logo 30% en móviles portrait */
+  .logo, .main-logo {
+    max-width: 210px !important; /* 300px - 30% = 210px */
+  }
+  
   /* Contenedor principal para portrait - sin sidebar lateral */
   .content-wrapper {
     width: 100vw !important;
@@ -286,15 +275,15 @@
     box-sizing: border-box;
   }
   
-  /* Grids para portrait - 2 columnas con ancho ampliado */
+  /* Grids para portrait - 2 columnas con ancho reducido 10% */
   .product-grid,
   .category-grid {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: var(--mobile-gap) !important;
     padding: var(--mobile-padding) !important;
-    width: 125% !important; /* Ampliado 25% para cubrir bordes */
-    max-width: 125% !important;
-    margin: 0 -12.5% !important; /* Centrar el contenido ampliado */
+    width: 90% !important; /* Reducido 10% para mejor visualización */
+    max-width: 90% !important;
+    margin: 0 auto !important; /* Centrar el contenido */
     box-sizing: border-box;
   }
   
@@ -313,12 +302,12 @@
     font-size: var(--mobile-font-small) !important;
   }
   
-  /* Tablas para portrait */
+  /* Tablas para portrait - reducido 15% y centrado */
   .product-table,
   .liquor-table {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
+    width: 85% !important; /* Reducido 15% */
+    max-width: 85% !important;
+    margin: 0 auto !important; /* Centrado */
     padding: var(--mobile-padding) !important;
   }
   
