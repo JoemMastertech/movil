@@ -104,7 +104,7 @@
   /* Mantener efectos cyan del drawer-menu en landscape */
   .drawer-menu .nav-button {
     border: 1.4px solid rgba(0, 247, 255, 0.3) !important;
-    background: rgba(0, 247, 255, 0.02) !important;
+    background: transparent !important;
     box-shadow: 0 0 10px rgba(0, 247, 255, 0.2) !important;
   }
   
@@ -283,7 +283,7 @@
   /* Mantener efectos cyan del drawer-menu en móviles portrait */
   .drawer-menu .nav-button {
     border: 1.4px solid rgba(0, 247, 255, 0.3) !important;
-    background: rgba(0, 247, 255, 0.02) !important;
+    background: transparent !important;
     box-shadow: 0 0 10px rgba(0, 247, 255, 0.2) !important;
   }
   
@@ -540,7 +540,7 @@
   /* Mantener efectos cyan del drawer-menu en todos los móviles */
   .drawer-menu .nav-button {
     border: 1.4px solid rgba(0, 247, 255, 0.3) !important;
-    background: rgba(0, 247, 255, 0.02) !important;
+    background: transparent !important;
     box-shadow: 0 0 10px rgba(0, 247, 255, 0.2) !important;
   }
   
