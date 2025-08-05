@@ -668,9 +668,9 @@
 
 /* PORTRAIT MOBILE - MÁXIMA ESPECIFICIDAD PARA EVITAR SOBRESCRITURA */
 @media (max-width: 480px) and (orientation: portrait) {
-  /* MODO GRID: Contenedores principales con especificidad máxima */
-  html body #app .content-wrapper .product-grid,
-  html body #app .content-wrapper .category-grid,
+  /* MODO GRID: Contenedores principales */
+  html body #app .content-container-flex .product-grid,
+  html body #app .content-container-flex .category-grid,
   html body #app .product-grid,
   html body #app .category-grid,
   body .product-grid,
@@ -687,19 +687,34 @@
     transform: none !important; /* Resetear cualquier transform */
   }
   
-  /* MODO TABLA: Contenedores principales */
-  html body #app .content-wrapper .product-table,
-  html body #app .content-wrapper .liquor-table,
+  /* MODO TABLA: Contenedores principales - Selectores ultra específicos */
+  html body #app .content-container-flex .product-table,
+  html body #app .content-container-flex .liquor-table,
   html body #app .product-table,
   html body #app .liquor-table,
   body .product-table,
-  body .liquor-table {
-    width: 100% !important;
-    max-width: 100% !important;
+  body .liquor-table,
+  .product-table,
+  .liquor-table {
+    width: 95% !important;
+    max-width: 95% !important;
     margin: 0 auto !important;
     padding: var(--mobile-padding) !important;
     box-sizing: border-box !important;
     transform: none !important; /* Resetear cualquier transform */
+  }
+  
+  /* Forzar estilos con JavaScript si CSS no funciona */
+  @media screen and (max-width: 480px) and (orientation: portrait) {
+    .product-table,
+    .liquor-table {
+      width: 95% !important;
+      max-width: 95% !important;
+      margin: 0 auto !important;
+      padding: 10px !important;
+      box-sizing: border-box !important;
+      transform: none !important;
+    }
   }
   
   /* MODO TABLA: Subcategorías de licores (5 columnas) */
