@@ -646,56 +646,123 @@
 }
 
 /* =================================================================
-   AJUSTES DE CONTENEDORES PARA MÓVIL - PORTRAIT
+   SISTEMA MÓVIL MEJORADO - ALTA ESPECIFICIDAD
+   
+   PROBLEMA IDENTIFICADO:
+   - Las reglas de main.css (@media max-width: 768px) sobrescriben
+     las reglas específicas de mobile.css
+   - El sistema actual requiere usar !important y alta especificidad
+     para evitar conflictos
+   
+   SOLUCIÓN IMPLEMENTADA:
+   - Usar selectores de máxima especificidad (html body #app...)
+   - Resetear transforms que puedan interferir
+   - Aplicar !important solo donde sea necesario
+   
+   MEJORA SUGERIDA PARA EL FUTURO:
+   - Reorganizar main.css para separar estilos base de responsive
+   - Usar metodología BEM o CSS Modules para evitar conflictos
+   - Implementar CSS custom properties para valores móviles
+   - Crear clases específicas .mobile-portrait, .mobile-landscape
    ================================================================= */
-@media (max-width: 480px) and (orientation: portrait) {
-  /* MODO GRID: Reducir 5% el ancho de contenedores padre y centrar */
-  .product-grid,
-  .category-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: var(--mobile-gap) !important;
-    padding: var(--mobile-padding) !important;
-    width: 85% !important; /* Reducido 5% del 90% anterior = 85% */
-    max-width: 85% !important;
-    margin: 0 auto !important; /* Centrar en la pantalla */
-    box-sizing: border-box !important;
-    display: grid !important;
-    justify-content: center !important;
-  }
-  
-  /* MODO TABLA: Centrar todos los contenedores padre */
-  .product-table,
-  .liquor-table {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 auto !important; /* Centrar en la pantalla */
-    padding: var(--mobile-padding) !important;
-    box-sizing: border-box !important;
-  }
-  
-  /* MODO TABLA: Contenedores de 5 columnas (subcategorías de licores) - reducir 10% y centrar */
-  .liquor-table[data-category="whisky"],
-  .liquor-table[data-category="tequila"],
-  .liquor-table[data-category="ron"],
-  .liquor-table[data-category="vodka"],
-  .liquor-table[data-category="ginebra"],
-  .liquor-table[data-category="mezcal"],
-  .liquor-table[data-category="cognac"],
-  .liquor-table[data-category="brandy"],
-  .liquor-table[data-category="digestivos"],
-  .liquor-table[data-category="espumosos"] {
-    width: 75% !important; /* Reducido 10% del 85% anterior = 75% */
-    max-width: 75% !important;
-    margin: 0 auto !important; /* Centrar para evitar que se vea entrecortado */
-    padding: var(--mobile-padding) !important;
-    box-sizing: border-box !important;
-  }
 
-  /* REGLA ADICIONAL DE ALTA ESPECIFICIDAD PARA ASEGURAR APLICACIÓN */
+/* PORTRAIT MOBILE - MÁXIMA ESPECIFICIDAD PARA EVITAR SOBRESCRITURA */
+@media (max-width: 480px) and (orientation: portrait) {
+  /* MODO GRID: Contenedores principales con especificidad máxima */
+  html body #app .content-wrapper .product-grid,
+  html body #app .content-wrapper .category-grid,
+  html body #app .product-grid,
+  html body #app .category-grid,
   body .product-grid,
   body .category-grid {
     width: 85% !important;
     max-width: 85% !important;
     margin: 0 auto !important;
+    padding: var(--mobile-padding) !important;
+    box-sizing: border-box !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: var(--mobile-gap) !important;
+    justify-content: center !important;
+    transform: none !important; /* Resetear cualquier transform */
   }
+  
+  /* MODO TABLA: Contenedores principales */
+  html body #app .content-wrapper .product-table,
+  html body #app .content-wrapper .liquor-table,
+  html body #app .product-table,
+  html body #app .liquor-table,
+  body .product-table,
+  body .liquor-table {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: var(--mobile-padding) !important;
+    box-sizing: border-box !important;
+    transform: none !important; /* Resetear cualquier transform */
+  }
+  
+  /* MODO TABLA: Subcategorías de licores (5 columnas) */
+  html body #app .liquor-table[data-category="whisky"],
+  html body #app .liquor-table[data-category="tequila"],
+  html body #app .liquor-table[data-category="ron"],
+  html body #app .liquor-table[data-category="vodka"],
+  html body #app .liquor-table[data-category="ginebra"],
+  html body #app .liquor-table[data-category="mezcal"],
+  html body #app .liquor-table[data-category="cognac"],
+  html body #app .liquor-table[data-category="brandy"],
+  html body #app .liquor-table[data-category="digestivos"],
+  html body #app .liquor-table[data-category="espumosos"],
+  body .liquor-table[data-category="whisky"],
+  body .liquor-table[data-category="tequila"],
+  body .liquor-table[data-category="ron"],
+  body .liquor-table[data-category="vodka"],
+  body .liquor-table[data-category="ginebra"],
+  body .liquor-table[data-category="mezcal"],
+  body .liquor-table[data-category="cognac"],
+  body .liquor-table[data-category="brandy"],
+  body .liquor-table[data-category="digestivos"],
+  body .liquor-table[data-category="espumosos"] {
+    width: 75% !important;
+    max-width: 75% !important;
+    margin: 0 auto !important;
+    padding: var(--mobile-padding) !important;
+    box-sizing: border-box !important;
+    transform: none !important; /* Resetear cualquier transform */
+   }
+ }
+
+/* =================================================================
+   SISTEMA DE CLASES AUXILIARES PARA AJUSTES MÓVILES
+   
+   USO: Agregar estas clases a elementos específicos cuando se necesiten
+   ajustes sin modificar las reglas principales
+   ================================================================= */
+
+/* Clases para ancho de contenedores */
+.mobile-width-85 { width: 85% !important; max-width: 85% !important; }
+.mobile-width-75 { width: 75% !important; max-width: 75% !important; }
+.mobile-width-100 { width: 100% !important; max-width: 100% !important; }
+
+/* Clases para centrado */
+.mobile-center { margin: 0 auto !important; }
+.mobile-center-flex { display: flex !important; justify-content: center !important; }
+
+/* Clases para padding móvil */
+.mobile-padding { padding: var(--mobile-padding) !important; }
+.mobile-padding-small { padding: calc(var(--mobile-padding) * 0.5) !important; }
+.mobile-padding-large { padding: calc(var(--mobile-padding) * 1.5) !important; }
+
+/* Clases para grid móvil */
+.mobile-grid-2col { grid-template-columns: repeat(2, 1fr) !important; }
+.mobile-grid-1col { grid-template-columns: 1fr !important; }
+.mobile-grid-3col { grid-template-columns: repeat(3, 1fr) !important; }
+
+/* Reset de transforms problemáticos */
+.mobile-no-transform { transform: none !important; }
+
+/* Aplicar solo en móvil portrait */
+@media (max-width: 480px) and (orientation: portrait) {
+  .mobile-portrait-only { display: block !important; }
+  .mobile-portrait-hide { display: none !important; }
 }
