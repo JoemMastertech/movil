@@ -348,6 +348,30 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* =================================================================
+   ANIMATIONS
+   ================================================================= */
+
+@keyframes glow {
+  0%, 100% { box-shadow: var(--glow-shadow); }
+  50% { box-shadow: 0 0 15px rgba(0, 247, 255, 0.5); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* =================================================================
    TABLES
    ================================================================= */
 
@@ -422,20 +446,37 @@ h1, h2, h3, h4, h5, h6 {
   margin: var(--table-margin) auto;
 }
 
-.product-grid,
+/* Category Grid - 5 columnas como en la versión original */
 .category-grid {
   display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: auto auto auto;
   gap: 20px;
+  row-gap: 10px;
   padding: 20px;
-  width: 100%;
 }
 
+/* Product Grid - 3 columnas como en la versión original */
 .product-grid {
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(15px, 2.5vw, 25px);
+  padding: clamp(15px, 2.5vw, 25px);
+  max-width: var(--table-max-width);
+  margin: 0 auto;
+  width: var(--table-width);
 }
 
-.category-grid {
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+.category-grid .page-title, .product-grid .page-title {
+  grid-column: 1 / -1;
+  text-align: center;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.category-grid .page-title {
+  margin-bottom: 5px;
 }
 
 /* Category Cards */
@@ -462,13 +503,15 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .category-image {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 50%;
-  margin-bottom: 15px;
-  border: 2px solid var(--border-color);
-  transition: all var(--transition-time) ease;
+  /* Tamaño responsivo que se adapta al grid de 5 columnas */
+  width: clamp(80px, 12vw, 130px);
+  height: clamp(80px, 12vw, 130px);
+  object-fit: contain;
+  background: white;
+  margin-bottom: clamp(5px, 1vw, 10px);
+  animation: glow 2s infinite;
+  border-radius: clamp(6px, 1vw, 10px);
+  transition: all 0.3s ease;
 }
 
 .category-card:hover .category-image {
@@ -485,93 +528,156 @@ h1, h2, h3, h4, h5, h6 {
 /* Product Cards */
 .product-card {
   background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  padding: 15px;
-  transition: all var(--transition-time) ease;
-  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
   display: flex;
   flex-direction: column;
-  min-height: 300px;
+  align-items: center;
+  padding: 15px;
+  box-shadow: 0 0 10px var(--border-color);
+  /* Altura flexible que se adapta al contenido pero mantiene consistencia */
+  min-height: clamp(300px, 35vh, 400px);
   height: auto;
+  padding: clamp(15px, 1.8vw, 20px);
+  gap: clamp(10px, 1.2vw, 15px);
 }
 
 .product-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--glow-shadow);
-  border-color: var(--primary-color);
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 5px 20px var(--price-color);
 }
 
 .product-media {
-  width: 100%;
-  min-height: 150px;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   margin-bottom: 15px;
-  border-radius: var(--border-radius);
-  overflow: hidden;
-  background: rgba(0, 0, 0, 0.3);
+  min-height: 180px;
+  order: 2;
+  width: 100%;
 }
 
+/* Configuración general para imágenes de productos */
 .product-image {
   width: 100%;
-  height: 150px;
-  object-fit: cover;
+  height: 180px;
+  object-fit: contain;
+  background: white;
+  border-radius: 8px;
   cursor: pointer;
-  transition: transform var(--transition-time) ease;
+  transition: transform 0.3s ease;
 }
 
 .product-image:hover {
-  transform: scale(1.05);
+  transform: scale(1.1);
 }
 
+/* Configuración específica para thumbnails de video */
 .video-thumbnail {
   width: 100%;
-  height: 150px;
+  height: 140px;
   object-fit: cover;
+  border-radius: 8px;
+  padding: 0;
   cursor: pointer;
-  transition: transform var(--transition-time) ease;
+  transition: transform 0.3s ease;
 }
 
 .video-thumbnail:hover {
-  transform: scale(1.05);
+  transform: scale(1.1);
 }
 
 .product-name {
-  font: 600 1rem 'Montserrat', sans-serif;
-  color: var(--text-color);
+  font: 600 1.1rem 'Montserrat', sans-serif;
+  color: white;
   margin-bottom: 10px;
   text-align: center;
-  line-height: 1.3;
-  flex-shrink: 0;
+  order: 1;
+  
+  /* NIVEL 1: Espacio fijo asignado al componente - reducido 20% */
+  height: clamp(1.92rem, 2.88vw + 0.8rem, 2.56rem);
+  
+  /* NIVEL 2: Contenido se adapta al espacio disponible - aumentado 25% */
+  font-size: clamp(0.69rem, 1.46vw + 0.406rem, 0.975rem);
+  line-height: clamp(1.2, 1.5vw + 1rem, 1.4);
+  
+  /* Configuración sin truncamiento - texto completo visible */
+  display: block;
+  overflow: visible;
+  text-overflow: unset;
+  word-wrap: break-word;
+  hyphens: auto;
+  
+  /* Sin limitación de líneas - mostrar todo el contenido */
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  
+  /* Forzar ellipsis cuando el contenido excede el espacio */
+  position: relative;
 }
 
 .product-ingredients {
-  color: #ccc;
-  font-size: 0.85rem;
-  font-style: italic;
-  text-align: center;
+  color: var(--text-color);
   margin-bottom: 15px;
+  text-align: justify;
+  text-justify: inter-word;
+  opacity: 0.8;
   flex-grow: 1;
-  line-height: 1.4;
+  order: 3;
+  
+  /* NIVEL 1: Altura completamente flexible - se adapta al contenido */
+  /* height: removido para permitir expansión natural */
+  
+  /* NIVEL 2: Contenido se adapta al espacio disponible - aumentado 25% */
+  font-size: clamp(0.7rem, 1.5vw + 0.3rem, 0.9rem);
+  line-height: clamp(1.2, 1.3vw + 1rem, 1.4);
+  
+  /* Configuración para texto 100% responsivo - sin restricciones */
+  display: block;
+  overflow: visible;
+  text-overflow: unset;
+  word-wrap: break-word;
+  hyphens: auto;
+  
+  /* Sin límite de líneas - texto libre */
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  
+  /* Permitir expansión natural del texto */
+  position: relative;
+  height: auto;
+  min-height: clamp(3.96rem, 4.95vw + 2.2rem, 5.5rem);
+  max-height: none;
 }
 
 /* Price Buttons */
-.price-buttons {
+.product-prices {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   justify-content: center;
-  flex-wrap: wrap;
+  order: 4;
   margin-top: auto;
 }
 
 .price-button {
-  padding: 8px 12px;
-  font-size: 0.9rem;
-  min-width: 60px;
-  flex: 1;
-  max-width: 100px;
+  background: var(--price-bg, transparent);
+  color: var(--price-color);
+  border: 1px solid var(--price-color);
+  padding: 7px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all var(--transition-time) ease;
+  font: 600 0.9rem 'Montserrat', sans-serif;
+  min-height: 32px;
+}
+
+.price-button:hover {
+  background: var(--price-color);
+  color: var(--background-color);
+  transform: scale(1.05);
 }
 
 .price-button:disabled {
@@ -586,21 +692,58 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: none;
 }
 
-/* Liquor Cards Special Styling */
-.product-card.liquor-card .price-buttons {
+/* =================================================================
+   LIQUOR CARD LAYOUT STYLES - CLEANED
+   ================================================================= */
+.product-card.liquor-card .product-prices {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  align-items: stretch;
+  gap: clamp(3px, 1.5%, 8px);
+  align-items: flex-start;
+  width: 100%;
+  min-height: clamp(75px, 25%, 140px);
+  justify-content: space-between;
 }
 
-.product-card.liquor-card .price-button {
-  padding: 6px 10px;
-  font-size: 0.8rem;
-  min-width: auto;
-  flex: none;
-  max-width: none;
+.product-card.liquor-card .price-item {
+  display: flex;
+  align-items: center;
+  gap: clamp(4px, 2%, 10px);
   width: 100%;
+  min-height: clamp(20px, 8%, 36px);
+  flex-shrink: 0;
+}
+
+.product-card.liquor-card .price-label {
+  color: var(--text-color);
+  font-size: clamp(0.55rem, 3% + 0.1rem, 0.8rem);
+  font-weight: 500;
+  min-width: clamp(35px, 20%, 60px);
+  opacity: 0.9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+/* Liquor card price buttons - compact thumbnail style */
+.product-card.liquor-card .price-button {
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  min-width: 50px;
+  max-width: 100%;
+  flex: 1;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: 600;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.2s ease;
 }
 
 /* Price Selection Mode */
