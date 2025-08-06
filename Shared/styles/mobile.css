@@ -1,0 +1,170 @@
+/* =================================================================
+   MOBILE.CSS - VERSIÓN 2.0 - SIN !IMPORTANT
+   ================================================================= */
+
+/* Variables móviles específicas */
+/* Objetivo: 0 declaraciones !important */
+:root {
+  --mobile-padding: 10px;
+  --mobile-margin: 5px;
+  --mobile-font-size: 14px;
+  --mobile-line-height: 1.4;
+  --mobile-border-radius: 8px;
+  --mobile-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  --mobile-transition: all 0.3s ease;
+  --mobile-max-width: 100%;
+  --mobile-min-height: 44px; /* Touch target */
+  --mobile-spacing: 8px;
+}
+
+/* =================================================================
+   LAYOUT PRINCIPAL MÓVIL - ESPECIFICIDAD NATURAL
+   ================================================================= */
+
+@media screen and (max-width: 768px) {
+  /* Layout usando data-attributes */
+  body[data-layout="flex"] #app {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+  
+  body[data-layout="flex"] .content-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 95vw;
+    margin: 0 auto;
+    padding: var(--mobile-padding);
+    box-sizing: border-box;
+  }
+  
+  /* Sidebar móvil - Transición unificada */
+  .sidebar {
+    transition: transform 0.3s ease;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    z-index: 1000;
+    background: var(--background-color);
+    box-shadow: var(--mobile-shadow);
+  }
+  
+  body[data-sidebar="hidden"] .sidebar {
+    transform: translateX(-100%);
+  }
+  
+  body[data-sidebar="visible"] .sidebar {
+    transform: translateX(0);
+  }
+}
+
+/* =================================================================
+   LANDSCAPE ORIENTATION - DISPOSITIVOS MÓVILES
+   ================================================================= */
+
+@media screen and (max-width: 480px) and (orientation: landscape) {
+  body[data-layout="flex"] #app {
+    height: 100vh;
+    overflow-y: auto;
+  }
+  
+  body[data-layout="flex"] .content-wrapper {
+    min-height: 100vh;
+    padding: calc(var(--mobile-padding) / 2);
+  }
+}
+
+/* =================================================================
+   COMPONENTES MÓVILES - SIN !IMPORTANT
+   ================================================================= */
+
+@media screen and (max-width: 768px) {
+  /* Navegación móvil */
+  .mobile-nav {
+    display: block;
+    width: 100%;
+    background: var(--primary-color);
+    padding: var(--mobile-padding);
+    border-radius: var(--mobile-border-radius);
+  }
+  
+  /* Botones móviles */
+   .mobile-button {
+     min-height: var(--mobile-min-height);
+     padding: var(--mobile-padding);
+     font-size: var(--mobile-font-size);
+     border-radius: var(--mobile-border-radius);
+     transition: background-color 0.3s ease, transform 0.2s ease;
+     width: 100%;
+     text-align: center;
+   }
+   
+   .mobile-button:hover {
+     transform: translateY(-1px);
+   }
+  
+  /* Formularios móviles */
+  .mobile-form {
+    width: 100%;
+    padding: var(--mobile-padding);
+    margin: var(--mobile-margin);
+  }
+  
+  .mobile-input {
+    width: 100%;
+    min-height: var(--mobile-min-height);
+    padding: var(--mobile-padding);
+    font-size: var(--mobile-font-size);
+    border-radius: var(--mobile-border-radius);
+    box-sizing: border-box;
+  }
+  
+  /* Imágenes responsivas */
+  body[data-image-size="small"] .product-image {
+    width: 35px;
+    height: 35px;
+  }
+  
+  body[data-image-size="large"] .product-image {
+    width: 60px;
+    height: 60px;
+  }
+  
+  /* Tablas móviles */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .table-responsive table {
+    min-width: 600px;
+  }
+  
+  /* Modales móviles */
+  .modal {
+    width: 95vw;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: var(--mobile-padding);
+  }
+}
+
+/* =================================================================
+   REGLAS DE IMPLEMENTACIÓN
+   ================================================================= */
+
+/*
+REGLAS ESTRICTAS:
+1. NUNCA usar !important
+2. Usar especificidad natural
+3. Usar data-attributes para estados
+4. Seguir mobile-first approach
+5. Mantener performance óptimo
+6. Integración con StateManager.js
+*/

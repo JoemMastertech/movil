@@ -1,10 +1,17 @@
+<<<<<<< HEAD
 import ProductData from '../data-providers/product-data.js';
 import BaseAdapter from './BaseAdapter.js';
 import AppConfig from '../../Shared/core/AppConfig.js';
+import { formatPrice, formatProductName } from '../../Shared/utils/formatters.js';
 import DataSyncService from '../../Shared/services/DataSyncService.js';
 import { SYNC_CONFIG } from '../../Shared/config/constants.js';
-// Global utilities are now available via window object
-// formatPrice, formatProductName, Logger are available globally
+import Logger from '../../Shared/utils/logger.js';
+=======
+import ProductRepositoryPort from '../../Dominio/ports/ProductRepositoryPort.js';
+import ProductData from '../data-providers/product-data.js';
+import MemoizationManager from '../../Shared/performance/MemoizationManager.js';
+import BaseAdapter from './BaseAdapter.js';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
 
 /**
  * Product Data Adapter - Infrastructure implementation of ProductRepositoryPort
@@ -15,6 +22,7 @@ class ProductDataAdapter extends BaseAdapter {
   constructor() {
     super();
     this.productData = ProductData;
+<<<<<<< HEAD
     
     // Initialize Supabase configuration
     this.supabaseUrl = AppConfig.get('database.supabaseUrl');
@@ -26,10 +34,39 @@ class ProductDataAdapter extends BaseAdapter {
     // Start auto-sync if enabled
     if (SYNC_CONFIG.AUTO_UPDATE_ENABLED) {
       this.syncService.startAutoSync();
+=======
+    this.port = new ProductRepositoryPort();
+    
+    // Initialize memoization for expensive data operations
+    this.memoizedGetLicores = MemoizationManager.memoize(
+      'productAdapter.getLicores',
+      this._getLicoresInternal.bind(this),
+      { ttl: 600000 } // 10 minutes cache
+    );
+    
+    this.memoizedGetCocteles = MemoizationManager.memoize(
+      'productAdapter.getCocteles',
+      this._getCoctelesInternal.bind(this),
+      { ttl: 600000 } // 10 minutes cache
+    );
+  }
+
+  /**
+   * Get all cocktails (memoized)
+   * @returns {Array} Array of cocktail objects
+   */
+  getCocteles() {
+    try {
+      return this.memoizedGetCocteles();
+    } catch (error) {
+      ErrorHandler.handle(error, 'ProductDataAdapter.getCocteles');
+      return this._getCoctelesInternal();
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     }
   }
 
   /**
+<<<<<<< HEAD
    * Fetch data from Supabase table with immediate local data return
    * @param {string} tableName - Name of the Supabase table
    * @returns {Promise<Array>} Array of records from the table
@@ -369,6 +406,114 @@ class ProductDataAdapter extends BaseAdapter {
       Logger.error('Error in getPostres:', error);
       return this.productData.postres || [];
     }
+=======
+   * Get all beverages (refrescos)
+   * @returns {Array} Array of beverage objects
+   */
+  getRefrescos() {
+    return this.safeExecute(
+      () => this.productData.refrescos || [],
+      'getRefrescos'
+    );
+  }
+
+  /**
+   * Get all liquors (memoized)
+   * @returns {Array} Array of liquor objects
+   */
+  getLicores() {
+    try {
+      return this.memoizedGetLicores();
+    } catch (error) {
+      ErrorHandler.handle(error, 'ProductDataAdapter.getLicores');
+      return this._getLicoresInternal();
+    }
+  }
+
+  /**
+   * Internal method for getting cocktails (used by memoization)
+   * @returns {Array} Array of cocktail objects
+   * @private
+   */
+  _getCoctelesInternal() {
+    return this.productData.cocteles || [];
+  }
+
+  /**
+   * Internal method for getting liquors (used by memoization)
+   * @returns {Array} Array of liquor objects
+   * @private
+   */
+  _getLicoresInternal() {
+    return this.productData.licores || [];
+  }
+
+  /**
+   * Get all beers
+   * @returns {Array} Array of beer objects
+   */
+  getCervezas() {
+    return this.safeExecute(
+      () => this.productData.cervezas || [],
+      'getCervezas'
+    );
+  }
+
+  /**
+   * Get all pizzas
+   * @returns {Array} Array of pizza objects
+   */
+  getPizzas() {
+    return this.safeExecute(() => this.productData.pizzas || [], 'getPizzas');
+  }
+
+  /**
+   * Get all wings (alitas)
+   * @returns {Array} Array of wing objects
+   */
+  getAlitas() {
+    return this.safeExecute(() => this.productData.alitas || [], 'getAlitas');
+  }
+
+  /**
+   * Get all soups
+   * @returns {Array} Array of soup objects
+   */
+  getSopas() {
+    return this.safeExecute(() => this.productData.sopas || [], 'getSopas');
+  }
+
+  /**
+   * Get all salads
+   * @returns {Array} Array of salad objects
+   */
+  getEnsaladas() {
+    return this.safeExecute(() => this.productData.ensaladas || [], 'getEnsaladas');
+  }
+
+  /**
+   * Get all meats
+   * @returns {Array} Array of meat objects
+   */
+  getCarnes() {
+    return this.safeExecute(() => this.productData.carnes || [], 'getCarnes');
+  }
+
+  /**
+   * Get all coffee products
+   * @returns {Array} Array of coffee objects
+   */
+  getCafe() {
+    return this.safeExecute(() => this.productData.cafes || [], 'getCafe');
+  }
+
+  /**
+   * Get all desserts
+   * @returns {Array} Array of dessert objects
+   */
+  getPostres() {
+    return this.safeExecute(() => this.productData.postres || [], 'getPostres');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   }
 
   /**
@@ -396,6 +541,7 @@ class ProductDataAdapter extends BaseAdapter {
   }
 
   /**
+<<<<<<< HEAD
    * Get products by category (async with Supabase)
    * @param {string} category - Product category
    * @returns {Promise<Array>} Array of products in the category
@@ -450,6 +596,15 @@ class ProductDataAdapter extends BaseAdapter {
        Logger.error(`Error in getProductsByCategory for ${category}:`, error);
        return [];
      }
+=======
+   * Get products by category
+   * @param {string} category - Product category
+   * @returns {Array} Array of products in the category
+   */
+  getProductsByCategory(category) {
+    const normalizedCategory = category.toLowerCase();
+    return this.productData[normalizedCategory] || [];
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   }
 
   /**
@@ -513,6 +668,7 @@ class ProductDataAdapter extends BaseAdapter {
   }
 
   /**
+<<<<<<< HEAD
    * Get products by liquor subcategory (async with Supabase)
    * @param {string} subcategory - Liquor subcategory (whiskies, tequilas, etc.)
    * @returns {Promise<Array>} Array of products in the subcategory
@@ -575,6 +731,16 @@ class ProductDataAdapter extends BaseAdapter {
       this.syncService.destroy();
     }
   }
+=======
+   * Get products by liquor subcategory
+   * @param {string} subcategory - Liquor subcategory (whiskies, tequilas, etc.)
+   * @returns {Array} Array of products in the subcategory
+   */
+  getLiquorSubcategory(subcategory) {
+    return this.productData[subcategory] || [];
+  }
+
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
 
 }
 

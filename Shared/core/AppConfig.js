@@ -116,6 +116,7 @@ class AppConfig {
   }
 
   /**
+<<<<<<< HEAD
    * Detect current environment (simplified)
    * @returns {string} Environment name
    */
@@ -125,22 +126,53 @@ class AppConfig {
     const envVar = this.getEnvVar('VITE_ENVIRONMENT');
     if (envVar) return envVar;
     
+=======
+   * Detect current environment
+   * @returns {string} Environment name
+   */
+  detectEnvironment() {
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined') {
+      return 'server';
+    }
+
+    // Check for explicit environment variable
+    const envVar = this.getEnvVar('VITE_ENVIRONMENT');
+    if (envVar) {
+      return envVar;
+    }
+
+    // Check hostname patterns
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     const hostname = window.location?.hostname || '';
     
     if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('local')) {
       return 'development';
     }
     
+<<<<<<< HEAD
     return hostname.includes('staging') || hostname.includes('test') ? 'staging' : 'production';
   }
 
   /**
    * Get environment variable with fallback (simplified)
+=======
+    if (hostname.includes('staging') || hostname.includes('test')) {
+      return 'staging';
+    }
+    
+    return 'production';
+  }
+
+  /**
+   * Get environment variable with fallback
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
    * @param {string} key - Environment variable key
    * @param {*} defaultValue - Default value if not found
    * @returns {string|*} Environment variable value or default
    */
   getEnvVar(key, defaultValue = null) {
+<<<<<<< HEAD
     // Try common environment sources
     try {
       return window?.importMeta?.env?.[key] || 
@@ -155,23 +187,71 @@ class AppConfig {
 
   /**
    * Get boolean environment variable (simplified)
+=======
+    // Try import.meta.env first (Vite)
+    if (typeof window !== 'undefined' && typeof window.importMeta !== 'undefined' && window.importMeta?.env) {
+      return window.importMeta.env[key] || defaultValue;
+    }
+
+    // Alternative check for import.meta in modern environments
+    try {
+      if (typeof globalThis !== 'undefined' && globalThis.importMeta?.env) {
+        return globalThis.importMeta.env[key] || defaultValue;
+      }
+    } catch (e) {
+      // Ignore errors when import.meta is not available
+    }
+
+    // Try process.env (Node.js)
+    if (typeof process !== 'undefined' && process.env) {
+      return process.env[key] || defaultValue;
+    }
+
+    // Try window environment (fallback)
+    if (typeof window !== 'undefined' && window.env) {
+      return window.env[key] || defaultValue;
+    }
+
+    return defaultValue;
+  }
+
+  /**
+   * Get boolean environment variable
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
    * @param {string} key - Environment variable key
    * @param {boolean} defaultValue - Default boolean value
    * @returns {boolean}
    */
   getBooleanEnv(key, defaultValue = false) {
     const value = this.getEnvVar(key);
+<<<<<<< HEAD
     return value === 'true' || value === '1' || value === true || defaultValue;
   }
 
   /**
    * Get numeric environment variable (simplified)
+=======
+    if (value === null || value === undefined) {
+      return defaultValue;
+    }
+    return value === 'true' || value === '1' || value === true;
+  }
+
+  /**
+   * Get numeric environment variable
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
    * @param {string} key - Environment variable key
    * @param {number} defaultValue - Default numeric value
    * @returns {number}
    */
   getNumberEnv(key, defaultValue = 0) {
     const value = this.getEnvVar(key);
+<<<<<<< HEAD
+=======
+    if (value === null || value === undefined) {
+      return defaultValue;
+    }
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     const parsed = parseInt(value, 10);
     return isNaN(parsed) ? defaultValue : parsed;
   }

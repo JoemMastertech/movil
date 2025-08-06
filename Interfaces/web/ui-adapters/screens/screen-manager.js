@@ -4,9 +4,11 @@
  * Eliminates callback hell and provides better error handling
  */
 
-// Global utilities are now available via window object
-// Logger is available globally
+<<<<<<< HEAD
+import Logger from '../../../../Shared/utils/logger.js';
 
+=======
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
 /* Animation durations in milliseconds */
 const DURATIONS = {
   WELCOME: 3000,    // How long to show welcome screen
@@ -32,6 +34,7 @@ const ScreenManager = {
    * @param {string} logMessage - Message to log
    */
   async transitionScreen(fromScreen, toScreen, logMessage) {
+<<<<<<< HEAD
     Logger.info(logMessage);
     
     // Start fade out
@@ -50,6 +53,18 @@ const ScreenManager = {
       toScreen.classList.add('screen-visible');
       toScreen.classList.add('fade-in');
     }
+=======
+    console.log(logMessage);
+    
+    // Start fade out
+    fromScreen.classList.add('fade-out');
+    await this.delay(DURATIONS.FADE);
+    
+    // Switch screens
+    fromScreen.style.display = 'none';
+    toScreen.style.display = 'flex';
+    toScreen.classList.add('fade-in');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   },
 
   /**
@@ -71,7 +86,11 @@ const ScreenManager = {
       .map(([key]) => key);
 
     if (missingElements.length > 0) {
+<<<<<<< HEAD
       Logger.error('Missing required screen elements:', missingElements);
+=======
+      console.error('❌ Missing required screen elements:', missingElements);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       return null;
     }
 
@@ -82,7 +101,11 @@ const ScreenManager = {
    * Load initial content with error handling
    */
   async loadInitialContent() {
+<<<<<<< HEAD
     Logger.info('Loading initial content...');
+=======
+    console.log('📋 Loading initial content...');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     
     try {
       const AppInit = window.AppInit;
@@ -93,6 +116,7 @@ const ScreenManager = {
       // Small delay to ensure DOM is ready
       await this.delay(100);
       
+<<<<<<< HEAD
       Logger.info('Calling AppInit.loadContent("cocteleria")');
       await AppInit.loadContent('cocteleria');
       Logger.info('Welcome sequence completed successfully');
@@ -102,6 +126,17 @@ const ScreenManager = {
         // Optionally show fallback content or error message
         this.showErrorFallback(error);
       }
+=======
+      console.log('🎯 Calling AppInit.loadContent("cocteleria")');
+      await AppInit.loadContent('cocteleria');
+      console.log('✅ Welcome sequence completed successfully');
+      
+    } catch (error) {
+      console.error('❌ Error loading content:', error);
+      // Optionally show fallback content or error message
+      this.showErrorFallback(error);
+    }
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   },
 
   /**
@@ -126,7 +161,11 @@ const ScreenManager = {
    * Start the welcome sequence with optimized async/await pattern
    */
   async startWelcomeSequence() {
+<<<<<<< HEAD
     Logger.info('Starting welcome sequence...');
+=======
+    console.log('🎬 Starting welcome sequence...');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     
     try {
       // Validate all required elements
@@ -136,7 +175,11 @@ const ScreenManager = {
       const { welcomeScreen, logoScreen, categoryTitleScreen, mainContentScreen, hamburgerBtn } = elements;
 
       // Step 1: Show welcome screen
+<<<<<<< HEAD
       Logger.info('Showing welcome screen for', DURATIONS.WELCOME, 'ms');
+=======
+      console.log('👋 Showing welcome screen for', DURATIONS.WELCOME, 'ms');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       await this.delay(DURATIONS.WELCOME);
 
       // Step 2: Transition to logo screen
@@ -146,7 +189,11 @@ const ScreenManager = {
         '🔄 Transitioning from welcome to logo screen'
       );
       
+<<<<<<< HEAD
       Logger.info('Showing logo screen for', DURATIONS.LOGO, 'ms');
+=======
+      console.log('🏷️ Showing logo screen for', DURATIONS.LOGO, 'ms');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       await this.delay(DURATIONS.LOGO);
 
       // Step 3: Transition to category screen
@@ -156,7 +203,11 @@ const ScreenManager = {
         '🔄 Transitioning from logo to category screen'
       );
       
+<<<<<<< HEAD
       Logger.info('Showing category screen for', DURATIONS.CATEGORY, 'ms');
+=======
+      console.log('📂 Showing category screen for', DURATIONS.CATEGORY, 'ms');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       await this.delay(DURATIONS.CATEGORY);
 
       // Step 4: Transition to main content
@@ -166,17 +217,28 @@ const ScreenManager = {
         '🔄 Transitioning to main content screen'
       );
 
+<<<<<<< HEAD
       // Show hamburger menu and load content
       if (hamburgerBtn) {
         hamburgerBtn.className = 'hamburger-btn hamburger-visible';
         Logger.info('Hamburger menu displayed');
+=======
+      // Step 5: Show hamburger menu and load content
+      if (hamburgerBtn) {
+        hamburgerBtn.style.display = 'block';
+        console.log('🍔 Hamburger menu displayed');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       }
 
       // Step 6: Load initial content
       await this.loadInitialContent();
       
     } catch (error) {
+<<<<<<< HEAD
       Logger.error('Error in welcome sequence:', error);
+=======
+      console.error('❌ Error in welcome sequence:', error);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       this.showErrorFallback(error);
     }
   },
@@ -185,7 +247,11 @@ const ScreenManager = {
    * Skip welcome sequence and go directly to main content
    */
   skipToMainContent() {
+<<<<<<< HEAD
     Logger.info('Skipping welcome sequence...');
+=======
+    console.log('⏭️ Skipping welcome sequence...');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     
     const elements = this.validateScreenElements();
     if (!elements) return;
@@ -194,6 +260,7 @@ const ScreenManager = {
 
     // Hide all intro screens
     [welcomeScreen, logoScreen, categoryTitleScreen].forEach(screen => {
+<<<<<<< HEAD
       if (screen && screen.classList) {
         screen.classList.remove('screen-visible');
         screen.classList.add('screen-hidden');
@@ -210,6 +277,18 @@ const ScreenManager = {
     // Show hamburger menu
     if (hamburgerBtn) {
       hamburgerBtn.className = 'hamburger-btn hamburger-visible';
+=======
+      if (screen) screen.style.display = 'none';
+    });
+
+    // Show main content
+    mainContentScreen.style.display = 'flex';
+    mainContentScreen.classList.add('fade-in');
+
+    // Show hamburger menu
+    if (hamburgerBtn) {
+      hamburgerBtn.style.display = 'block';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     }
 
     // Load content immediately

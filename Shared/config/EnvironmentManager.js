@@ -1,6 +1,9 @@
-// Global utilities are now available via window object
-// logError, logWarning, Logger are available globally
+import { logError, logWarning } from '../utils/errorHandler.js';
 import { DEBUG } from './constants.js';
+<<<<<<< HEAD
+import Logger from '../utils/logger.js';
+=======
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
 
 class ConfigValidator {
   constructor() {
@@ -282,7 +285,11 @@ export class EnvironmentManager {
     }
 
     if (this.isDebugMode) {
+<<<<<<< HEAD
       Logger.info(`Environment detected: ${this.currentEnvironment}`);
+=======
+      console.log(`🌍 Environment detected: ${this.currentEnvironment}`);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     }
   }
 
@@ -322,7 +329,11 @@ export class EnvironmentManager {
       this.notifyWatchers('configRegistered', { environment, config: finalConfig });
 
       if (this.isDebugMode) {
+<<<<<<< HEAD
         Logger.info(`Configuration registered for ${environment}`);
+=======
+        console.log(`⚙️ Configuration registered for ${environment}`);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       }
 
       return true;
@@ -385,7 +396,11 @@ export class EnvironmentManager {
       });
 
       if (this.isDebugMode) {
+<<<<<<< HEAD
         Logger.info(`Environment switched from ${previousEnvironment} to ${environment}`);
+=======
+        console.log(`🔄 Environment switched from ${previousEnvironment} to ${environment}`);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       }
 
       return true;
@@ -400,7 +415,11 @@ export class EnvironmentManager {
       this.featureFlags.registerFlag(flagName, flagConfig);
       
       if (this.isDebugMode) {
+<<<<<<< HEAD
         Logger.info(`Feature flag registered: ${flagName}`);
+=======
+        console.log(`🚩 Feature flag registered: ${flagName}`);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       }
       
       return true;
@@ -499,7 +518,11 @@ export class EnvironmentManager {
       }
 
       if (this.isDebugMode) {
+<<<<<<< HEAD
         Logger.info('Configuration imported successfully');
+=======
+        console.log('📥 Configuration imported successfully');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       }
 
       return true;

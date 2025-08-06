@@ -23,9 +23,14 @@ class SafeModal extends HTMLElement {
     this.setAttribute('aria-hidden', 'true');
     
     // Ensure initial hidden state
+<<<<<<< HEAD
     if (!this.classList.contains('modal-hidden')) {
       this.classList.remove('modal-flex');
       this.classList.add('modal-hidden');
+=======
+    if (!this.style.display) {
+      this.style.display = 'none';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     }
     
     // Add backdrop click listener
@@ -49,8 +54,12 @@ class SafeModal extends HTMLElement {
     this.previousActiveElement = document.activeElement;
     
     // Show modal
+<<<<<<< HEAD
     this.classList.remove('modal-hidden');
     this.classList.add('modal-flex');
+=======
+    this.style.display = 'flex';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     this.setAttribute('aria-hidden', 'false');
     this.isOpen = true;
     
@@ -62,7 +71,11 @@ class SafeModal extends HTMLElement {
     this.focusFirstElement();
     
     // Prevent body scroll
+<<<<<<< HEAD
     document.body.className = document.body.className.replace('body-scroll', '').trim() + ' body-no-scroll';
+=======
+    document.body.style.overflow = 'hidden';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     
     // Dispatch custom event
     this.dispatchEvent(new CustomEvent('modal:show', {
@@ -77,8 +90,12 @@ class SafeModal extends HTMLElement {
     if (!this.isOpen) return;
     
     // Hide modal
+<<<<<<< HEAD
     this.classList.remove('modal-flex');
     this.classList.add('modal-hidden');
+=======
+    this.style.display = 'none';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     this.setAttribute('aria-hidden', 'true');
     this.isOpen = false;
     
@@ -92,7 +109,11 @@ class SafeModal extends HTMLElement {
     }
     
     // Restore body scroll
+<<<<<<< HEAD
     document.body.className = document.body.className.replace('body-no-scroll', '').trim() + ' body-scroll';
+=======
+    document.body.style.overflow = '';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     
     // Dispatch custom event
     this.dispatchEvent(new CustomEvent('modal:hide', {

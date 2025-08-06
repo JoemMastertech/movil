@@ -62,8 +62,15 @@
 ```
 📁 application/
 ├── 📄 services/
+<<<<<<< HEAD
 │   ├── ordercore.js         # Servicio de gestión de órdenes (OrderSystemCore)
 │   └── OrderCore_temp.js    # Archivo temporal de respaldo
+=======
+│   ├── OrderService.js      # Servicio de gestión de órdenes
+│   ├── OrderCore.js         # Lógica central de órdenes
+│   ├── StateManager.js      # Gestión de estado global
+│   └── ValidationService.js # Validaciones centralizadas
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
 └── 📄 use-cases/
     └── LoadCocktailsUseCase.js  # Caso de uso para carga de cócteles
 ```
@@ -124,6 +131,7 @@
 
 ```
 📁 shared/
+<<<<<<< HEAD
 ├── 📄 base/
 │   └── BaseEntity.js       # Clase base para entidades
 ├── 📄 config/
@@ -148,6 +156,15 @@
     ├── sanitizer.js        # Sanitización de datos
     ├── simpleCache.js      # Caché simple
     └── validator.js        # Validaciones centralizadas
+=======
+├── 📄 utils/
+│   ├── diUtils.js         # Inyección de dependencias
+│   ├── errorHandler.js    # Manejo centralizado de errores
+│   ├── logger.js          # Sistema de logging optimizado
+│   └── calculationUtils.js # Utilidades de cálculo
+└── 📄 constants/
+    └── appConstants.js    # Constantes de aplicación
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
 ```
 
 **Características:**
@@ -169,6 +186,7 @@ class ProductRepositoryPort {
   async save(entity) { throw new Error('Not implemented'); }
 }
 
+<<<<<<< HEAD
 // Adaptador (Implementation real)
 class SupabaseAdapter {
   constructor(client) {
@@ -191,6 +209,12 @@ class SupabaseAdapter {
       console.error('Error loading cocktails:', error);
       throw error;
     }
+=======
+// Adaptador (Implementation)
+class ProductRepository extends ProductRepositoryPort {
+  async findAll() {
+    // Implementación específica
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   }
 }
 ```

@@ -1,21 +1,31 @@
 /**
+<<<<<<< HEAD
  * ProductCarousel Component - Phase 3 Optimized Implementation
  * Lightweight carousel with event delegation, memory cleanup, and re-render optimization
  * Follows YAGNI principles with advanced performance optimizations
  */
 
-// Global utilities are now available via window object
-// formatPrice, formatProductName are available globally
+import { formatPrice, formatProductName } from '../../../../Shared/utils/formatters.js';
 
+=======
+ * ProductCarousel Component - Optimized Implementation
+ * Lightweight carousel for product display with touch/swipe support
+ * Follows YAGNI principles - only essential features
+ */
+
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
 class ProductCarousel {
   constructor(container, products = []) {
     this.container = container;
     this.products = products;
     this.currentIndex = 0;
     this.isInitialized = false;
+<<<<<<< HEAD
     this.boundHandlers = new Map();
     this.renderCache = new Map();
     this.lastRenderHash = null;
+=======
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   }
 
   /**
@@ -32,11 +42,16 @@ class ProductCarousel {
   }
 
   /**
+<<<<<<< HEAD
    * Render carousel HTML structure with optimization
+=======
+   * Render carousel HTML structure
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
    */
   render() {
     if (!this.container) return;
     
+<<<<<<< HEAD
     // Generate hash for current state to avoid unnecessary re-renders
     const currentHash = this._generateRenderHash();
     if (this.lastRenderHash === currentHash) {
@@ -51,6 +66,9 @@ class ProductCarousel {
     }
     
     const html = `
+=======
+    this.container.innerHTML = `
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       <div class="carousel-wrapper">
         <div class="carousel-track" id="carousel-track">
           ${this.products.map((product, index) => `
@@ -58,8 +76,13 @@ class ProductCarousel {
               <img src="${product.imagen || product.ruta_archivo || '/placeholder.jpg'}" 
                    alt="${product.nombre}" 
                    loading="lazy">
+<<<<<<< HEAD
               <h3>${formatProductName(product.nombre)}</h3>
               <p class="price">${formatPrice(product.precio)}</p>
+=======
+              <h3>${product.nombre}</h3>
+              <p class="price">$${product.precio}</p>
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
             </div>
           `).join('')}
         </div>
@@ -74,6 +97,7 @@ class ProductCarousel {
         ` : ''}
       </div>
     `;
+<<<<<<< HEAD
     
     // Cache the rendered HTML
     this.renderCache.set(currentHash, html);
@@ -99,10 +123,17 @@ class ProductCarousel {
 
   /**
    * Attach event listeners using intelligent event delegation
+=======
+  }
+
+  /**
+   * Attach event listeners
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
    */
   attachEvents() {
     if (this.products.length <= 1) return;
     
+<<<<<<< HEAD
     // Remove existing listeners to prevent memory leaks
     this.removeEvents();
     
@@ -132,6 +163,21 @@ class ProductCarousel {
       this.container.removeEventListener(event, handler);
     });
     this.boundHandlers.clear();
+=======
+    const prevBtn = this.container.querySelector('#carousel-prev');
+    const nextBtn = this.container.querySelector('#carousel-next');
+    const dots = this.container.querySelectorAll('.dot');
+    
+    if (prevBtn) prevBtn.addEventListener('click', () => this.prev());
+    if (nextBtn) nextBtn.addEventListener('click', () => this.next());
+    
+    dots.forEach(dot => {
+      dot.addEventListener('click', (e) => {
+        const index = parseInt(e.target.dataset.index);
+        this.goTo(index);
+      });
+    });
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   }
 
   /**
@@ -169,6 +215,7 @@ class ProductCarousel {
     const dots = this.container.querySelectorAll('.dot');
     
     items.forEach((item, index) => {
+<<<<<<< HEAD
       if (item && item.classList) {
         item.classList.toggle('active', index === this.currentIndex);
       }
@@ -178,22 +225,37 @@ class ProductCarousel {
       if (dot && dot.classList) {
         dot.classList.toggle('active', index === this.currentIndex);
       }
+=======
+      item.classList.toggle('active', index === this.currentIndex);
+    });
+    
+    dots.forEach((dot, index) => {
+      dot.classList.toggle('active', index === this.currentIndex);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     });
   }
 
   /**
+<<<<<<< HEAD
    * Update products and re-render with optimization
+=======
+   * Update products and re-render
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
    * @param {Array} newProducts - New product array
    */
   updateProducts(newProducts) {
     this.products = newProducts;
     this.currentIndex = 0;
+<<<<<<< HEAD
     this.lastRenderHash = null; // Force re-render
+=======
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     if (this.isInitialized) {
       this.render();
       this.attachEvents();
     }
   }
+<<<<<<< HEAD
   
   /**
    * Cleanup method for memory management
@@ -206,6 +268,8 @@ class ProductCarousel {
     this.products = null;
     this.isInitialized = false;
   }
+=======
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
 }
 
 export default ProductCarousel;

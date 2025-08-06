@@ -30,6 +30,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700;900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="Shared/styles/main.css">
+<<<<<<< HEAD
+  <link rel="stylesheet" href="Shared/styles/mobile.css">
+=======
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   <script type="importmap">
     {
       "imports": {
@@ -38,25 +42,16 @@
     }
   </script>
   <script src="Shared/libs/purify.min.js"></script>
-  <script src="Shared/utils/logger-global.js"></script>
-  <script src="Shared/utils/errorHandler-global.js"></script>
-    <script src="Shared/utils/domUtils-global.js"></script>
-    <script src="Shared/utils/validator-global.js"></script>
-    <script src="Shared/utils/simpleCache-global.js"></script>
-    <script src="Shared/utils/calculationUtils-global.js"></script>
-    <script src="Shared/utils/formatters-global.js"></script>
-    <script src="Shared/utils/diUtils-global.js"></script>
-    <script src="Shared/utils/syncMonitor-global.js"></script>
-    <script src="Shared/utils/sanitizer-global.js"></script>
-    <script src="Shared/utils/global-utils.js"></script>
-  <script src="Interfaces/web/ui-adapters/components/order-system-validations-global.js"></script>
 </head>
 <body>
+<<<<<<< HEAD
   <!-- Background video -->
   <video id="background-video" autoplay muted loop playsinline>
     <source src="https://udtlqjmrtbcpdqknwuro.supabase.co/storage/v1/object/public/productos/recursos/fondos/fondorojo.mp4" type="video/mp4">
   </video>
   
+=======
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   <div id="app">
     <div id="drawer-overlay" class="drawer-overlay"></div>
     <div id="drawer-menu" class="drawer-menu">
@@ -68,16 +63,27 @@
     <div class="screen welcome-screen">
       <h1 class="welcome-text">¡BIENVENIDOS!</h1>
     </div>
+<<<<<<< HEAD
     <div class="screen logo-screen screen-hidden">
+=======
+    <div class="screen logo-screen" style="display: none;">
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       <div class="logo-container">
         <img src="https://udtlqjmrtbcpdqknwuro.supabase.co/storage/v1/object/public/productos/recursos/logos/Logo5.webp" alt="Master Technology Bar Logo" class="logo">
         <h2 class="title-text">Master Technology Bar</h2>
       </div>
     </div>
+<<<<<<< HEAD
     <div class="screen category-title-screen screen-hidden">
       <h2 class="category-title">Coctelería</h2>
     </div>
     <div class="screen main-content-screen screen-hidden" data-category="cocteleria">
+=======
+    <div class="screen category-title-screen" style="display: none;">
+      <h2 class="category-title">Coctelería</h2>
+    </div>
+    <div class="screen main-content-screen" style="display: none;" data-category="cocteleria">
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       <div class="page-header">
         <button id="hamburger-btn" class="hamburger-btn">☰</button>
         <!-- Page title removed from here as it's now integrated into tables -->
@@ -85,6 +91,7 @@
       <div class="content-wrapper">
         <div class="content-container-flex">
           <div id="content-container"></div>
+<<<<<<< HEAD
           <div id="order-sidebar" class="sidebar-hidden">
             <h3>Tu Orden</h3>
             <div id="order-items"></div>
@@ -95,6 +102,18 @@
               <button id="complete-order-btn" class="nav-button">Completar Orden</button>
               <button id="cancel-order-btn" class="nav-button">Cancelar</button>
             </div>
+=======
+        </div>
+        <div id="order-sidebar" style="display: none;">
+          <h3>Tu Orden</h3>
+          <div id="order-items"></div>
+          <div class="order-total">
+            <h4>Total: <span id="order-total-amount">$0.00</span></h4>
+          </div>
+          <div class="order-actions">
+            <button id="complete-order-btn" class="nav-button">Completar Orden</button>
+            <button id="cancel-order-btn" class="nav-button">Cancelar</button>
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
           </div>
         </div>
       </div>
@@ -102,12 +121,21 @@
   </div>
 
   <!-- Modals -->
+<<<<<<< HEAD
   <div id="drink-options-modal" class="modal modal-hidden"></div>
   <div id="food-customization-modal" class="modal modal-hidden"></div>
   <div id="meat-customization-modal" class="modal modal-hidden"></div>
   
   <!-- Modal Templates -->
   <div id="modal-templates" class="screen-hidden">
+=======
+  <div id="drink-options-modal" class="modal" style="display: none;"></div>
+  <div id="food-customization-modal" class="modal" style="display: none;"></div>
+  <div id="meat-customization-modal" class="modal" style="display: none;"></div>
+  
+  <!-- Modal Templates -->
+  <div id="modal-templates" style="display: none;">
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     <!-- Drink Options Modal Template -->
     <template id="drink-options-template">
       <div class="modal-content">
@@ -128,7 +156,11 @@
           <button id="keep-ingredients-btn" class="nav-button">Sí</button>
           <button id="customize-ingredients-btn" class="nav-button">No</button>
         </div>
+<<<<<<< HEAD
         <div id="ingredients-input-container" class="input-container-hidden">
+=======
+        <div id="ingredients-input-container" style="display: none;">
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
           <textarea id="ingredients-to-remove" placeholder="Indique los ingredientes que desea quitar"></textarea>
           <div class="modal-actions">
             <button id="confirm-ingredients-btn" class="nav-button">Confirmar</button>
@@ -152,7 +184,11 @@
           <button id="change-garnish-btn" class="nav-button">Sí</button>
           <button id="keep-garnish-btn" class="nav-button">No</button>
         </div>
+<<<<<<< HEAD
         <div id="garnish-input-container" class="input-container-hidden">
+=======
+        <div id="garnish-input-container" style="display: none;">
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
           <textarea id="garnish-modifications" placeholder="Indique los cambios en la guarnición"></textarea>
           <div class="modal-actions">
             <button id="confirm-garnish-btn" class="nav-button">Confirmar</button>

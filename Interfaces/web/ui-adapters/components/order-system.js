@@ -1,11 +1,19 @@
+<<<<<<< HEAD
 import OrderSystemCore from './../../../../Aplicacion/services/OrderCore.js';
+import { formatPrice } from './../../../../Shared/utils/formatters.js';
+import { getProductRepository } from './../../../../Shared/utils/diUtils.js';
+import { setSafeInnerHTML, showModal, hideModal } from './../../../../Shared/utils/domUtils.js';
+import { ErrorHandler, logError, logWarning, handleMissingElementError } from './../../../../Shared/utils/errorHandler.js';
+import { calculateTotalDrinkCount, calculateTotalJuiceCount, calculateTotalJagerDrinkCount, isJuiceOption } from './../../../../Shared/utils/calculationUtils.js';
+import Logger from './../../../../Shared/utils/logger.js';
 import { OrderSystemValidations } from './order-system-validations.js';
-
-// Global utilities are now available via window object
-// formatPrice, getProductRepository, setSafeInnerHTML, showModal, hideModal,
-// ErrorHandler, logError, logWarning, handleMissingElementError,
-// calculateTotalDrinkCount, calculateTotalJuiceCount, calculateTotalJagerDrinkCount, isJuiceOption,
-// Logger are all available globally
+=======
+import OrderSystemCore from '../../../../Aplicacion/services/OrderCore.js';
+import { getProductRepository } from '../../../../Shared/utils/diUtils.js';
+import { setSafeInnerHTML, showModal, hideModal } from '../../../../Shared/utils/domUtils.js';
+import { ErrorHandler, logError, logWarning, handleMissingElementError } from '../../../../Shared/utils/errorHandler.js';
+import { calculateTotalDrinkCount, calculateTotalJuiceCount, calculateTotalJagerDrinkCount, isJuiceOption } from '../../../../Shared/utils/calculationUtils.js';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
 
 // Constants
 const CONSTANTS = {
@@ -67,10 +75,13 @@ class OrderSystem {
     this.previousCategory = null;
     this.previousTitle = null;
     this.isShowingHistory = false;
+<<<<<<< HEAD
     
     // Phase 3: Event delegation setup
     this.eventDelegationInitialized = false;
     this.boundDelegatedHandler = this.handleDelegatedEvent.bind(this);
+=======
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   }
 
   _showModal(modalId) { showModal(modalId); }
@@ -98,6 +109,7 @@ class OrderSystem {
       logWarning('Product repository not available yet, will initialize on first use', error);
     }
     
+<<<<<<< HEAD
     // Phase 3: Initialize centralized event delegation
     this.initEventDelegation();
   }
@@ -331,6 +343,27 @@ class OrderSystem {
         });
     }
     this.updateTotalJagerDrinkCount();
+=======
+    document.getElementById(CONSTANTS.SELECTORS.ORDER_BTN).addEventListener('click', () => this.completeOrder());
+    document.getElementById(CONSTANTS.SELECTORS.CANCEL_BTN).addEventListener('click', () => this.toggleOrderMode());
+    
+    document.addEventListener('click', (e) => {
+      if (!this.isOrderMode) return;
+      
+      if (e.target.classList.contains('price-button')) {
+        if (e.target.disabled || e.target.classList.contains('non-selectable')) {
+          return;
+        }
+
+        const row = e.target.closest('tr');
+        const nameCell = row.querySelector('.product-name');
+        const priceText = e.target.textContent;
+        const productName = nameCell.textContent;
+
+        this.handleProductSelection(productName, priceText, row, e);
+      }
+    });
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   }
 
   extractPrice(priceText) {
@@ -364,6 +397,7 @@ class OrderSystem {
   }
 
   toggleOrderMode(skipClear = false) {
+<<<<<<< HEAD
     this.isOrderMode = !this.isOrderMode;
     const elements = this._getOrderModeElements();
     
@@ -455,12 +489,31 @@ class OrderSystem {
 
   _handleOrderModeCleanup(skipClear) {
     if (!this.isOrderMode && !skipClear) {
+=======
+    const elements = {
+      sidebar: document.getElementById(CONSTANTS.SELECTORS.SIDEBAR),
+      tables: document.querySelectorAll(CONSTANTS.SELECTORS.TABLES),
+      wrapper: document.querySelector('.content-wrapper'),
+      orderBtn: document.querySelector('[data-action="createOrder"]')
+    };
+    
+    this.isOrderMode = !this.isOrderMode;
+    const isActive = this.isOrderMode;
+    
+    if (elements.orderBtn) elements.orderBtn.textContent = isActive ? 'CANCELAR ORDEN' : 'CREAR ORDEN';
+    elements.sidebar.style.display = isActive ? 'block' : 'none';
+    elements.tables.forEach(table => table.classList.toggle('price-selection-mode', isActive));
+    elements.wrapper.classList.toggle('order-active', isActive);
+    
+    if (!isActive && !skipClear) {
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       this.core.clearItems();
       this.updateOrderDisplay();
     }
   }
 
   handleProductSelection(productName, priceText, row, event) {
+<<<<<<< HEAD
     if (!this._validateSelection(event)) return;
     
     this._resetSelectionState();
@@ -476,6 +529,12 @@ class OrderSystem {
   }
 
   _extractProductData(productName, priceText, row, event) {
+=======
+    if (!this.isOrderMode || event.target.disabled || event.target.classList.contains('non-selectable')) return;
+    
+    this._resetSelectionState();
+    
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     const price = this.extractPrice(priceText);
     const metadata = this.getProductMetadata(row);
     const clickedPriceType = this.getPriceType(row, event.target);
@@ -483,6 +542,7 @@ class OrderSystem {
     this.currentProduct = { name: productName, price, priceType: clickedPriceType };
     this.currentCategory = metadata.category;
 
+<<<<<<< HEAD
     return {
       name: productName,
       price,
@@ -514,6 +574,21 @@ class OrderSystem {
         logWarning(`Beverage product "${data.name}" should have been handled by beverage handler.`);
       }
     });
+=======
+    const handlers = {
+      beverage: () => this.addProductToOrder({ name: productName, price, customizations: [] }),
+      food: () => metadata.category === CONSTANTS.CATEGORIES.MEAT ? this.showMeatCustomizationModal() : this.showFoodCustomizationModal(),
+      liquor: () => this._handleLiquorProduct(productName, price)
+    };
+
+    const handler = handlers[metadata.type];
+    if (handler) {
+      handler();
+    } else {
+      logWarning(`Product "${productName}" with type "${metadata.type}" did not match specific handling.`);
+      this.addProductToOrder({ name: productName, price, customizations: [] });
+    }
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   }
 
   _resetSelectionState() {
@@ -523,12 +598,15 @@ class OrderSystem {
   }
 
   _handleLiquorProduct(productName, price) {
+<<<<<<< HEAD
     if (!this.currentProduct) {
       console.error('No current product selected for liquor handling');
       // Try to reconstruct currentProduct from parameters
       this.currentProduct = { name: productName, price: price, priceType: 'precio' };
       console.warn('Reconstructed currentProduct from parameters:', this.currentProduct);
     }
+=======
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     const isBottle = this.currentProduct.priceType === CONSTANTS.PRICE_TYPES.BOTTLE;
     const isSpecialCategory = [CONSTANTS.CATEGORIES.DIGESTIVOS, CONSTANTS.CATEGORIES.ESPUMOSOS].includes(this.currentCategory);
     
@@ -536,10 +614,17 @@ class OrderSystem {
       if (this.currentCategory === CONSTANTS.CATEGORIES.DIGESTIVOS) {
         const normalizedName = productName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
         if (CONSTANTS.SPECIAL_PRODUCTS.NO_MODAL.some(p => normalizedName.includes(p))) {
+<<<<<<< HEAD
           return this.addProductToOrder({ name: `Botella ${productName}`, price, category: 'licor', customizations: ['Sin acompañamientos'] });
         }
       } else {
         return this.addProductToOrder({ name: `Botella ${productName}`, price, category: 'licor', customizations: ['Sin acompañamientos'] });
+=======
+          return this.addProductToOrder({ name: `Botella ${productName}`, price, customizations: ['Sin acompañamientos'] });
+        }
+      } else {
+        return this.addProductToOrder({ name: `Botella ${productName}`, price, customizations: ['Sin acompañamientos'] });
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       }
     }
 
@@ -554,12 +639,20 @@ class OrderSystem {
       showModal();
     } else {
       logWarning(`Liquor product "${productName}" with price type "${this.currentProduct.priceType}" has no specific modal.`);
+<<<<<<< HEAD
       this.addProductToOrder({ name: productName, price, category: 'licor', customizations: ['Revisar presentación'] });
+=======
+      this.addProductToOrder({ name: productName, price, customizations: ['Revisar presentación'] });
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     }
   }
 
   getPriceType(row, clickedElement) {
+<<<<<<< HEAD
     if (clickedElement.disabled || (clickedElement.classList && clickedElement.classList.contains('non-selectable')) || clickedElement.textContent.trim() === '--') {
+=======
+    if (clickedElement.disabled || clickedElement.classList.contains('non-selectable') || clickedElement.textContent.trim() === '--') {
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       return null;
     }
     
@@ -618,6 +711,7 @@ class OrderSystem {
   }
   
   _continueShowDrinkOptionsModal() {
+<<<<<<< HEAD
     const optionsContainer = this._initializeDrinkModal();
     if (!optionsContainer) {
       console.error('Failed to initialize drink modal - no options container available');
@@ -636,6 +730,8 @@ class OrderSystem {
       console.error('No current product selected for drink modal initialization');
       return null;
     }
+=======
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     const optionsContainer = document.getElementById('drink-options-container');
     optionsContainer.innerHTML = '';
     this._resetSelectionState();
@@ -643,6 +739,7 @@ class OrderSystem {
     this.bottleCategory = this.getLiquorType(this.currentProduct.name);
     this.maxDrinkCount = CONSTANTS.MAX_DRINK_COUNT;
     
+<<<<<<< HEAD
     setTimeout(() => this._updateModalTitle(), 10);
     return optionsContainer;
   }
@@ -681,6 +778,33 @@ class OrderSystem {
     }
     const drinkOptionsResult = this.getDrinkOptionsForProduct(this.currentProduct.name);
     if (!this._validateDrinkOptions(drinkOptionsResult)) {
+=======
+    setTimeout(() => this._updateModalTitle(), 10); 
+
+    if (this._isJagermeisterBottle()) {
+      
+      this._createJagerMessage(optionsContainer);
+      const exclusiveGroup = this._createElement('div', 'exclusive-option-group');
+      const boostOption = this._createBoostOption();
+      this._setupBoostEventListener(boostOption);
+      exclusiveGroup.appendChild(boostOption);
+      ['Botella de Agua', 'Mineral'].forEach(option => {
+        exclusiveGroup.appendChild(this._createJagerDrinkOption(option, boostOption));
+      });
+      optionsContainer.appendChild(exclusiveGroup);
+      optionsContainer.appendChild(this._createTotalCountContainer('total-jager-drinks-count'));
+      
+      this.updateTotalJagerDrinkCount();
+      this._setupModalButtons();
+      this._showModal('drink-options-modal');
+      return;
+    }
+
+    const drinkOptionsResult = this.getDrinkOptionsForProduct(this.currentProduct.name);
+    if (!drinkOptionsResult || !drinkOptionsResult.drinkOptions) {
+      console.error('No drink options found for product:', this.currentProduct.name);
+      this._hideModal('drink-options-modal');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       return;
     }
     
@@ -692,6 +816,7 @@ class OrderSystem {
     this._showModal('drink-options-modal');
   }
 
+<<<<<<< HEAD
   _validateDrinkOptions(drinkOptionsResult) {
     if (!this.currentProduct) {
       console.error('No current product selected for drink options validation');
@@ -710,22 +835,33 @@ class OrderSystem {
       console.error('No current product selected for Jagermeister bottle check');
       return false;
     }
+=======
+  // Helper functions for modal optimization
+  _isJagermeisterBottle() {
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     return this.bottleCategory === 'DIGESTIVOS' && 
            this.currentProduct.priceType === CONSTANTS.PRICE_TYPES.BOTTLE && 
            this.currentProduct.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().includes(CONSTANTS.SPECIAL_PRODUCTS.JAGER);
   }
 
   _updateModalTitle() {
+<<<<<<< HEAD
     if (!this.currentProduct) {
       console.error('No current product selected for modal title update');
       return;
     }
+=======
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     const modalTitle = document.querySelector('#drink-options-modal h3');
     if (!modalTitle) return;
     
     const { message } = this.getDrinkOptionsForProduct(this.currentProduct.name);
     const baseTitle = '¿Con qué desea acompañar su bebida?';
+<<<<<<< HEAD
     const styleSpan = '<span class="modal-subtitle">';
+=======
+    const styleSpan = '<span style="font-size: 0.85em; font-weight: normal; color: var(--text-color);">';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     
     if (this.bottleCategory === 'VODKA' || this.bottleCategory === 'GINEBRA') {
       modalTitle.innerHTML = `${baseTitle}${styleSpan}Puedes elegir 2 Jarras de jugo ó 5 Refrescos ó 1 Jarra de jugo y 2 Refrescos</span>`;
@@ -767,8 +903,39 @@ class OrderSystem {
   }
 
   _setupBoostEventListener(boostOption) {
+<<<<<<< HEAD
     // Phase 3: No individual event listener needed - handled by delegation
     // The boost option will be handled by the centralized event system
+=======
+    const boostCheck = boostOption.querySelector('#boost-option');
+    boostCheck.addEventListener('change', () => {
+      const totalRefrescos = this.calculateTotalJagerDrinkCount();
+      
+      if (boostCheck.checked) {
+        if (totalRefrescos > 0) {
+          alert("Para seleccionar los Boost debe dejar los refrescos en 0");
+          boostCheck.checked = false;
+          return;
+        }
+        
+        this.selectedDrinks = ['2 Boost'];
+        this.drinkCounts = {};
+        boostOption.classList.add('selected');
+        
+        document.querySelectorAll('.exclusive-option-group .drink-option-container .counter-btn, .exclusive-option-group .drink-option-container .count-display')
+          .forEach(el => {
+            if (el.classList.contains('counter-btn')) el.disabled = true;
+            if (el.classList.contains('count-display')) el.textContent = '0';
+          });
+      } else {
+        this.selectedDrinks = this.selectedDrinks.filter(drink => drink !== '2 Boost');
+        boostOption.classList.remove('selected');
+        document.querySelectorAll('.exclusive-option-group .drink-option-container .counter-btn')
+          .forEach(btn => btn.disabled = false);
+      }
+      this.updateTotalJagerDrinkCount();
+    });
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   }
 
   _createJagerDrinkOption(option, boostOption) {
@@ -786,10 +953,17 @@ class OrderSystem {
     return optionContainer;
   }
 
+<<<<<<< HEAD
   _createCounterButton(text, clickHandler = null) {
     const btn = this._createElement('button', 'counter-btn');
     btn.textContent = text;
     // Phase 3: No individual event listener - handled by delegation
+=======
+  _createCounterButton(text, clickHandler) {
+    const btn = this._createElement('button', 'counter-btn');
+    btn.textContent = text;
+    btn.addEventListener('click', clickHandler);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     return btn;
   }
 
@@ -803,9 +977,13 @@ class OrderSystem {
     if (currentCount > 0) {
       this.drinkCounts[option] = currentCount - 1;
       countDisplay.textContent = this.drinkCounts[option];
+<<<<<<< HEAD
       if (this.drinkCounts[option] === 0 && optionContainer && optionContainer.classList) {
         optionContainer.classList.remove('selected');
       }
+=======
+      if (this.drinkCounts[option] === 0) optionContainer.classList.remove('selected');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       this.updateTotalJagerDrinkCount();
     }
   }
@@ -822,17 +1000,22 @@ class OrderSystem {
     if (totalCount < this.maxDrinkCount) {
       this.drinkCounts[option] = currentCount + 1;
       countDisplay.textContent = this.drinkCounts[option];
+<<<<<<< HEAD
       if (optionContainer && optionContainer.classList) {
           if (optionContainer && optionContainer.classList) {
         optionContainer.classList.add('selected');
       }
         }
+=======
+      optionContainer.classList.add('selected');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       this.updateTotalJagerDrinkCount();
     }
   }
 
   _resetBoostSelection(boostCheck, boostOption) {
     boostCheck.checked = false;
+<<<<<<< HEAD
     if (boostOption && boostOption.classList) {
       boostOption.classList.remove('selected');
     }
@@ -843,6 +1026,12 @@ class OrderSystem {
           btn.disabled = false;
         }
       });
+=======
+    boostOption.classList.remove('selected');
+    this.selectedDrinks = this.selectedDrinks.filter(drink => drink !== '2 Boost');
+    document.querySelectorAll('.exclusive-option-group .drink-option-container .counter-btn')
+      .forEach(btn => btn.disabled = false);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   }
 
   _createTotalCountContainer(countId) {
@@ -852,14 +1041,23 @@ class OrderSystem {
   }
 
   _setupModalButtons() {
+<<<<<<< HEAD
     // Phase 3: No individual event listeners needed - handled by delegation
     // Modal buttons will be handled by the centralized event system
+=======
+    document.getElementById('confirm-drinks-btn').addEventListener('click', () => this.confirmDrinkOptions());
+    document.getElementById('cancel-drinks-btn').addEventListener('click', () => this.cancelProductSelection());
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   }
 
   renderDrinkOptions(container, options) {
     // Validate that options is an array
     if (!Array.isArray(options)) {
+<<<<<<< HEAD
       Logger.error('renderDrinkOptions: options is not an array:', options);
+=======
+      console.error('renderDrinkOptions: options is not an array:', options);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       return;
     }
     
@@ -871,7 +1069,17 @@ class OrderSystem {
   _createNoneOption(option) {
     const noneOption = this._createElement('button', 'drink-option');
     noneOption.textContent = option;
+<<<<<<< HEAD
     // Phase 3: No individual event listener - handled by delegation
+=======
+    noneOption.addEventListener('click', () => {
+      this.selectedDrinks = ['Ninguno'];
+      this.drinkCounts = {};
+      document.querySelectorAll('.drink-option').forEach(btn => btn.classList.remove('selected'));
+      noneOption.classList.add('selected');
+      document.getElementById('total-drinks-count').textContent = '0';
+    });
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     return noneOption;
   }
 
@@ -896,9 +1104,13 @@ class OrderSystem {
       this.drinkCounts[option] = currentCount - 1;
       countDisplay.textContent = this.drinkCounts[option];
       if (this.drinkCounts[option] === 0) {
+<<<<<<< HEAD
         if (optionContainer && optionContainer.classList) {
           optionContainer.classList.remove('selected');
         }
+=======
+        optionContainer.classList.remove('selected');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
         this.selectedDrinks = this.selectedDrinks.filter(drink => drink !== option);
       }
       this.updateTotalDrinkCount();
@@ -937,6 +1149,7 @@ class OrderSystem {
   }
 
   _validateSpecialBottleRules(isJuice, totalJuices, totalRefrescos) {
+<<<<<<< HEAD
     return OrderSystemValidations.validateSpecialBottleRules(
       isJuice, 
       totalJuices, 
@@ -944,11 +1157,42 @@ class OrderSystem {
       this.bottleCategory, 
       this.currentProduct?.name
     );
+=======
+    // Reglas estrictas para combinaciones válidas:
+    // - Para subcategorías solo con refrescos: máximo 5 refrescos
+    // - Para Vodka, Ginebra, Bacardi Mango, Bacardi Raspberry, Malibu:
+    //   * EXACTAMENTE 2 jugos (sin refrescos)
+    //   * EXACTAMENTE 5 refrescos (sin jugos) 
+    //   * EXACTAMENTE 1 jugo + 2 refrescos
+    
+    if (this._isOnlySodaCategory()) {
+      // Solo refrescos permitidos, máximo 5
+      return !isJuice && totalRefrescos < 5;
+    }
+    
+    if (this._isSpecialBottleCategory()) {
+      // Verificar si estamos intentando agregar y si la combinación resultante sería válida
+      const newJuices = isJuice ? totalJuices + 1 : totalJuices;
+      const newRefrescos = !isJuice ? totalRefrescos + 1 : totalRefrescos;
+      
+      // Solo permitir si la nueva combinación es una de las tres válidas:
+      // 1. Hasta 2 jugos sin refrescos
+      // 2. Hasta 5 refrescos sin jugos  
+      // 3. Exactamente 1 jugo + hasta 2 refrescos
+      return (newJuices <= 2 && newRefrescos === 0) ||  // Combinación 1
+             (newJuices === 0 && newRefrescos <= 5) ||  // Combinación 2
+             (newJuices === 1 && newRefrescos <= 2);    // Combinación 3
+    }
+    
+    // Reglas por defecto para otras categorías
+    return totalJuices + totalRefrescos < 5;
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   }
 
 
 
   calculateTotalDrinkCount() {
+<<<<<<< HEAD
     return Object.values(this.drinkCounts).reduce((total, count) => total + count, 0);
   }
 
@@ -956,6 +1200,13 @@ class OrderSystem {
     return Object.entries(this.drinkCounts)
       .filter(([option]) => isJuiceOption(option))
       .reduce((total, [, count]) => total + count, 0);
+=======
+    return calculateTotalDrinkCount(this.drinkCounts, this.bottleCategory, this.currentProduct);
+  }
+
+  calculateTotalJuiceCount() {
+    return calculateTotalJuiceCount(this.drinkCounts);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   }
 
   updateTotalDrinkCount() {
@@ -1004,6 +1255,7 @@ class OrderSystem {
   }
 
   _validateSpecialDrinkLimits(isJuice, totalJuices, totalRefrescos) {
+<<<<<<< HEAD
     return OrderSystemValidations.validateSpecialDrinkLimits(
       isJuice, 
       totalJuices, 
@@ -1011,12 +1263,46 @@ class OrderSystem {
       this.bottleCategory, 
       this.currentProduct?.name
     );
+=======
+    if (this._isOnlySodaCategory()) {
+      // Solo refrescos: deshabilitar si ya hay 5 refrescos o si es jugo
+      return isJuice || totalRefrescos >= 5;
+    }
+    
+    if (this._isSpecialBottleCategory()) {
+      // Deshabilitar basándose en las combinaciones válidas estrictas
+      if (isJuice) {
+        // Deshabilitar jugos si:
+        // - Ya hay 2 jugos (límite alcanzado para combinación 1)
+        // - Hay refrescos y ya hay 1 jugo (combinación 3 completa en jugos)
+        // - Hay más de 2 refrescos (incompatible con cualquier combinación de jugos)
+        return totalJuices >= 2 || 
+               (totalRefrescos > 0 && totalJuices >= 1) || 
+               totalRefrescos > 2;
+      } else {
+        // Deshabilitar refrescos si:
+        // - Ya hay 2 jugos (combinación 1, no permite refrescos)
+        // - No hay jugos y ya hay 5 refrescos (combinación 2 completa)
+        // - Hay 1 jugo y ya hay 2 refrescos (combinación 3 completa)
+        return totalJuices >= 2 || 
+               (totalJuices === 0 && totalRefrescos >= 5) || 
+               (totalJuices === 1 && totalRefrescos >= 2);
+      }
+    }
+    
+    // Reglas por defecto
+    return totalJuices + totalRefrescos >= 5;
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   }
 
   getDrinkOptionsForProduct(productName) {
     // Validate input
     if (!productName || typeof productName !== 'string') {
+<<<<<<< HEAD
       Logger.error('getDrinkOptionsForProduct: Invalid productName:', productName);
+=======
+      console.error('getDrinkOptionsForProduct: Invalid productName:', productName);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       return { drinkOptions: ['Ninguno'], message: 'Error: Producto no válido' };
     }
     
@@ -1095,11 +1381,18 @@ class OrderSystem {
   _getDigestivoOptions(normalizedName, productName) {
     // Validate inputs
     if (!normalizedName || !productName || !this.currentProduct) {
+<<<<<<< HEAD
       console.error('Invalid inputs or no current product for digestivo options');
       return { drinkOptions: ['Ninguno'], message: 'Sin acompañamientos' };
     }
     
     if (this.currentProduct && this.currentProduct.priceType === CONSTANTS.PRICE_TYPES.BOTTLE) {
+=======
+      return { drinkOptions: ['Ninguno'], message: 'Sin acompañamientos' };
+    }
+    
+    if (this.currentProduct.priceType === CONSTANTS.PRICE_TYPES.BOTTLE) {
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       const digestivoOptions = {
         'LICOR 43': ['Botella de Agua', 'Mineral'],
         'CADENAS DULCE': ['Botella de Agua', 'Mineral'],
@@ -1120,7 +1413,11 @@ class OrderSystem {
       };
     }
     
+<<<<<<< HEAD
     if (this.currentProduct && this.currentProduct.priceType === CONSTANTS.PRICE_TYPES.CUP && productName.includes("BAILEYS")) {
+=======
+    if (this.currentProduct.priceType === CONSTANTS.PRICE_TYPES.CUP && productName.includes("BAILEYS")) {
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       return { drinkOptions: ['Rocas'], message: "Acompañamientos para copa" };
     }
     
@@ -1131,6 +1428,7 @@ class OrderSystem {
   }
 
   confirmDrinkOptions() {
+<<<<<<< HEAD
     if (!this.currentProduct) {
       console.error('No current product selected for drink options confirmation');
       // Try to recover from modal state if possible
@@ -1142,12 +1440,15 @@ class OrderSystem {
       return;
     }
     
+=======
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     if (!this._hasValidDrinkSelection()) {
       this._showValidationModal('Por favor seleccione al menos un acompañamiento');
       return;
     }
 
     const { prefix, name, customization } = this._buildProductInfo();
+<<<<<<< HEAD
     
     // Ensure we're in order mode before adding to order
     if (!this.isOrderMode) {
@@ -1169,6 +1470,11 @@ class OrderSystem {
       name: `${prefix} ${name}`,
       price: this.currentProduct.price,
       category: this.currentProduct.category || 'licor',
+=======
+    this.addProductToOrder({
+      name: `${prefix} ${name}`,
+      price: this.currentProduct.price,
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       customizations: [customization]
     });
 
@@ -1178,6 +1484,7 @@ class OrderSystem {
   }
 
   _hasValidDrinkSelection() {
+<<<<<<< HEAD
     if (!this.currentProduct) {
       console.error('No current product selected for drink selection validation');
       return false;
@@ -1190,6 +1497,19 @@ class OrderSystem {
       console.error('No current product selected for building product info');
       return { prefix: '', name: '', customization: 'Error: No product selected' };
     }
+=======
+    const isJagerBottle = this.currentProduct.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().includes('JAGERMEISTER') && 
+                          this.currentProduct.priceType === 'precioBotella';
+    
+    if (isJagerBottle) {
+      return this.selectedDrinks.includes('2 Boost') || Object.values(this.drinkCounts).some(count => count > 0);
+    }
+    
+    return this.selectedDrinks.length > 0 || Object.values(this.drinkCounts).some(count => count > 0);
+  }
+
+  _buildProductInfo() {
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     const priceType = this.currentProduct.priceType;
     const productName = this.currentProduct.name.replace(/\s*\d+\s*ML/i, '');
     const isJagerBottle = this.currentProduct.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().includes('JAGERMEISTER') && 
@@ -1225,7 +1545,11 @@ class OrderSystem {
     setTimeout(() => {
       const modalTitle = document.querySelector('#drink-options-modal h3');
       if (modalTitle) {
+<<<<<<< HEAD
         modalTitle.innerHTML = '¿Con qué desea acompañar su bebida?<span class="modal-subtitle">Cada litro se sirve con 6 oz del destilado que elija.</span>';
+=======
+        modalTitle.innerHTML = '¿Con qué desea acompañar su bebida?<span style="font-size: 0.85em; font-weight: normal; color: var(--text-color);">Cada litro se sirve con 6 oz del destilado que elija.</span>';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       }
     }, 10);
     
@@ -1241,7 +1565,11 @@ class OrderSystem {
     setTimeout(() => {
       const modalTitle = document.querySelector('#drink-options-modal h3');
       if (modalTitle) {
+<<<<<<< HEAD
         modalTitle.innerHTML = '¿Con qué desea acompañar su bebida?<span class="modal-subtitle">Cada copa se sirve con 1 ½ oz del destilado que elija.</span>';
+=======
+        modalTitle.innerHTML = '¿Con qué desea acompañar su bebida?<span style="font-size: 0.85em; font-weight: normal; color: var(--text-color);">Cada copa se sirve con 1 ½ oz del destilado que elija.</span>';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       }
     }, 10);
     this._setupOptionsModal('cup');
@@ -1252,10 +1580,13 @@ class OrderSystem {
   }
 
   _getOptionsForProduct(category, type) {
+<<<<<<< HEAD
     if (!this.currentProduct) {
       console.error('No current product selected for getting options');
       return type === 'liter' ? { options: ['Ninguno'], message: 'Error: No product selected' } : ['Ninguno'];
     }
+=======
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     const productName = this.currentProduct.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
     
     const specialProducts = {
@@ -1321,6 +1652,7 @@ class OrderSystem {
   }
 
   _setupOptionsModal(type) {
+<<<<<<< HEAD
     if (!this.currentProduct) {
       console.error('No current product selected for options modal setup');
       this._hideModal('drink-options-modal');
@@ -1329,17 +1661,25 @@ class OrderSystem {
     const optionsContainer = document.getElementById('drink-options-container');
     if (!optionsContainer) {
       Logger.error(`Element 'drink-options-container' not found in ${type} options modal.`);
+=======
+    const optionsContainer = document.getElementById('drink-options-container');
+    if (!optionsContainer) {
+      console.error(`Element 'drink-options-container' not found in ${type} options modal.`);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       this._hideModal('drink-options-modal');
       return;
     }
     
     optionsContainer.innerHTML = '';
     this.selectedDrinks = [];
+<<<<<<< HEAD
     if (!this.currentProduct) {
       console.error('No current product selected for options modal setup');
       this._hideModal('drink-options-modal');
       return;
     }
+=======
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     this.bottleCategory = this.getLiquorType(this.currentProduct.name);
 
     const options = this._getOptionsForModalType(type);
@@ -1349,10 +1689,13 @@ class OrderSystem {
   }
 
   _getOptionsForModalType(type) {
+<<<<<<< HEAD
     if (!this.currentProduct) {
       console.error('No current product selected for getting modal options');
       return ['Ninguno'];
     }
+=======
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     const productName = this.currentProduct.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
     
     if (productName.includes('BACARDI MANGO') || productName.includes('BACARDI RASPBERRY')) {
@@ -1389,9 +1732,21 @@ class OrderSystem {
   }
 
   _attachModalEventListeners() {
+<<<<<<< HEAD
     // Event listeners for modal buttons are now handled by event delegation
     // in handleDelegatedEvent method to prevent duplicate listeners
     // No need to attach individual listeners here
+=======
+    const confirmBtn = document.getElementById('confirm-drinks-btn');
+    const cancelBtn = document.getElementById('cancel-drinks-btn');
+
+    if (confirmBtn) {
+      confirmBtn.addEventListener('click', () => this.confirmDrinkOptions());
+    }
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => this.cancelProductSelection());
+    }
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   }
 
   showFoodCustomizationModal() {
@@ -1400,16 +1755,35 @@ class OrderSystem {
   }
   
   _setupFoodModal() {
+<<<<<<< HEAD
     const ingredientsContainer = document.getElementById('ingredients-input-container');
     if (ingredientsContainer) ingredientsContainer.className = 'input-container-hidden';
     const ingredientsInput = document.getElementById('ingredients-to-remove');
     if (ingredientsInput) ingredientsInput.value = '';
     
     // Event listeners are now handled by event delegation in handleDelegatedEvent
+=======
+    document.getElementById('ingredients-input-container').style.display = 'none';
+    const ingredientsInput = document.getElementById('ingredients-to-remove');
+    if (ingredientsInput) ingredientsInput.value = '';
+    
+    const handlers = {
+      'keep-ingredients-btn': () => this._addFoodToOrder('Con todos los ingredientes'),
+      'customize-ingredients-btn': () => this._showIngredientsInput(),
+      'confirm-ingredients-btn': () => this._confirmIngredientCustomization(),
+      'cancel-ingredients-btn': () => this.cancelProductSelection()
+    };
+    
+    Object.entries(handlers).forEach(([id, handler]) => {
+      document.getElementById(id).addEventListener('click', handler);
+    });
+    
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     this._showModal('food-customization-modal');
   }
 
   _showIngredientsInput() {
+<<<<<<< HEAD
     const ingredientsContainer = document.getElementById('ingredients-input-container');
     const ingredientsChoice = document.querySelector('.ingredients-choice');
     if (ingredientsContainer) ingredientsContainer.className = 'input-container-visible';
@@ -1425,18 +1799,32 @@ class OrderSystem {
       name: this.currentProduct.name,
       price: this.currentProduct.price,
       category: 'comida',
+=======
+    document.getElementById('ingredients-input-container').style.display = 'block';
+    document.querySelector('.ingredients-choice').style.display = 'none';
+  }
+
+  _addFoodToOrder(customization) {
+    this.addProductToOrder({
+      name: this.currentProduct.name,
+      price: this.currentProduct.price,
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       customizations: [customization]
     });
     this._hideModal('food-customization-modal');
   }
 
   _confirmIngredientCustomization() {
+<<<<<<< HEAD
     const ingredientsElement = document.getElementById('ingredients-to-remove');
     if (!ingredientsElement) {
       console.error('Element with ID "ingredients-to-remove" not found');
       return;
     }
     const ingredientsToRemove = ingredientsElement.value.trim();
+=======
+    const ingredientsToRemove = document.getElementById('ingredients-to-remove').value.trim();
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     const customization = ingredientsToRemove ? `Sin: ${ingredientsToRemove}` : 'Con todos los ingredientes';
     this._addFoodToOrder(customization);
   }
@@ -1447,15 +1835,33 @@ class OrderSystem {
   }
   
   _setupMeatModal() {
+<<<<<<< HEAD
     const garnishContainer = document.getElementById('garnish-input-container');
     if (garnishContainer) garnishContainer.className = 'input-container-hidden';
+=======
+    document.getElementById('garnish-input-container').style.display = 'none';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     const garnishModifications = document.getElementById('garnish-modifications');
     if (garnishModifications) garnishModifications.value = '';
     
     this.selectedCookingTerm = null;
     this._setupCookingOptions();
     
+<<<<<<< HEAD
     // Event listeners are now handled by event delegation in handleDelegatedEvent
+=======
+    const handlers = {
+      'change-garnish-btn': () => this._showGarnishInput(),
+      'keep-garnish-btn': () => this._addMeatToOrder('Guarnición estándar'),
+      'confirm-garnish-btn': () => this._confirmGarnishCustomization(),
+      'cancel-garnish-btn': () => this.cancelProductSelection()
+    };
+    
+    Object.entries(handlers).forEach(([id, handler]) => {
+      document.getElementById(id).addEventListener('click', handler);
+    });
+    
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     this._showModal('meat-customization-modal');
   }
 
@@ -1473,15 +1879,21 @@ class OrderSystem {
 
   _showGarnishInput() {
     if (!this._validateCookingTerm()) return;
+<<<<<<< HEAD
     const garnishContainer = document.getElementById('garnish-input-container');
     const garnishChoice = document.querySelector('.garnish-choice');
     if (garnishContainer) garnishContainer.className = 'input-container-visible';
     if (garnishChoice) garnishChoice.className = 'choice-hidden';
+=======
+    document.getElementById('garnish-input-container').style.display = 'block';
+    document.querySelector('.garnish-choice').style.display = 'none';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   }
 
   _addMeatToOrder(garnishType) {
     if (!this._validateCookingTerm()) return;
     
+<<<<<<< HEAD
     if (!this.currentProduct) {
       console.error('No current product selected for meat order');
       return;
@@ -1491,6 +1903,11 @@ class OrderSystem {
       name: this.currentProduct.name,
       price: this.currentProduct.price,
       category: 'comida',
+=======
+    this.addProductToOrder({
+      name: this.currentProduct.name,
+      price: this.currentProduct.price,
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       customizations: [`Término: ${this._getTermText(this.selectedCookingTerm)}`, garnishType]
     });
     this._hideModal('meat-customization-modal');
@@ -1503,17 +1920,22 @@ class OrderSystem {
 
   _confirmGarnishCustomization() {
     if (!this._validateCookingTerm()) return;
+<<<<<<< HEAD
     const garnishElement = document.getElementById('garnish-modifications');
     if (!garnishElement) {
       console.error('Element with ID "garnish-modifications" not found');
       return;
     }
     const garnishModifications = garnishElement.value.trim();
+=======
+    const garnishModifications = document.getElementById('garnish-modifications').value.trim();
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     const garnishType = garnishModifications ? `Guarnición: ${garnishModifications}` : 'Guarnición estándar';
     this._addMeatToOrder(garnishType);
   }
 
   _validateCookingTerm() {
+<<<<<<< HEAD
     const isValid = OrderSystemValidations.validateCookingTerm(this.selectedCookingTerm);
     if (!isValid) {
       OrderSystemValidations.showValidationModal(
@@ -1526,6 +1948,17 @@ class OrderSystem {
 
   _showValidationModal(message) {
     OrderSystemValidations.showValidationModal(message, this._createSimpleModal.bind(this));
+=======
+    if (!this.selectedCookingTerm) {
+      this._showValidationModal('Por favor seleccione un término de cocción primero');
+      return false;
+    }
+    return true;
+  }
+
+  _showValidationModal(message) {
+    this._createSimpleModal(message, 'Aceptar', () => {});
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   }
 
   cancelProductSelection() {
@@ -1536,6 +1969,7 @@ class OrderSystem {
   }
 
   addProductToOrder(orderItem) {
+<<<<<<< HEAD
     // Ensure we're in order mode before adding to order
     if (!this.isOrderMode) {
       console.warn('Attempting to add product when not in order mode, activating order mode');
@@ -1565,12 +1999,15 @@ class OrderSystem {
       }
     }
     
+=======
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     this.core.addProduct(orderItem); 
     this.updateOrderDisplay();
     this.currentProduct = null;
   }
 
   updateOrderDisplay() {
+<<<<<<< HEAD
     // Ensure sidebar is visible first if we're in order mode
     if (this.isOrderMode) {
       const sidebar = document.getElementById(CONSTANTS.SELECTORS.SIDEBAR);
@@ -1643,6 +2080,12 @@ class OrderSystem {
       console.error('Element with ID "order-total-amount" not found');
       return;
     }
+=======
+    const orderItemsContainer = document.getElementById('order-items');
+    orderItemsContainer.innerHTML = '';
+
+    const orderTotalAmount = document.getElementById('order-total-amount');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
 
     const itemsToDisplay = this.core.getItems(); 
 
@@ -1669,7 +2112,11 @@ class OrderSystem {
 
       const itemPrice = document.createElement('div');
       itemPrice.className = 'order-item-price';
+<<<<<<< HEAD
       itemPrice.textContent = formatPrice(item.price);
+=======
+      itemPrice.textContent = `$${item.price.toFixed(2)}`;
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
 
       itemElement.appendChild(itemHeader);
       itemElement.appendChild(itemPrice);
@@ -1687,7 +2134,11 @@ class OrderSystem {
     });
 
     const total = this.core.getTotal(); 
+<<<<<<< HEAD
     orderTotalAmount.textContent = formatPrice(total);
+=======
+    orderTotalAmount.textContent = `$${total.toFixed(2)}`;
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   }
 
   removeOrderItem(itemId) {
@@ -1699,10 +2150,14 @@ class OrderSystem {
     const currentOrderItems = this.core.getItems();
     
     if (currentOrderItems.length === 0) {
+<<<<<<< HEAD
       OrderSystemValidations.showValidationModal(
         'La orden está vacía. Por favor agregue productos.',
         this._createSimpleModal.bind(this)
       );
+=======
+      this._showValidationModal('La orden está vacía. Por favor agregue productos.');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       return;
     }
 
@@ -1854,18 +2309,30 @@ class OrderSystem {
    */
   enhanceModalElement(modal) {
     if (!modal) {
+<<<<<<< HEAD
       Logger.error('enhanceModalElement: No modal provided');
+=======
+      console.error('enhanceModalElement: No modal provided');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       return;
     }
     
     // Force add show method (always override)
     modal.show = function() {
+<<<<<<< HEAD
       this.className = this.className.replace('modal-hidden', '').trim() + ' modal-flex';
+=======
+      this.style.display = 'flex';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     };
     
     // Force add hide method (always override)
     modal.hide = function() {
+<<<<<<< HEAD
       this.className = this.className.replace('modal-flex', '').trim() + ' modal-hidden';
+=======
+      this.style.display = 'none';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     };
     
     // Also use global enhancement if available as backup
@@ -1875,7 +2342,11 @@ class OrderSystem {
     
     // Verify methods were added correctly (only log errors)
     if (typeof modal.show !== 'function' || typeof modal.hide !== 'function') {
+<<<<<<< HEAD
       Logger.error(`Modal ${modal.id} enhancement FAILED - show: ${typeof modal.show}, hide: ${typeof modal.hide}`);
+=======
+      console.error(`Modal ${modal.id} enhancement FAILED - show: ${typeof modal.show}, hide: ${typeof modal.hide}`);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     }
   }
 
@@ -1897,7 +2368,11 @@ class OrderSystem {
         
         // Actualizar solo la vista activa correspondiente
         const ordersScreen = document.querySelector('.orders-screen');
+<<<<<<< HEAD
         if (ordersScreen && !ordersScreen.classList.contains('screen-hidden')) {
+=======
+        if (ordersScreen && ordersScreen.style.display !== 'none') {
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
           if (this.isShowingHistory) {
             const historyContainer = document.querySelector('.order-history-container');
             if (historyContainer) {
@@ -1925,15 +2400,24 @@ class OrderSystem {
       ordersScreen: document.querySelector('.orders-screen')
     };
     
+<<<<<<< HEAD
     elements.hamburgerBtn.className = 'hamburger-btn hamburger-hidden';
     elements.contentContainer.className = 'content-hidden';
+=======
+    elements.hamburgerBtn.style.display = 'none';
+    elements.contentContainer.style.display = 'none';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     
     this.previousCategory = elements.mainContentScreen.getAttribute('data-category');
     this.previousTitle = elements.pageTitleElement ? elements.pageTitleElement.textContent : 'Coctelería';
     this.isShowingHistory = false;
     
     if (elements.ordersScreen) {
+<<<<<<< HEAD
       elements.ordersScreen.className = 'orders-screen screen-block';
+=======
+      elements.ordersScreen.style.display = 'block';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       const historyButton = elements.ordersScreen.querySelector('.history-btn');
       if (historyButton) historyButton.textContent = 'Historial Órdenes';
       this.populateOrdersScreen();
@@ -1962,7 +2446,11 @@ class OrderSystem {
     const header = this._createElement('div', 'orders-screen-header');
     
     const buttons = [
+<<<<<<< HEAD
       { class: 'nav-button orders-back-btn', text: 'Volver', handler: async () => await this.hideOrdersScreen() },
+=======
+      { class: 'nav-button orders-back-btn', text: 'Volver', handler: () => this.hideOrdersScreen() },
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       { class: 'nav-button history-btn', text: 'Historial Órdenes', handler: (btn) => this.toggleOrderHistoryView(btn) }
     ];
     
@@ -1985,7 +2473,11 @@ class OrderSystem {
   _createButton({ class: className, text, handler }) {
     const button = this._createElement('button', className);
     button.textContent = text;
+<<<<<<< HEAD
     button.addEventListener('click', async () => await handler(button));
+=======
+    button.addEventListener('click', () => handler(button));
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     return button;
   }
   
@@ -2011,22 +2503,31 @@ class OrderSystem {
   _showHistoryView(button, { ordersList, orderHistoryContainer, ordersScreenTitle }) {
     button.textContent = 'Ver Órdenes Activas';
     if (ordersScreenTitle) ordersScreenTitle.textContent = 'Historial de Órdenes';
+<<<<<<< HEAD
     if (ordersList) {
       ordersList.classList.add('screen-hidden');
       ordersList.classList.remove('screen-visible');
     }
+=======
+    if (ordersList) ordersList.style.display = 'none';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     
     if (!orderHistoryContainer) {
       orderHistoryContainer = this._createHistoryContainer();
     }
+<<<<<<< HEAD
     orderHistoryContainer.classList.add('screen-visible');
     orderHistoryContainer.classList.remove('screen-hidden');
+=======
+    orderHistoryContainer.style.display = 'grid';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     this.populateOrderHistoryScreen(orderHistoryContainer);
   }
 
   _showActiveOrdersView(button, { ordersList, orderHistoryContainer, ordersScreenTitle }) {
     button.textContent = 'Historial Órdenes';
     if (ordersScreenTitle) ordersScreenTitle.textContent = 'Órdenes Guardadas';
+<<<<<<< HEAD
     if (orderHistoryContainer) {
       orderHistoryContainer.classList.add('screen-hidden');
       orderHistoryContainer.classList.remove('screen-visible');
@@ -2035,6 +2536,10 @@ class OrderSystem {
       ordersList.classList.add('screen-visible');
       ordersList.classList.remove('screen-hidden');
     }
+=======
+    if (orderHistoryContainer) orderHistoryContainer.style.display = 'none';
+    if (ordersList) ordersList.style.display = 'grid';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     this.populateOrdersScreen();
   }
 
@@ -2116,7 +2621,11 @@ class OrderSystem {
 
       const itemPrice = document.createElement('div');
       itemPrice.className = 'saved-order-item-price';
+<<<<<<< HEAD
       itemPrice.textContent = formatPrice(item.price);
+=======
+      itemPrice.textContent = `$${item.price.toFixed(2)}`;
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
 
       itemElement.appendChild(itemName);
       itemElement.appendChild(itemPrice);
@@ -2135,7 +2644,11 @@ class OrderSystem {
 
     const orderTotal = document.createElement('div');
     orderTotal.className = 'saved-order-total';
+<<<<<<< HEAD
     orderTotal.textContent = `Total: ${formatPrice(order.total)}`;
+=======
+    orderTotal.textContent = `Total: $${order.total.toFixed(2)}`;
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     orderElement.appendChild(orderTotal);
 
     if (includeDeleteButton) {
@@ -2230,6 +2743,7 @@ class OrderSystem {
     document.body.removeChild(modalBackdrop);
   }
 
+<<<<<<< HEAD
   async hideOrdersScreen() {
     Logger.debug('🔄 Ocultando pantalla de órdenes - Estado DOM antes:', {
       mainScreen: !!document.getElementById('main-screen'),
@@ -2239,12 +2753,16 @@ class OrderSystem {
       url: window.location.href
     });
     
+=======
+  hideOrdersScreen() {
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     const elements = {
       contentContainer: document.getElementById('content-container'),
       ordersScreen: document.querySelector('.orders-screen'),
       hamburgerBtn: document.getElementById('hamburger-btn')
     };
     
+<<<<<<< HEAD
     elements.hamburgerBtn.classList.add('hamburger-visible');
     elements.hamburgerBtn.classList.remove('hamburger-hidden');
     elements.ordersScreen.classList.add('screen-hidden');
@@ -2265,6 +2783,14 @@ class OrderSystem {
           mainScreenVisible: document.getElementById('main-screen') ? !document.getElementById('main-screen').classList.contains('screen-hidden') : false
         });
       }, 100);
+=======
+    elements.hamburgerBtn.style.display = 'block';
+    elements.ordersScreen.style.display = 'none';
+    elements.contentContainer.style.display = 'block';
+    
+    if (this.previousCategory && window.AppInit) {
+      window.AppInit.loadContent(this.previousCategory);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     }
   }
 }
@@ -2274,6 +2800,7 @@ let orderSystemInitialized = false;
 
 function initializeOrderSystem() {
   if (orderSystemInitialized) {
+<<<<<<< HEAD
     Logger.info('OrderSystem already initialized, skipping...');
     return;
   }
@@ -2292,10 +2819,17 @@ function initializeOrderSystem() {
     url: window.location.href
   });
   
+=======
+    console.log('⚠️ OrderSystem already initialized, skipping...');
+    return;
+  }
+  
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   try {
     const orderSystem = new OrderSystem();
     orderSystem.initialize();
     orderSystemInitialized = true;
+<<<<<<< HEAD
     
     // Log DOM state after initialization
     setTimeout(() => {
@@ -2315,6 +2849,11 @@ function initializeOrderSystem() {
     Logger.info('OrderSystem initialized successfully');
   } catch (error) {
     Logger.error('Failed to initialize OrderSystem:', error);
+=======
+    console.log('✅ OrderSystem initialized successfully');
+  } catch (error) {
+    console.error('❌ Failed to initialize OrderSystem:', error);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     // Retry after a short delay
     setTimeout(initializeOrderSystem, 100);
   }
@@ -2327,6 +2866,7 @@ if (window.AppInit && window.DIContainer) {
   // Listen for AppInit completion
   document.addEventListener('app-init-complete', initializeOrderSystem);
   
+<<<<<<< HEAD
   // Listen for content ready events to ensure DOM elements are available
   document.addEventListener('app-content-ready', function() {
     // Ensure OrderSystem is initialized when content is ready
@@ -2335,6 +2875,8 @@ if (window.AppInit && window.DIContainer) {
     }
   });
   
+=======
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   // Fallback: try after DOMContentLoaded with a delay
   document.addEventListener('DOMContentLoaded', function() {
     setTimeout(initializeOrderSystem, 500);

@@ -20,8 +20,7 @@
  * - Cross-browser testing support
  */
 
-// Global utilities are now available via window object
-// logError, logWarning are available globally
+import { logError, logWarning } from '../utils/errorHandler.js';
 import { DEBUG, TESTING } from '../config/constants.js';
 
 /**

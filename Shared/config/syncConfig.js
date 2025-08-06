@@ -5,8 +5,7 @@
 
 // Import the enhanced constants
 import { SYNC_CONFIG, CACHE_CONFIG } from './constants.js';
-// Global utilities are now available via window object
-// Logger is available globally
+import Logger from '../utils/logger.js';
 
 /**
  * Main configuration object for sync system

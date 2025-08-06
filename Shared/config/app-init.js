@@ -31,8 +31,10 @@ import DIContainer from '../core/DIContainer.js';
 import ProductDataAdapter from '../../Infraestructura/adapters/ProductDataAdapter.js';
 import AppConfig from '../core/AppConfig.js';
 // Import shared utilities
-// Global utilities are now available via window object
-// setSafeInnerHTML, ErrorHandler, logError, logWarning, Logger, SimpleCache are available globally
+import { setSafeInnerHTML } from '../utils/domUtils.js';
+import { ErrorHandler, logError, logWarning } from '../utils/errorHandler.js';
+import Logger from '../utils/logger.js';
+import SimpleCache from '../utils/simpleCache.js';
 import { DEBUG, UI, PERFORMANCE, CACHE_KEYS } from './constants.js';
 
 /* initial view timing in milliseconds */
@@ -49,6 +51,7 @@ const AppInit = {
   modules: new Map(),
   isRecovering: false,
   
+<<<<<<< HEAD
   // Retry mechanism for DOM elements
   retryCount: 0,
   maxRetries: 3,
@@ -56,6 +59,8 @@ const AppInit = {
   // Loading state to prevent concurrent calls
   isLoading: false,
   
+=======
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   /**
    * Enhanced initialization method
    * Integrates with new AppConfig system while maintaining legacy functionality
@@ -144,7 +149,11 @@ const AppInit = {
       AppConfig.validateConfiguration();
       const configSuccess = true;
       
+<<<<<<< HEAD
       Logger.info('Enhanced configuration initialized');
+=======
+      console.log('⚙️ Enhanced configuration initialized');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       
       // Store reference for easy access
       this.modules.set('appConfig', AppConfig);
@@ -167,7 +176,11 @@ const AppInit = {
     // SafeModal auto-registers itself as 'safe-modal' when imported
     // No need to register it manually here
     
+<<<<<<< HEAD
     Logger.info('Core systems initialized');
+=======
+    console.log('🔧 Core systems initialized');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   },
 
   /**
@@ -181,7 +194,11 @@ const AppInit = {
       this.initializeLegacyConfig();
     }
     
+<<<<<<< HEAD
     Logger.info('Legacy systems initialized');
+=======
+    console.log('🔄 Legacy systems initialized');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   },
 
   /**
@@ -202,7 +219,11 @@ const AppInit = {
         this.setupPerformanceMonitoring();
       }
       
+<<<<<<< HEAD
       Logger.info('Enhanced modules initialized');
+=======
+      console.log('✨ Enhanced modules initialized');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     } catch (error) {
       logWarning('Some enhanced modules failed to initialize', error);
     }
@@ -228,7 +249,11 @@ const AppInit = {
       this.initializeEnhancedUI();
     }, delay);
     
+<<<<<<< HEAD
     Logger.info('Application started');
+=======
+    console.log('🎬 Application started');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   },
 
   /**
@@ -245,7 +270,11 @@ const AppInit = {
       }
     };
     
+<<<<<<< HEAD
     Logger.info('Legacy configuration initialized');
+=======
+    console.log('🔄 Legacy configuration initialized');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   },
 
   /**
@@ -279,7 +308,11 @@ const AppInit = {
         const observer = new PerformanceObserver((list) => {
           for (const entry of list.getEntries()) {
             if (entry.duration > 50) {
+<<<<<<< HEAD
               Logger.warn(`Long task in AppInit: ${entry.duration.toFixed(2)}ms`);
+=======
+              console.warn(`⚠️ Long task in AppInit: ${entry.duration.toFixed(2)}ms`);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
             }
           }
         });
@@ -299,20 +332,32 @@ const AppInit = {
     // Create a global modal enhancement function
     window.enhanceModalGlobally = function(modal) {
       if (!modal || !modal.id) {
+<<<<<<< HEAD
         Logger.warn('enhanceModalGlobally: Invalid modal provided');
+=======
+        console.warn('enhanceModalGlobally: Invalid modal provided');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
         return;
       }
       
       // Force add show method (always override)
       modal.show = function() {
+<<<<<<< HEAD
         this.classList.remove('modal-hidden');
         this.classList.add('modal-flex');
+=======
+        this.style.display = 'flex';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       };
       
       // Force add hide method (always override)
       modal.hide = function() {
+<<<<<<< HEAD
         this.classList.remove('modal-flex');
         this.classList.add('modal-hidden');
+=======
+        this.style.display = 'none';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       };
     };
     
@@ -370,7 +415,11 @@ const AppInit = {
     document.documentElement.classList.add('js-enabled', 'enhanced-features');
     document.documentElement.classList.remove('no-js');
     
+<<<<<<< HEAD
     Logger.info('Enhanced UI features initialized');
+=======
+    console.log('🎨 Enhanced UI features initialized');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   },
 
   /**
@@ -385,7 +434,11 @@ const AppInit = {
     
     // Prevent multiple recovery attempts
     if (this.isRecovering) {
+<<<<<<< HEAD
       Logger.warn('Recovery already in progress, skipping duplicate attempt');
+=======
+      console.warn('Recovery already in progress, skipping duplicate attempt');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       return false;
     }
     
@@ -394,7 +447,11 @@ const AppInit = {
     try {
       // Try fallback initialization without enhanced features
       if (options.enableEnhancedFeatures !== false) {
+<<<<<<< HEAD
         Logger.info('Attempting fallback initialization...');
+=======
+        console.log('🔄 Attempting fallback initialization...');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
         const result = await this.performEnhancedInitialization({
           ...options,
           enableEnhancedFeatures: false
@@ -404,7 +461,11 @@ const AppInit = {
       }
       
       // Last resort: basic legacy initialization
+<<<<<<< HEAD
       Logger.info('Attempting basic legacy initialization...');
+=======
+      console.log('🆘 Attempting basic legacy initialization...');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       this.basicLegacyInitialize();
       this.isRecovering = false;
       return true;
@@ -576,7 +637,11 @@ const AppInit = {
     // Menu item click handlers
     const menuButtons = drawerMenu.querySelectorAll('.nav-button');
     menuButtons.forEach(button => {
+<<<<<<< HEAD
       button.addEventListener('click', async () => {
+=======
+      button.addEventListener('click', () => {
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
         const target = button.getAttribute('data-target');
         const action = button.getAttribute('data-action');
         
@@ -592,7 +657,11 @@ const AppInit = {
         
         // Execute the appropriate action
         if (target) {
+<<<<<<< HEAD
           await this.loadContent(target);
+=======
+          this.loadContent(target);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
         } else if (action === 'orders') {
           // Call the order system's show orders function
           const OrderSystem = window.OrderSystem;
@@ -610,6 +679,7 @@ const AppInit = {
     });
     
     // Set first button as active by default
+<<<<<<< HEAD
     if (menuButtons && menuButtons.length > 0) {
       const defaultButton = menuButtons[0];
       if (defaultButton && defaultButton.classList) {
@@ -677,6 +747,12 @@ const AppInit = {
         logError('Cannot find main screen element to make visible');
       }
     }, 100);
+=======
+    const defaultButton = menuButtons[0];
+    if (defaultButton) {
+      defaultButton.classList.add('active');
+    }
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   },
   
   /**
@@ -684,6 +760,7 @@ const AppInit = {
    * Handles content switching with smooth transitions and proper state management
    * @param {string} contentType - The category of content to load (cocteleria, refrescos, etc.)
    */
+<<<<<<< HEAD
   loadContent: async function(contentType = 'cocteleria') {
     // Prevent concurrent calls
     if (this.isLoading) {
@@ -836,6 +913,17 @@ const AppInit = {
         hasScreenVisible: mainScreen.classList.contains('screen-visible'),
         allClasses: mainScreen.className
       });
+=======
+  loadContent: function(contentType = 'cocteleria') {
+    const contentContainer = document.getElementById('content-container');
+    const pageTitle = document.querySelector('.page-header .page-title');
+    const mainScreen = document.querySelector('.main-content-screen');
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    
+    if (!contentContainer || !mainScreen) {
+      logError('Required DOM elements not found');
+      return;
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     }
 
     // Ensure contentType is valid - Fallback to default if invalid category provided
@@ -846,6 +934,7 @@ const AppInit = {
     
     // No longer needed as title is integrated in tables
     if (pageTitle) {
+<<<<<<< HEAD
       pageTitle.classList.add('page-title-hidden');
       pageTitle.classList.remove('page-title-visible');
     }
@@ -883,11 +972,36 @@ const AppInit = {
         document.dispatchEvent(new CustomEvent('app-content-ready', {
           detail: { contentType }
         }));
+=======
+      pageTitle.style.display = 'none';
+    }
+
+    contentContainer.style.opacity = 0;
+    
+    setTimeout(() => {
+      // Asignación segura: limpieza con cadena vacía, sin riesgo XSS
+      contentContainer.innerHTML = '';
+      
+      const success = this.initializeContent(contentType, contentContainer);
+      
+      if (success) {
+        contentContainer.style.opacity = 1;
+        
+        // Position hamburger button based on NOMBRE column header
+        setTimeout(() => {
+          const nombreHeader = document.querySelector('[data-nombre-header="true"]');
+          if (nombreHeader) {
+            const rect = nombreHeader.getBoundingClientRect();
+            hamburgerBtn.style.left = `${rect.left - 80}px`;
+          }
+        }, 100);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       }
     }, 50);
     
     // Update active state in drawer menu
     const drawerButtons = document.querySelectorAll('#drawer-menu .nav-button');
+<<<<<<< HEAD
     if (drawerButtons) {
       drawerButtons.forEach(btn => {
         if (btn && btn.classList) {
@@ -903,6 +1017,16 @@ const AppInit = {
     
     // Always release the loading lock
     this.isLoading = false;
+=======
+    drawerButtons.forEach(btn => {
+      const btnTarget = btn.getAttribute('data-target');
+      if (btnTarget === contentType) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   },
   
   validateContentType: function(contentType) {
@@ -947,6 +1071,7 @@ const AppInit = {
     return titles[contentType] || contentType.charAt(0).toUpperCase() + contentType.slice(1);
   },
 
+<<<<<<< HEAD
   initializeContent: async function(contentType, container) {
     if (!container) return false;
     
@@ -977,10 +1102,18 @@ const AppInit = {
     }
     
     container = targetContainer;
+=======
+  initializeContent: function(contentType, container) {
+    if (!container) return false;
+    
+    // Asignación segura: limpieza con cadena vacía, sin riesgo XSS
+    container.innerHTML = '';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     
     try {
       switch(contentType) {
         case 'cocteleria':
+<<<<<<< HEAD
           await ProductRenderer.renderCocktails(container);
           break;
         case 'refrescos':
@@ -1012,16 +1145,52 @@ const AppInit = {
           break;
         case 'postres':
           await ProductRenderer.renderPostres(container);
+=======
+          ProductRenderer.renderCocktails(container);
+          break;
+        case 'refrescos':
+          ProductRenderer.renderRefrescos(container);
+          break;
+        case 'licores':
+          ProductRenderer.renderLicores(container);
+          break;
+        case 'cervezas':
+          ProductRenderer.renderCervezas(container);
+          break;
+        case 'pizzas':
+          ProductRenderer.renderPizzas(container);
+          break;
+        case 'alitas':
+          ProductRenderer.renderAlitas(container);
+          break;
+        case 'sopas':
+          ProductRenderer.renderSopas(container);
+          break;
+        case 'ensaladas':
+          ProductRenderer.renderEnsaladas(container);
+          break;
+        case 'carnes':
+          ProductRenderer.renderCarnes(container);
+          break;
+        case 'cafe':
+          ProductRenderer.renderCafe(container);
+          break;
+        case 'postres':
+          ProductRenderer.renderPostres(container);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
           break;
         default:
           logWarning(`Contenido no disponible para: ${contentType}`);
           setSafeInnerHTML(container, '<p>Contenido no disponible</p>');
           return false;
       }
+<<<<<<< HEAD
       
       // Initialize ProductRenderer event delegation after content is rendered
       ProductRenderer.initEventDelegation();
       
+=======
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       return true;
     } catch (err) {
       logError('Error loading content', err);
@@ -1031,6 +1200,7 @@ const AppInit = {
   },
 
   /**
+<<<<<<< HEAD
    * Checks if user is actively navigating by detecting recent DOM changes
    * @returns {boolean} True if user navigation is detected
    */
@@ -1056,6 +1226,8 @@ const AppInit = {
   },
 
   /**
+=======
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
    * Setup Dependency Injection Container
    * Simplified version - using monolithic system instead of modular services
    */
@@ -1063,17 +1235,24 @@ const AppInit = {
     // Create minimal DI container for ProductDataAdapter only
     window.container = new DIContainer();
     
+<<<<<<< HEAD
     // Register AppConfig as singleton
     window.container.singleton('AppConfig', () => {
       return AppConfig;
     });
     
+=======
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     // Register ProductRepository as singleton (still used by some components)
     window.container.singleton('ProductRepository', () => {
       return new ProductDataAdapter();
     });
 
+<<<<<<< HEAD
     Logger.info('DI Container initialized (simplified)');
+=======
+    console.log('DI Container initialized (simplified)');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   }
 };
 

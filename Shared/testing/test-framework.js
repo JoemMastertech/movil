@@ -18,8 +18,7 @@
  * - Integration with existing error handling
  */
 
-// Global utilities are now available via window object
-// logError, logWarning are available globally
+import { logError, logWarning } from '../utils/errorHandler.js';
 
 /**
  * Test Framework State

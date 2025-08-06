@@ -20,8 +20,8 @@ import {
   spyOn 
 } from './test-framework.js';
 
-// Global utilities are now available via window object
-// logError, logWarning, handleMissingElementError, setSafeInnerHTML, showModal, hideModal are available globally
+import { logError, logWarning, handleMissingElementError } from '../utils/errorHandler.js';
+import { setSafeInnerHTML, showModal, hideModal } from '../utils/domUtils.js';
 import { 
   calculateTotalDrinkCount, 
   calculateTotalJuiceCount, 
@@ -293,8 +293,12 @@ describe('Calculation Utils', () => {
 
 // Export test runner function for manual execution
 export async function runUtilsTests() {
+<<<<<<< HEAD
   // Test output - keeping console.log for test visibility
 console.log('🧪 Running Shared Utils Tests...');
+=======
+  console.log('🧪 Running Shared Utils Tests...');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   const results = await import('./test-framework.js').then(framework => framework.runTests());
   return results;
 }

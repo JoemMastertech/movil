@@ -17,8 +17,13 @@ export const BUSINESS_RULES = {
   
   // Pricing rules
   DEFAULT_PRICE: 0,
+<<<<<<< HEAD
   PRICE_PRECISION: 2
   // CURRENCY_SYMBOL: '$' // Removed - prices now display without currency symbol
+=======
+  PRICE_PRECISION: 2,
+  CURRENCY_SYMBOL: '$'
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
 };
 
 export const API_ENDPOINTS = {
@@ -46,6 +51,7 @@ export const CACHE_CONFIG = {
   MAX_CACHE_SIZE: 50   // Máximo número de entradas
 };
 
+<<<<<<< HEAD
 export const SYNC_CONFIG = {
   BACKGROUND_SYNC_INTERVAL: 300000, // 5 minutos
   IMMEDIATE_LOAD: true,
@@ -55,6 +61,8 @@ export const SYNC_CONFIG = {
   SYNC_RETRY_DELAY: 30000 // 30 segundos
 };
 
+=======
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
 export const UI_TIMING = {
   // Welcome sequence timing
   WELCOME_DURATION: 3000,

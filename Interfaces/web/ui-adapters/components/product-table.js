@@ -1,12 +1,18 @@
 // ProductData is now accessed through DI Container
 // Import shared utilities
-// Global utilities are now available via window object
-// getProductRepository, setSafeInnerHTML, logError, logWarning, Logger are available globally
+import { getProductRepository } from '../../../../Shared/utils/diUtils.js';
+import { setSafeInnerHTML } from '../../../../Shared/utils/domUtils.js';
+import { logError, logWarning } from '../../../../Shared/utils/errorHandler.js';
+<<<<<<< HEAD
+import Logger from '../../../../Shared/utils/logger.js';
+=======
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
 
 const ProductRenderer = {
   // Current view mode: 'table' or 'grid'
   currentViewMode: 'table',
   
+<<<<<<< HEAD
   // Phase 3: Event delegation system
   eventDelegationInitialized: false,
   boundDelegatedHandler: null,
@@ -15,6 +21,12 @@ const ProductRenderer = {
   toggleViewMode: function() {
     this.currentViewMode = this.currentViewMode === 'table' ? 'grid' : 'table';
     Logger.info('View mode toggled to:', this.currentViewMode);
+=======
+  // Toggle between table and grid view
+  toggleViewMode: function() {
+    this.currentViewMode = this.currentViewMode === 'table' ? 'grid' : 'table';
+    console.log('🔄 View mode toggled to:', this.currentViewMode);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     
     // Update toggle button text
     const toggleBtn = document.querySelector('.view-toggle-btn');
@@ -26,6 +38,7 @@ const ProductRenderer = {
     return this.currentViewMode;
   },
   
+<<<<<<< HEAD
   // Phase 3: Initialize intelligent event delegation
   initEventDelegation: function() {
     if (this.eventDelegationInitialized) return;
@@ -124,6 +137,10 @@ const ProductRenderer = {
     // Initialize event delegation if not already done
     this.initEventDelegation();
     
+=======
+  // Create view toggle button
+  createViewToggle: function(container) {
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     const toggleContainer = document.createElement('div');
     toggleContainer.className = 'view-toggle-container';
     
@@ -132,12 +149,22 @@ const ProductRenderer = {
     toggleBtn.textContent = this.currentViewMode === 'table' ? '🔲' : '📋';
     toggleBtn.classList.toggle('active', this.currentViewMode === 'grid');
     
+<<<<<<< HEAD
     // No individual event listener needed - handled by delegation
+=======
+    toggleBtn.addEventListener('click', () => {
+      this.toggleViewMode();
+      // Re-render current content with new view mode
+      this.refreshCurrentView(container);
+    });
+    
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     toggleContainer.appendChild(toggleBtn);
     return toggleContainer;
   },
   
   // Refresh current view with new mode
+<<<<<<< HEAD
   refreshCurrentView: async function(container) {
     const viewData = this._extractViewData(container);
     if (!viewData) return;
@@ -444,10 +471,130 @@ const ProductRenderer = {
   },
 
   _determineProductType: function(normalizedCategory, tableClass, categoryTitle) {
+=======
+  refreshCurrentView: function(container) {
+    // Get current category from container or last rendered category
+    const existingTable = container.querySelector('table, .product-grid');
+    if (!existingTable) return;
+    
+    const category = existingTable.dataset.category;
+    if (!category) return;
+    
+    // Check if we have a back button (liquor subcategory)
+    const backButtonContainer = container.querySelector('.back-button-container');
+    let backButtonHTML = null;
+    if (backButtonContainer) {
+      backButtonHTML = backButtonContainer.outerHTML;
+    }
+    
+    // Clear container and re-render
+    container.innerHTML = '';
+    
+    // Restore back button if it existed
+    if (backButtonHTML) {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = backButtonHTML;
+      const restoredBackButton = tempDiv.firstChild;
+      
+      // Re-attach event listener
+      const backButton = restoredBackButton.querySelector('.back-button');
+      if (backButton) {
+        backButton.addEventListener('click', () => {
+          this.renderLicores(container);
+        });
+      }
+      
+      container.appendChild(restoredBackButton);
+    }
+    
+    // Re-render based on category
+    switch(category) {
+      case 'cocteleria':
+        this.renderCocktails(container);
+        break;
+      case 'pizzas':
+        this.renderPizzas(container);
+        break;
+      case 'alitas':
+        this.renderAlitas(container);
+        break;
+      case 'sopas':
+        this.renderSopas(container);
+        break;
+      case 'ensaladas':
+        this.renderEnsaladas(container);
+        break;
+      case 'carnes':
+        this.renderCarnes(container);
+        break;
+      case 'cafe':
+        this.renderCafe(container);
+        break;
+      case 'postres':
+        this.renderPostres(container);
+        break;
+      case 'refrescos':
+        this.renderRefrescos(container);
+        break;
+      case 'cervezas':
+        this.renderCervezas(container);
+        break;
+      case 'tequila':
+        this.renderTequila(container);
+        break;
+      case 'whisky':
+        this.renderWhisky(container);
+        break;
+      case 'ron':
+        this.renderRon(container);
+        break;
+      case 'vodka':
+        this.renderVodka(container);
+        break;
+      case 'ginebra':
+        this.renderGinebra(container);
+        break;
+      case 'mezcal':
+        this.renderMezcal(container);
+        break;
+      case 'cognac':
+        this.renderCognac(container);
+        break;
+      case 'brandy':
+        this.renderBrandy(container);
+        break;
+      case 'digestivos':
+        this.renderDigestivos(container);
+        break;
+      case 'espumosos':
+        this.renderEspumosos(container);
+        break;
+      default:
+        console.warn('Unknown category for refresh:', category);
+    }
+  },
+
+  createProductTable: function(container, headers, data, fields, tableClass, categoryTitle) {
+    const table = document.createElement('table');
+    table.className = tableClass;
+    table.style.width = tableClass === 'product-table' ? 'var(--table-width)' : 'var(--table-width)';
+    table.style.maxWidth = tableClass === 'product-table' ? 'var(--table-max-width)' : 'var(--table-max-width)';
+
+    // Normalize categoryTitle for data-attribute
+    const normalizedCategory = categoryTitle
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+    table.dataset.category = normalizedCategory;
+
+    // Determine productType based on category or tableClass
+    let productType;
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     const foodCategories = ['pizzas', 'alitas', 'sopas', 'ensaladas', 'carnes'];
     const beverageCategories = ['cocteleria', 'refrescos', 'cervezas', 'cafe', 'postres'];
 
     if (foodCategories.includes(normalizedCategory)) {
+<<<<<<< HEAD
       return 'food';
     } else if (beverageCategories.includes(normalizedCategory)) {
       return 'beverage';
@@ -464,11 +611,32 @@ const ProductRenderer = {
     titleRow.className = 'title-row';
     const titleCell = document.createElement('td');
     titleCell.colSpan = headerLength;
+=======
+      productType = 'food';
+    } else if (beverageCategories.includes(normalizedCategory)) {
+      productType = 'beverage';
+    } else if (tableClass === 'liquor-table' || normalizedCategory === 'licores') { 
+      // normalizedCategory === 'licores' handles the main licores grid
+      // liquor-table handles subcategories like whisky, ron, etc.
+      productType = 'liquor';
+    } else {
+      productType = 'unknown'; 
+      logWarning(`Unknown product type for category: ${categoryTitle} (normalized: ${normalizedCategory})`);
+    }
+    table.dataset.productType = productType;
+    
+    // Add title at the top of the table
+    const titleRow = document.createElement('tr');
+    titleRow.className = 'title-row';
+    const titleCell = document.createElement('td');
+    titleCell.colSpan = headers.length;
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     const titleElement = document.createElement('h2');
     titleElement.className = 'page-title';
     titleElement.textContent = categoryTitle;
     titleCell.appendChild(titleElement);
     titleRow.appendChild(titleCell);
+<<<<<<< HEAD
     return titleRow;
   },
 
@@ -477,6 +645,16 @@ const ProductRenderer = {
     tableHead.appendChild(titleRow);
     
     const headerRow = document.createElement('tr');
+=======
+    
+    const tableHead = document.createElement('thead');
+    tableHead.appendChild(titleRow);
+    
+    // Create table header
+    const headerRow = document.createElement('tr');
+    
+    // Set data attribute for NOMBRE column position
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     headerRow.setAttribute('data-nombre-column', 'true');
     
     headers.forEach(header => {
@@ -489,6 +667,7 @@ const ProductRenderer = {
     });
     
     tableHead.appendChild(headerRow);
+<<<<<<< HEAD
     return tableHead;
   },
 
@@ -609,6 +788,101 @@ const ProductRenderer = {
 
   _getCategoryForModal: function(categoryTitle) {
     return categoryTitle && (categoryTitle.toLowerCase() === 'cervezas' || categoryTitle.toLowerCase() === 'refrescos') ? categoryTitle.toLowerCase() : null;
+=======
+    table.appendChild(tableHead);
+    
+    // Create table body
+    const tbody = document.createElement('tbody');
+    
+    data.forEach(item => {
+      const row = document.createElement('tr');
+      
+      fields.forEach(field => {
+        const td = document.createElement('td');
+        
+        if (field === 'nombre') {
+          td.className = 'product-name';
+          td.textContent = item[field];
+        } else if (field === 'ingredientes') {
+          td.className = 'product-ingredients';
+          td.textContent = item[field] || '';
+        } else if (field.includes('precio') || field === 'precioBotella' || field === 'precioLitro' || field === 'precioCopa') {
+          td.className = 'product-price';
+          const priceButton = document.createElement('button');
+          
+          // Check if price is '--' or null/undefined
+          const priceValue = item[field];
+          if (!priceValue || priceValue === '--') {
+            priceButton.textContent = '--';
+            priceButton.className = 'price-button non-selectable';
+            priceButton.disabled = true;
+          } else {
+            priceButton.className = 'price-button';
+            priceButton.textContent = priceValue;
+            priceButton.dataset.productName = item.nombre;
+            priceButton.dataset.priceType = field;
+          }
+          
+          td.appendChild(priceButton);
+        } else if (field === 'video') {
+          td.className = 'video-icon';
+          if (item[field]) {
+            // Get the thumbnail URL by mapping from the video URL
+            const thumbnailUrl = this.getThumbnailUrl(item[field], item.nombre, fields[0] === 'nombre' ? item.nombre : '');
+            
+            // Create thumbnail image for the video
+            const thumbnailImg = document.createElement('img');
+            thumbnailImg.className = 'video-thumb';
+            thumbnailImg.src = thumbnailUrl;
+            thumbnailImg.alt = `Ver video de ${item.nombre}`;
+            thumbnailImg.dataset.videoUrl = item[field];
+            thumbnailImg.addEventListener('click', () => {
+              const category = categoryTitle && (categoryTitle.toLowerCase() === 'cervezas' || categoryTitle.toLowerCase() === 'refrescos') ? categoryTitle.toLowerCase() : null;
+              this.showVideoModal(item[field], item.nombre, category);
+            });
+            
+            td.appendChild(thumbnailImg);
+          } else {
+            td.textContent = '--';
+          }
+        } else if (field === 'imagen' || field === 'ruta_archivo') {
+          td.className = 'image-icon';
+          if (item[field]) {
+            const img = document.createElement('img');
+            img.src = item[field];
+            img.alt = item.nombre;
+            
+            // Check if this is a beverage category (cervezas or refrescos) or liquor subcategory for larger images
+            const liquorCategories = ['whisky', 'tequila', 'ron', 'vodka', 'ginebra', 'mezcal', 'cognac', 'brandy', 'digestivos', 'espumosos'];
+            const isBeverage = categoryTitle && (categoryTitle.toLowerCase() === 'cervezas' || categoryTitle.toLowerCase() === 'refrescos');
+            const isLiquorSubcategory = categoryTitle && liquorCategories.includes(categoryTitle.toLowerCase());
+            const imageSize = (isBeverage || isLiquorSubcategory) ? '70px' : '40px'; // 75% total increase for beverages and liquor subcategories (40 * 1.75 = 70)
+            
+            img.style.width = imageSize;
+            img.style.height = imageSize;
+            img.style.objectFit = 'contain';
+            img.style.cursor = 'pointer';
+            img.addEventListener('click', () => {
+              const category = categoryTitle && (categoryTitle.toLowerCase() === 'cervezas' || categoryTitle.toLowerCase() === 'refrescos') ? categoryTitle.toLowerCase() : null;
+              this.showImageModal(item[field], item.nombre, category);
+            });
+            td.appendChild(img);
+          } else {
+            td.textContent = '--';
+          }
+        } else {
+          td.textContent = item[field] || '';
+        }
+        
+        row.appendChild(td);
+      });
+      
+      tbody.appendChild(row);
+    });
+    
+    table.appendChild(tbody);
+    container.appendChild(table);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   },
   
   // Create product grid view
@@ -671,15 +945,29 @@ const ProductRenderer = {
         videoThumbnail.className = 'video-thumbnail';
         videoThumbnail.src = this.getThumbnailUrl(item.video);
         videoThumbnail.alt = `Video de ${item.nombre}`;
+<<<<<<< HEAD
         videoThumbnail.dataset.videoUrl = item.video;
         // No individual event listener - handled by delegation
+=======
+        videoThumbnail.addEventListener('click', () => {
+          const category = categoryTitle && (categoryTitle.toLowerCase() === 'cervezas' || categoryTitle.toLowerCase() === 'refrescos') ? categoryTitle.toLowerCase() : null;
+          this.showVideoModal(item.video, item.nombre, category);
+        });
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
         mediaContainer.appendChild(videoThumbnail);
       } else if (item.imagen || item.ruta_archivo) {
         const image = document.createElement('img');
         image.className = 'product-image';
         image.src = item.imagen || item.ruta_archivo;
         image.alt = item.nombre;
+<<<<<<< HEAD
         // No individual event listener - handled by delegation
+=======
+        image.addEventListener('click', () => {
+          const category = categoryTitle && (categoryTitle.toLowerCase() === 'cervezas' || categoryTitle.toLowerCase() === 'refrescos') ? categoryTitle.toLowerCase() : null;
+          this.showImageModal(item.imagen || item.ruta_archivo, item.nombre, category);
+        });
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
         mediaContainer.appendChild(image);
       }
       
@@ -730,7 +1018,37 @@ const ProductRenderer = {
               priceButton.dataset.price = priceValue;
               priceButton.dataset.field = field;
               
+<<<<<<< HEAD
               // No individual event listener - handled by delegation
+=======
+              // Add click event for order system
+              priceButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                console.log('[GRID DEBUG] Price button clicked:', {
+                  productName: e.target.dataset.productName,
+                  priceText: e.target.textContent,
+                  field: e.target.dataset.field,
+                  orderSystemExists: !!window.OrderSystem,
+                  isOrderMode: window.OrderSystem?.isOrderMode,
+                  handleProductSelectionExists: !!window.OrderSystem?.handleProductSelection
+                });
+                
+                if (window.OrderSystem && window.OrderSystem.handleProductSelection) {
+                  const productName = e.target.dataset.productName;
+                  const priceText = e.target.textContent;
+                  const productCard = e.target.closest('.product-card');
+                  console.log('[GRID DEBUG] Calling handleProductSelection with:', {
+                    productName,
+                    priceText,
+                    productCard,
+                    hasDataset: !!productCard?.dataset
+                  });
+                  window.OrderSystem.handleProductSelection(productName, priceText, productCard, e);
+                } else {
+                  console.error('[GRID DEBUG] OrderSystem not available or handleProductSelection missing');
+                }
+              });
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
               
               priceItem.appendChild(priceButton);
               pricesContainer.appendChild(priceItem);
@@ -743,7 +1061,35 @@ const ProductRenderer = {
               priceButton.dataset.price = priceValue;
               priceButton.dataset.field = field;
               
+<<<<<<< HEAD
               // No individual event listener - handled by delegation
+=======
+              // Add click event for order system
+              priceButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                console.log('[GRID DEBUG] Price button clicked (non-liquor):', {
+                  productName: e.target.dataset.productName,
+                  priceText: e.target.textContent,
+                  field: e.target.dataset.field,
+                  orderSystemExists: !!window.OrderSystem,
+                  isOrderMode: window.OrderSystem?.isOrderMode
+                });
+                
+                if (window.OrderSystem && window.OrderSystem.handleProductSelection) {
+                  const productName = e.target.dataset.productName;
+                  const priceText = e.target.textContent;
+                  const productCard = e.target.closest('.product-card');
+                  console.log('[GRID DEBUG] Calling handleProductSelection (non-liquor) with:', {
+                    productName,
+                    priceText,
+                    productCard
+                  });
+                  window.OrderSystem.handleProductSelection(productName, priceText, productCard, e);
+                } else {
+                  console.error('[GRID DEBUG] OrderSystem not available for non-liquor product');
+                }
+              });
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
               
               pricesContainer.appendChild(priceButton);
             }
@@ -773,7 +1119,12 @@ const ProductRenderer = {
         if (nameElement) {
           // Remove any previous truncation attributes
           nameElement.removeAttribute('data-truncated');
+<<<<<<< HEAD
           nameElement.classList.remove('height-auto', 'min-height-auto');
+=======
+          nameElement.style.removeProperty('height');
+          nameElement.style.removeProperty('min-height');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
         }
         
         // Handle product ingredients only
@@ -795,7 +1146,12 @@ const ProductRenderer = {
     // Reset any previous modifications
     element.textContent = originalText;
     element.removeAttribute('data-truncated');
+<<<<<<< HEAD
     element.classList.remove('height-auto', 'min-height-auto');
+=======
+    element.style.removeProperty('height');
+    element.style.removeProperty('min-height');
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     
     // Force a reflow to get accurate measurements
     element.offsetHeight;
@@ -892,6 +1248,7 @@ const ProductRenderer = {
     // Create modal backdrop
     const modalBackdrop = document.createElement('div');
     modalBackdrop.className = 'modal-backdrop';
+<<<<<<< HEAD
     
     // Create modal content
     const modalContent = document.createElement('div');
@@ -899,10 +1256,42 @@ const ProductRenderer = {
     if (category) {
       modalContent.setAttribute('data-category', category);
     }
+=======
+    modalBackdrop.style.position = 'fixed';
+    modalBackdrop.style.top = '0';
+    modalBackdrop.style.left = '0';
+    modalBackdrop.style.width = '100%';
+    modalBackdrop.style.height = '100%';
+    modalBackdrop.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    modalBackdrop.style.display = 'flex';
+    modalBackdrop.style.justifyContent = 'center';
+    modalBackdrop.style.alignItems = 'center';
+    modalBackdrop.style.zIndex = '9999';
+    
+    // Create modal content
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content image-modal';
+    if (category) {
+      modalContent.setAttribute('data-category', category);
+    }
+    modalContent.style.position = 'relative';
+    modalContent.style.width = '80%';
+    modalContent.style.maxWidth = '800px';
+    modalContent.style.padding = '20px';
+    modalContent.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+    modalContent.style.borderRadius = '10px';
+    modalContent.style.boxShadow = '0 0 20px var(--primary-light)';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     
     // Add title
     const modalTitle = document.createElement('h3');
     modalTitle.textContent = title;
+<<<<<<< HEAD
+=======
+    modalTitle.style.color = 'var(--primary-color)';
+    modalTitle.style.marginBottom = '15px';
+    modalTitle.style.textAlign = 'center';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     modalContent.appendChild(modalTitle);
     
     // Add video
@@ -910,20 +1299,39 @@ const ProductRenderer = {
     video.src = videoUrl;
     video.controls = true;
     video.autoplay = true;
+<<<<<<< HEAD
+=======
+    video.style.width = '100%';
+    video.style.borderRadius = '5px';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     
     // Add error handling for video loading
     video.addEventListener('error', (e) => {
       logWarning('Video loading error', e, { videoUrl });
+<<<<<<< HEAD
       video.className = 'video-hidden';
       
       const errorMessage = document.createElement('p');
       errorMessage.textContent = 'Video no disponible en este momento';
       errorMessage.className = 'error-message';
+=======
+      video.style.display = 'none';
+      
+      const errorMessage = document.createElement('p');
+      errorMessage.textContent = 'Video no disponible en este momento';
+      errorMessage.style.color = 'var(--text-color)';
+      errorMessage.style.textAlign = 'center';
+      errorMessage.style.padding = '20px';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       modalContent.insertBefore(errorMessage, video.nextSibling);
     });
     
     video.addEventListener('loadstart', () => {
+<<<<<<< HEAD
       Logger.info('Loading video:', videoUrl);
+=======
+      console.log('Loading video:', videoUrl);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     });
     
     modalContent.appendChild(video);
@@ -931,6 +1339,7 @@ const ProductRenderer = {
     // Add close button
     const closeButton = document.createElement('button');
     closeButton.textContent = 'Cerrar';
+<<<<<<< HEAD
     closeButton.className = 'nav-button modal-close-btn';
     closeButton.dataset.modalId = 'video-modal';
     // No individual event listener - handled by delegation
@@ -940,6 +1349,28 @@ const ProductRenderer = {
     modalBackdrop.className += ' video-modal-backdrop';
     modalBackdrop.appendChild(modalContent);
     document.body.appendChild(modalBackdrop);
+=======
+    closeButton.className = 'nav-button';
+    closeButton.style.marginTop = '15px';
+    closeButton.style.padding = '8px 15px';
+    closeButton.style.display = 'block';
+    closeButton.style.margin = '15px auto 0';
+    closeButton.addEventListener('click', () => {
+      document.body.removeChild(modalBackdrop);
+    });
+    modalContent.appendChild(closeButton);
+    
+    // Add modal to body
+    modalBackdrop.appendChild(modalContent);
+    document.body.appendChild(modalBackdrop);
+    
+    // Close modal on backdrop click
+    modalBackdrop.addEventListener('click', (e) => {
+      if (e.target === modalBackdrop) {
+        document.body.removeChild(modalBackdrop);
+      }
+    });
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   },
 
   showImageModal: function(imageUrl, title, category = null) {
@@ -960,11 +1391,21 @@ const ProductRenderer = {
     const image = document.createElement('img');
     image.src = imageUrl;
     image.alt = title;
+<<<<<<< HEAD
+=======
+    image.style.maxWidth = '100%';
+    image.style.maxHeight = '60vh';
+    image.style.objectFit = 'contain';
+    image.style.margin = '15px 0';
+    image.style.borderRadius = '10px';
+    image.style.boxShadow = '0 0 20px var(--price-color)';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     modalContent.appendChild(image);
     
     // Add close button
     const closeButton = document.createElement('button');
     closeButton.textContent = 'Cerrar';
+<<<<<<< HEAD
     closeButton.className = 'nav-button modal-close-btn';
     closeButton.dataset.modalId = 'image-modal';
     // No individual event listener - handled by delegation
@@ -1007,6 +1448,31 @@ const ProductRenderer = {
       }
     }
     
+=======
+    closeButton.className = 'nav-button';
+    closeButton.style.marginTop = '15px';
+    closeButton.style.padding = '8px 15px';
+    closeButton.style.display = 'block';
+    closeButton.style.margin = '15px auto 0';
+    closeButton.addEventListener('click', () => {
+      document.body.removeChild(modalBackdrop);
+    });
+    modalContent.appendChild(closeButton);
+    
+    // Add modal to body
+    modalBackdrop.appendChild(modalContent);
+    document.body.appendChild(modalBackdrop);
+    
+    // Close modal on backdrop click
+    modalBackdrop.addEventListener('click', (e) => {
+      if (e.target === modalBackdrop) {
+        document.body.removeChild(modalBackdrop);
+      }
+    });
+  },
+
+  renderLicores: function(container) {
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     const licoresHTML = `
       <div class="category-grid" data-product-type="liquor" data-category="licores">
         <h2 class="page-title">Licores</h2>
@@ -1019,10 +1485,24 @@ const ProductRenderer = {
     
     // Contenido dinámico: HTML generado con datos internos de ProductData.licoresCategories
     // Aunque los datos son controlados, se usa sanitización como medida preventiva
+<<<<<<< HEAD
     setSafeInnerHTML(targetContainer, licoresHTML);
     
     // No individual event listeners needed - handled by delegation
     // Category cards will be handled by the centralized event system
+=======
+    setSafeInnerHTML(container, licoresHTML);
+    
+    // Add click handlers for licores categories
+    const categoryCards = container.querySelectorAll('.category-card');
+    
+    categoryCards.forEach((card) => {
+      card.addEventListener('click', (e) => {
+        const category = card.getAttribute('data-category');
+        this.renderLicorSubcategory(container, category);
+      });
+    });
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
   },
 
   createLicoresCategories: function() {
@@ -1039,6 +1519,7 @@ const ProductRenderer = {
     return html;
   },
 
+<<<<<<< HEAD
   renderLicorSubcategory: async function(container, category) {
     Logger.info(`🍾 Navegando hacia subcategoría de licores: ${category}`);
     
@@ -1098,6 +1579,11 @@ const ProductRenderer = {
         return;
       }
     }
+=======
+  renderLicorSubcategory: function(container, category) {
+    // Asignación segura: limpieza con cadena vacía, sin riesgo XSS
+    container.innerHTML = '';
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     
     // Back button container for positioning below hamburger
     const backButtonContainer = document.createElement('div');
@@ -1110,10 +1596,19 @@ const ProductRenderer = {
     backButton.innerHTML = '←';
     backButton.title = 'Volver a Licores';
     
+<<<<<<< HEAD
     // No individual event listener - handled by delegation
     
     backButtonContainer.appendChild(backButton);
     targetContainer.appendChild(backButtonContainer);
+=======
+    backButton.addEventListener('click', () => {
+      this.renderLicores(container);
+    });
+    
+    backButtonContainer.appendChild(backButton);
+    container.appendChild(backButtonContainer);
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
 
     // Update the title for all subcategory renderings
     const categoryTitle = category.charAt(0).toUpperCase() + category.slice(1);
@@ -1121,6 +1616,7 @@ const ProductRenderer = {
     // Load specific subcategory
     switch(category) {
       case 'whisky':
+<<<<<<< HEAD
         await this.renderWhisky(targetContainer, categoryTitle);
         break;
       case 'tequila':
@@ -1176,6 +1672,45 @@ const ProductRenderer = {
 
   // Generic liquor renderer - eliminates code duplication
   renderLiquorCategory: async function(container, subcategory, title) {
+=======
+        this.renderWhisky(container, categoryTitle);
+        break;
+      case 'tequila':
+        this.renderTequila(container, categoryTitle);
+        break;
+      case 'ron':
+        this.renderRon(container, categoryTitle);
+        break;
+      case 'vodka':
+        this.renderVodka(container, categoryTitle);
+        break;
+      case 'brandy':
+        this.renderBrandy(container, categoryTitle);
+        break;
+      case 'ginebra':
+        this.renderGinebra(container, categoryTitle);
+        break;
+      case 'mezcal':
+        this.renderMezcal(container, categoryTitle);
+        break;
+      case 'cognac':
+        this.renderCognac(container, categoryTitle);
+        break;
+      case 'digestivos':
+        this.renderDigestivos(container, categoryTitle);
+        break;
+      case 'espumosos':
+        this.renderEspumosos(container, categoryTitle);
+        break;
+      default:
+        // Asignación segura: cadena estática sin riesgo XSS
+        container.innerHTML += '<p>Categoría no disponible</p>';
+    }
+  },
+
+  // Generic liquor renderer - eliminates code duplication
+  renderLiquorCategory: function(container, subcategory, title) {
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     const productRepository = getProductRepository();
     
     // Add view toggle button
@@ -1185,6 +1720,7 @@ const ProductRenderer = {
     const liquorFields = ['nombre', 'imagen', 'precioBotella', 'precioLitro', 'precioCopa'];
     const liquorHeaders = ['NOMBRE', 'IMAGEN', 'PRECIO BOTELLA', 'PRECIO LITRO', 'PRECIO COPA'];
     
+<<<<<<< HEAD
     try {
       const data = await productRepository.getLiquorSubcategory(subcategory);
       
@@ -1206,10 +1742,27 @@ const ProductRenderer = {
     } catch (error) {
       logError(`Error rendering ${title}:`, error);
       container.innerHTML += `<p>Error cargando ${title}. Por favor, intente de nuevo.</p>`;
+=======
+    if (this.currentViewMode === 'grid') {
+      this.createProductGrid(container, 
+        productRepository.getLiquorSubcategory(subcategory), 
+        liquorFields,
+        title
+      );
+    } else {
+      this.createProductTable(container, 
+        liquorHeaders, 
+        productRepository.getLiquorSubcategory(subcategory), 
+        liquorFields,
+        'liquor-table',
+        title
+      );
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     }
   },
 
   // Optimized render methods using generic function
+<<<<<<< HEAD
   renderWhisky: async function(container, title = 'Whisky') {
     await this.renderLiquorCategory(container, 'whisky', title);
   },
@@ -1243,12 +1796,48 @@ const ProductRenderer = {
   },
 
   renderDigestivos: async function(container, title = 'Digestivos') {
+=======
+  renderWhisky: function(container, title = 'Whisky') {
+    this.renderLiquorCategory(container, 'whiskies', title);
+  },
+
+  renderTequila: function(container, title = 'Tequila') {
+    this.renderLiquorCategory(container, 'tequilas', title);
+  },
+
+  renderRon: function(container, title = 'Ron') {
+    this.renderLiquorCategory(container, 'rones', title);
+  },
+
+  renderVodka: function(container, title = 'Vodka') {
+    this.renderLiquorCategory(container, 'vodkas', title);
+  },
+
+  renderGinebra: function(container, title = 'Ginebra') {
+    this.renderLiquorCategory(container, 'ginebras', title);
+  },
+
+  renderMezcal: function(container, title = 'Mezcal') {
+    this.renderLiquorCategory(container, 'mezcales', title);
+  },
+
+  renderCognac: function(container, title = 'Cognac') {
+    this.renderLiquorCategory(container, 'cognacs', title);
+  },
+
+  renderBrandy: function(container, title = 'Brandy') {
+    this.renderLiquorCategory(container, 'brandies', title);
+  },
+
+  renderDigestivos: function(container, title = 'Digestivos') {
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     const productRepository = getProductRepository();
     
     // Add view toggle button
     const toggleElement = this.createViewToggle(container);
     container.appendChild(toggleElement);
     
+<<<<<<< HEAD
     try {
       const data = await productRepository.getLiquorSubcategory('digestivos');
       
@@ -1278,12 +1867,33 @@ const ProductRenderer = {
   },
 
   renderCervezas: async function(container) {
+=======
+    if (this.currentViewMode === 'grid') {
+      this.createProductGrid(container, 
+        productRepository.getLiquorSubcategory('digestivos'), 
+        ['nombre', 'imagen', 'precioBotella', 'precioLitro', 'precioCopa'],
+        title
+      );
+    } else {
+      this.createProductTable(container, 
+        ['NOMBRE', 'IMAGEN', 'PRECIO BOTELLA', 'PRECIO LITRO', 'PRECIO COPA'], 
+        productRepository.getLiquorSubcategory('digestivos'), 
+        ['nombre', 'imagen', 'precioBotella', 'precioLitro', 'precioCopa'],
+        'liquor-table',
+        title
+      );
+    }
+  },
+
+  renderEspumosos: function(container, title = 'Espumosos') {
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     const productRepository = getProductRepository();
     
     // Add view toggle button
     const toggleElement = this.createViewToggle(container);
     container.appendChild(toggleElement);
     
+<<<<<<< HEAD
     try {
       const data = await productRepository.getCervezas();
       
@@ -1311,12 +1921,33 @@ const ProductRenderer = {
   },
 
   renderPizzas: async function(container) {
+=======
+    if (this.currentViewMode === 'grid') {
+      this.createProductGrid(container, 
+        productRepository.getLiquorSubcategory('espumosos'), 
+        ['nombre', 'imagen', 'precioBotella'],
+        title
+      );
+    } else {
+      this.createProductTable(container, 
+        ['NOMBRE', 'IMAGEN', 'PRECIO BOTELLA'], 
+        productRepository.getLiquorSubcategory('espumosos'), 
+        ['nombre', 'imagen', 'precioBotella'],
+        'liquor-table',
+        title
+      );
+    }
+  },
+
+  renderCervezas: function(container) {
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     const productRepository = getProductRepository();
     
     // Add view toggle button
     const toggleElement = this.createViewToggle(container);
     container.appendChild(toggleElement);
     
+<<<<<<< HEAD
     try {
       const data = await productRepository.getPizzas();
       
@@ -1340,11 +1971,55 @@ const ProductRenderer = {
       // Preserve sidebar when showing error
       const targetContainer = container.id === 'content-container' ? container : document.getElementById('content-container') || container;
       targetContainer.innerHTML = '<p>Error cargando Pizzas. Por favor, intente de nuevo.</p>';
+=======
+    if (this.currentViewMode === 'grid') {
+      this.createProductGrid(container, 
+        productRepository.getCervezas(), 
+        ['nombre', 'ruta_archivo', 'precio'],
+        'Cervezas'
+      );
+    } else {
+      this.createProductTable(container, 
+        ['NOMBRE', 'IMAGEN', 'PRECIO'], 
+        productRepository.getCervezas(), 
+        ['nombre', 'ruta_archivo', 'precio'],
+        'product-table',
+        'Cervezas'
+      );
+    }
+  },
+
+  renderPizzas: function(container) {
+    const productRepository = getProductRepository();
+    
+    // Add view toggle button
+    const toggleElement = this.createViewToggle(container);
+    container.appendChild(toggleElement);
+    
+    if (this.currentViewMode === 'grid') {
+      this.createProductGrid(container, 
+        productRepository.getPizzas(), 
+        ['nombre', 'ingredientes', 'video', 'precio'],
+        'Pizzas'
+      );
+    } else {
+      this.createProductTable(container, 
+        ['NOMBRE', 'INGREDIENTES', 'VIDEO', 'PRECIO'], 
+        productRepository.getPizzas(), 
+        ['nombre', 'ingredientes', 'video', 'precio'],
+        'product-table',
+        'Pizzas'
+      );
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     }
   },
 
   // Generic food/beverage renderer - eliminates code duplication
+<<<<<<< HEAD
   renderFoodCategory: async function(container, methodName, title, fields = null, headers = null) {
+=======
+  renderFoodCategory: function(container, methodName, title, fields = null, headers = null) {
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     const productRepository = getProductRepository();
     
     // Add view toggle button
@@ -1358,6 +2033,7 @@ const ProductRenderer = {
     const finalFields = fields || defaultFields;
     const finalHeaders = headers || defaultHeaders;
     
+<<<<<<< HEAD
     try {
       const data = await productRepository[methodName]();
       
@@ -1379,10 +2055,27 @@ const ProductRenderer = {
     } catch (error) {
       logError(`Error rendering ${title}:`, error);
       container.innerHTML = `<p>Error cargando ${title}. Por favor, intente de nuevo.</p>`;
+=======
+    if (this.currentViewMode === 'grid') {
+      this.createProductGrid(container, 
+        productRepository[methodName](), 
+        finalFields,
+        title
+      );
+    } else {
+      this.createProductTable(container, 
+        finalHeaders, 
+        productRepository[methodName](), 
+        finalFields,
+        'product-table',
+        title
+      );
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
     }
   },
 
   // Optimized render methods using generic function
+<<<<<<< HEAD
   renderAlitas: async function(container) {
     await this.renderFoodCategory(container, 'getAlitas', 'Alitas');
   },
@@ -1409,11 +2102,40 @@ const ProductRenderer = {
 
   renderRefrescos: async function(container) {
     await this.renderFoodCategory(container, 'getRefrescos', 'Refrescos', 
+=======
+  renderAlitas: function(container) {
+    this.renderFoodCategory(container, 'getAlitas', 'Alitas');
+  },
+
+  renderSopas: function(container) {
+    this.renderFoodCategory(container, 'getSopas', 'Sopas');
+  },
+
+  renderEnsaladas: function(container) {
+    this.renderFoodCategory(container, 'getEnsaladas', 'Ensaladas');
+  },
+
+  renderCarnes: function(container) {
+    this.renderFoodCategory(container, 'getCarnes', 'Carnes');
+  },
+
+  renderCafe: function(container) {
+    this.renderFoodCategory(container, 'getCafe', 'Café');
+  },
+
+  renderPostres: function(container) {
+    this.renderFoodCategory(container, 'getPostres', 'Postres');
+  },
+
+  renderRefrescos: function(container) {
+    this.renderFoodCategory(container, 'getRefrescos', 'Refrescos', 
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
       ['nombre', 'ruta_archivo', 'precio'], 
       ['NOMBRE', 'IMAGEN', 'PRECIO']
     );
   },
 
+<<<<<<< HEAD
   renderCocktails: async function(container) {
     await this.renderFoodCategory(container, 'getCocteles', 'Coctelería');
   },
@@ -1422,4 +2144,11 @@ const ProductRenderer = {
 // Make ProductRenderer globally available for legacy compatibility
 window.ProductRenderer = ProductRenderer;
 
+=======
+  renderCocktails: function(container) {
+    this.renderFoodCategory(container, 'getCocteles', 'Coctelería');
+  },
+};
+
+>>>>>>> 34752f30846b6a9c833ec3d7880f20e981ac47c4
 export default ProductRenderer;
