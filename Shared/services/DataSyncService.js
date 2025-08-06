@@ -1,5 +1,6 @@
 import { SYNC_CONFIG } from '../config/constants.js';
-import Logger from '../utils/logger.js';
+// Global utilities are now available via window object
+// Logger is available globally
 
 /**
  * Data Synchronization Service

@@ -31,10 +31,8 @@ import DIContainer from '../core/DIContainer.js';
 import ProductDataAdapter from '../../Infraestructura/adapters/ProductDataAdapter.js';
 import AppConfig from '../core/AppConfig.js';
 // Import shared utilities
-import { setSafeInnerHTML } from '../utils/domUtils.js';
-import { ErrorHandler, logError, logWarning } from '../utils/errorHandler.js';
-import Logger from '../utils/logger.js';
-import SimpleCache from '../utils/simpleCache.js';
+// Global utilities are now available via window object
+// setSafeInnerHTML, ErrorHandler, logError, logWarning, Logger, SimpleCache are available globally
 import { DEBUG, UI, PERFORMANCE, CACHE_KEYS } from './constants.js';
 
 /* initial view timing in milliseconds */

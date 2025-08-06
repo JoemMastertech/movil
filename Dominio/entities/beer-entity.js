@@ -1,6 +1,6 @@
 import { BaseEntity } from '../../Shared/base/BaseEntity.js';
-import Validator from '../../Shared/utils/validator.js';
-import { formatProductName, formatPrice } from '../../Shared/utils/formatters.js';
+// Global utilities are now available via window object
+// Validator, formatProductName, formatPrice are available globally
 
 class BeerEntity extends BaseEntity {
   constructor(id, nombre, imagen, precio) {

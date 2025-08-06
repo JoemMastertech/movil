@@ -1,6 +1,6 @@
 import { BaseEntity } from '../../Shared/base/BaseEntity.js';
-import Validator from '../../Shared/utils/validator.js';
-import { formatProductName, formatIngredients, formatPrice } from '../../Shared/utils/formatters.js';
+// Global utilities are now available via window object
+// Validator, formatProductName, formatIngredients, formatPrice are available globally
 
 /**
  * Entidad Cocktail - Representa un cóctel en el dominio

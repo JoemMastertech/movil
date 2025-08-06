@@ -1,10 +1,10 @@
 import ProductData from '../data-providers/product-data.js';
 import BaseAdapter from './BaseAdapter.js';
 import AppConfig from '../../Shared/core/AppConfig.js';
-import { formatPrice, formatProductName } from '../../Shared/utils/formatters.js';
 import DataSyncService from '../../Shared/services/DataSyncService.js';
 import { SYNC_CONFIG } from '../../Shared/config/constants.js';
-import Logger from '../../Shared/utils/logger.js';
+// Global utilities are now available via window object
+// formatPrice, formatProductName, Logger are available globally
 
 /**
  * Product Data Adapter - Infrastructure implementation of ProductRepositoryPort

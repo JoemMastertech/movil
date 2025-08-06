@@ -1,6 +1,7 @@
 import { BUSINESS_RULES, VALIDATION, MESSAGES } from '../../../../Shared/config/constants.js';
-import Logger from '../../../../Shared/utils/logger.js';
-import { isJuiceOption } from '../../../../Shared/utils/calculationUtils.js';
+
+// Global utilities are now available via window object
+// Logger, isJuiceOption are available globally
 
 /**
  * Centralized validation module for OrderSystem

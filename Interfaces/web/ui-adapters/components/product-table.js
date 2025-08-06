@@ -1,9 +1,7 @@
 // ProductData is now accessed through DI Container
 // Import shared utilities
-import { getProductRepository } from '../../../../Shared/utils/diUtils.js';
-import { setSafeInnerHTML } from '../../../../Shared/utils/domUtils.js';
-import { logError, logWarning } from '../../../../Shared/utils/errorHandler.js';
-import Logger from '../../../../Shared/utils/logger.js';
+// Global utilities are now available via window object
+// getProductRepository, setSafeInnerHTML, logError, logWarning, Logger are available globally
 
 const ProductRenderer = {
   // Current view mode: 'table' or 'grid'

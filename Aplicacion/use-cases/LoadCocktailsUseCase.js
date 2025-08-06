@@ -1,6 +1,5 @@
-import Logger from '../../Shared/utils/logger.js';
-import ErrorHandler from '../../Shared/utils/errorHandler.js';
-import SimpleCache from '../../Shared/utils/simpleCache.js';
+// Global utilities are now available via window object
+// Logger, ErrorHandler, SimpleCache are available globally
 import { CACHE_KEYS, CACHE_CONFIG } from '../../Shared/config/constants.js';
 
 class LoadCocktailsUseCase {

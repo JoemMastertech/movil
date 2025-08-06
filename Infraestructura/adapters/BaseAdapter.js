@@ -1,6 +1,5 @@
-import Logger from '../../Shared/utils/logger.js';
-import { ErrorHandler } from '../../Shared/utils/errorHandler.js';
-import Validator from '../../Shared/utils/validator.js';
+// Global utilities are now available via window object
+// Logger, ErrorHandler, Validator are available globally
 
 /**
  * Base Adapter - Common functionality for all infrastructure adapters

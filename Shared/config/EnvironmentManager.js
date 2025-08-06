@@ -1,6 +1,6 @@
-import { logError, logWarning } from '../utils/errorHandler.js';
+// Global utilities are now available via window object
+// logError, logWarning, Logger are available globally
 import { DEBUG } from './constants.js';
-import Logger from '../utils/logger.js';
 
 class ConfigValidator {
   constructor() {

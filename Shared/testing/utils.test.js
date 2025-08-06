@@ -20,8 +20,8 @@ import {
   spyOn 
 } from './test-framework.js';
 
-import { logError, logWarning, handleMissingElementError } from '../utils/errorHandler.js';
-import { setSafeInnerHTML, showModal, hideModal } from '../utils/domUtils.js';
+// Global utilities are now available via window object
+// logError, logWarning, handleMissingElementError, setSafeInnerHTML, showModal, hideModal are available globally
 import { 
   calculateTotalDrinkCount, 
   calculateTotalJuiceCount, 

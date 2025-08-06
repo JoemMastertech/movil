@@ -4,7 +4,8 @@
  * Follows YAGNI principles with advanced performance optimizations
  */
 
-import { formatPrice, formatProductName } from '../../../../Shared/utils/formatters.js';
+// Global utilities are now available via window object
+// formatPrice, formatProductName are available globally
 
 class ProductCarousel {
   constructor(container, products = []) {

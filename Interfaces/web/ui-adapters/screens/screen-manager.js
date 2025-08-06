@@ -4,7 +4,8 @@
  * Eliminates callback hell and provides better error handling
  */
 
-import Logger from '../../../../Shared/utils/logger.js';
+// Global utilities are now available via window object
+// Logger is available globally
 
 /* Animation durations in milliseconds */
 const DURATIONS = {

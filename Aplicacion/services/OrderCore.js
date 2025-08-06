@@ -1,5 +1,5 @@
-import Validator from '../../Shared/utils/validator.js';
-import { formatPrice } from '../../Shared/utils/formatters.js';
+// Global utilities are now available via window object
+// Validator, formatPrice are available globally
 
 class OrderSystemCore {
   constructor() {
