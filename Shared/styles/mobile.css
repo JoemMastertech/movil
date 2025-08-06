@@ -668,6 +668,16 @@
 
 /* PORTRAIT MOBILE - MÁXIMA ESPECIFICIDAD PARA EVITAR SOBRESCRITURA */
 @media (max-width: 480px) and (orientation: portrait) {
+  
+  /* SOBRESCRIBIR REGLAS DE MAIN.CSS QUE ESTABLECEN WIDTH 100% */
+  html body #app .product-table,
+  html body #app .liquor-table,
+  html body .product-table,
+  html body .liquor-table {
+    width: 95% !important;
+    max-width: 95% !important;
+    margin: 0 auto !important;
+  }
   /* MODO GRID: Contenedores principales */
   html body #app .content-container-flex .product-grid,
   html body #app .content-container-flex .category-grid,
@@ -704,17 +714,15 @@
     transform: none !important; /* Resetear cualquier transform */
   }
   
-  /* Forzar estilos con JavaScript si CSS no funciona */
-  @media screen and (max-width: 480px) and (orientation: portrait) {
-    .product-table,
-    .liquor-table {
-      width: 95% !important;
-      max-width: 95% !important;
-      margin: 0 auto !important;
-      padding: 10px !important;
-      box-sizing: border-box !important;
-      transform: none !important;
-    }
+  /* Estilos adicionales para asegurar aplicación */
+  .product-table,
+  .liquor-table {
+    width: 95% !important;
+    max-width: 95% !important;
+    margin: 0 auto !important;
+    padding: 10px !important;
+    box-sizing: border-box !important;
+    transform: none !important;
   }
   
   /* MODO TABLA: Contenedores de 4 columnas - Estandarizar usando diseño de Alitas */
@@ -724,6 +732,12 @@
   html body #app .product-table[data-category="postres"],
   html body #app .product-table[data-category="ensaladas"],
   html body #app .product-table[data-category="carnes"],
+  html body .product-table[data-category="alitas"],
+  html body .product-table[data-category="pizzas"],
+  html body .product-table[data-category="sopas"],
+  html body .product-table[data-category="postres"],
+  html body .product-table[data-category="ensaladas"],
+  html body .product-table[data-category="carnes"],
   body .product-table[data-category="alitas"],
   body .product-table[data-category="pizzas"],
   body .product-table[data-category="sopas"],
@@ -742,6 +756,7 @@
     padding: var(--mobile-padding) !important;
     box-sizing: border-box !important;
     transform: none !important;
+    overflow-x: auto !important;
   }
 
   /* MODO TABLA: Contenedores de 5 columnas - Reducir 15% */
@@ -755,6 +770,40 @@
   html body #app .liquor-table[data-category="brandy"],
   html body #app .liquor-table[data-category="digestivos"],
   html body #app .liquor-table[data-category="espumosos"],
+  html body #app .liquor-table[data-category="cocteleria"],
+  html body #app .product-table[data-category="whisky"],
+  html body #app .product-table[data-category="tequila"],
+  html body #app .product-table[data-category="ron"],
+  html body #app .product-table[data-category="vodka"],
+  html body #app .product-table[data-category="ginebra"],
+  html body #app .product-table[data-category="mezcal"],
+  html body #app .product-table[data-category="cognac"],
+  html body #app .product-table[data-category="brandy"],
+  html body #app .product-table[data-category="digestivos"],
+  html body #app .product-table[data-category="espumosos"],
+  html body #app .product-table[data-category="cocteleria"],
+  html body .liquor-table[data-category="whisky"],
+  html body .liquor-table[data-category="tequila"],
+  html body .liquor-table[data-category="ron"],
+  html body .liquor-table[data-category="vodka"],
+  html body .liquor-table[data-category="ginebra"],
+  html body .liquor-table[data-category="mezcal"],
+  html body .liquor-table[data-category="cognac"],
+  html body .liquor-table[data-category="brandy"],
+  html body .liquor-table[data-category="digestivos"],
+  html body .liquor-table[data-category="espumosos"],
+  html body .liquor-table[data-category="cocteleria"],
+  html body .product-table[data-category="whisky"],
+  html body .product-table[data-category="tequila"],
+  html body .product-table[data-category="ron"],
+  html body .product-table[data-category="vodka"],
+  html body .product-table[data-category="ginebra"],
+  html body .product-table[data-category="mezcal"],
+  html body .product-table[data-category="cognac"],
+  html body .product-table[data-category="brandy"],
+  html body .product-table[data-category="digestivos"],
+  html body .product-table[data-category="espumosos"],
+  html body .product-table[data-category="cocteleria"],
   body .liquor-table[data-category="whisky"],
   body .liquor-table[data-category="tequila"],
   body .liquor-table[data-category="ron"],
@@ -764,7 +813,19 @@
   body .liquor-table[data-category="cognac"],
   body .liquor-table[data-category="brandy"],
   body .liquor-table[data-category="digestivos"],
-  body .liquor-table[data-category="espumosos"] {
+  body .liquor-table[data-category="espumosos"],
+  body .liquor-table[data-category="cocteleria"],
+  body .product-table[data-category="whisky"],
+  body .product-table[data-category="tequila"],
+  body .product-table[data-category="ron"],
+  body .product-table[data-category="vodka"],
+  body .product-table[data-category="ginebra"],
+  body .product-table[data-category="mezcal"],
+  body .product-table[data-category="cognac"],
+  body .product-table[data-category="brandy"],
+  body .product-table[data-category="digestivos"],
+  body .product-table[data-category="espumosos"],
+  body .product-table[data-category="cocteleria"] {
     width: 80% !important; /* 95% - 15% = 80% */
     max-width: 80% !important;
     height: 85% !important; /* Reducir altura 15% */
@@ -772,7 +833,29 @@
     padding: var(--mobile-padding) !important;
     box-sizing: border-box !important;
     transform: none !important;
+    overflow-x: auto !important;
    }
+
+  /* Reglas adicionales para forzar overflow-x en tablas de coctelería */
+  html body #app .product-table[data-category="cocteleria"],
+  html body .product-table[data-category="cocteleria"],
+  body .product-table[data-category="cocteleria"],
+  .product-table[data-category="cocteleria"] {
+    overflow-x: auto !important;
+    width: 80% !important;
+    max-width: 80% !important;
+    margin: 0 auto !important;
+  }
+
+  /* Reglas adicionales para botones de precio en coctelería */
+  html body #app .product-table[data-category="cocteleria"] .price-button,
+  html body .product-table[data-category="cocteleria"] .price-button,
+  body .product-table[data-category="cocteleria"] .price-button,
+  .product-table[data-category="cocteleria"] .price-button {
+    font-size: 0.64rem !important;
+    padding: 4.8px 8px !important;
+    min-width: 48px !important;
+  }
 
   /* Reducir botones de precio 20% en todas las categorías afectadas */
   .product-table[data-category="alitas"] .price-button,
@@ -790,12 +873,24 @@
   .liquor-table[data-category="cognac"] .price-button,
   .liquor-table[data-category="brandy"] .price-button,
   .liquor-table[data-category="digestivos"] .price-button,
-  .liquor-table[data-category="espumosos"] .price-button {
+  .liquor-table[data-category="espumosos"] .price-button,
+  .liquor-table[data-category="cocteleria"] .price-button,
+  .product-table[data-category="whisky"] .price-button,
+  .product-table[data-category="tequila"] .price-button,
+  .product-table[data-category="ron"] .price-button,
+  .product-table[data-category="vodka"] .price-button,
+  .product-table[data-category="ginebra"] .price-button,
+  .product-table[data-category="mezcal"] .price-button,
+  .product-table[data-category="cognac"] .price-button,
+  .product-table[data-category="brandy"] .price-button,
+  .product-table[data-category="digestivos"] .price-button,
+  .product-table[data-category="espumosos"] .price-button,
+  .product-table[data-category="cocteleria"] .price-button {
     font-size: 0.64rem !important; /* Reducción del 20% desde 0.8rem */
     padding: 4.8px 8px !important; /* Reducción del 20% desde 6px 10px */
     min-width: 48px !important; /* Reducción del 20% desde 60px */
   }
- }
+}
 
 /* =================================================================
    SISTEMA DE CLASES AUXILIARES PARA AJUSTES MÓVILES
